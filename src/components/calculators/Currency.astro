@@ -1,6 +1,36 @@
 ---
-const COMMON_CURRENCIES = [
-  'GBP', 'USD', 'EUR', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY', 'INR', 'NZD', 'SEK', 'NOK', 'ZAR', 'SGD', 'HKD'
+// Every currency Frankfurter/the ECB publishes a reference rate for.
+const CURRENCIES = [
+  { code: 'AUD', name: 'Australian Dollar' },
+  { code: 'BRL', name: 'Brazilian Real' },
+  { code: 'CAD', name: 'Canadian Dollar' },
+  { code: 'CHF', name: 'Swiss Franc' },
+  { code: 'CNY', name: 'Chinese Renminbi Yuan' },
+  { code: 'CZK', name: 'Czech Koruna' },
+  { code: 'DKK', name: 'Danish Krone' },
+  { code: 'EUR', name: 'Euro' },
+  { code: 'GBP', name: 'British Pound' },
+  { code: 'HKD', name: 'Hong Kong Dollar' },
+  { code: 'HUF', name: 'Hungarian Forint' },
+  { code: 'IDR', name: 'Indonesian Rupiah' },
+  { code: 'ILS', name: 'Israeli New Shekel' },
+  { code: 'INR', name: 'Indian Rupee' },
+  { code: 'ISK', name: 'Icelandic Króna' },
+  { code: 'JPY', name: 'Japanese Yen' },
+  { code: 'KRW', name: 'South Korean Won' },
+  { code: 'MXN', name: 'Mexican Peso' },
+  { code: 'MYR', name: 'Malaysian Ringgit' },
+  { code: 'NOK', name: 'Norwegian Krone' },
+  { code: 'NZD', name: 'New Zealand Dollar' },
+  { code: 'PHP', name: 'Philippine Peso' },
+  { code: 'PLN', name: 'Polish Złoty' },
+  { code: 'RON', name: 'Romanian Leu' },
+  { code: 'SEK', name: 'Swedish Krona' },
+  { code: 'SGD', name: 'Singapore Dollar' },
+  { code: 'THB', name: 'Thai Baht' },
+  { code: 'TRY', name: 'Turkish Lira' },
+  { code: 'USD', name: 'United States Dollar' },
+  { code: 'ZAR', name: 'South African Rand' }
 ];
 ---
 
@@ -13,8 +43,8 @@ const COMMON_CURRENCIES = [
     <div class="field">
       <label class="label" for="cur-from">From</label>
       <select id="cur-from" class="input">
-        {COMMON_CURRENCIES.map((code) => (
-          <option value={code} selected={code === 'GBP'}>{code}</option>
+        {CURRENCIES.map((c) => (
+          <option value={c.code} selected={c.code === 'GBP'}>{c.code} — {c.name}</option>
         ))}
       </select>
     </div>
@@ -22,8 +52,8 @@ const COMMON_CURRENCIES = [
     <div class="field">
       <label class="label" for="cur-to">To</label>
       <select id="cur-to" class="input">
-        {COMMON_CURRENCIES.map((code) => (
-          <option value={code} selected={code === 'USD'}>{code}</option>
+        {CURRENCIES.map((c) => (
+          <option value={c.code} selected={c.code === 'USD'}>{c.code} — {c.name}</option>
         ))}
       </select>
     </div>

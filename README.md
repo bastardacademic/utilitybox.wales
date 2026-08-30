@@ -137,7 +137,8 @@ Hosted via [IONOS Deploy Now](https://www.ionos.com/hosting/deploy-now), which b
 ## Notes
 
 - All interactive tools run entirely client-side — no user data is sent to a server, except the currency converter, which fetches exchange rates from the public Frankfurter API.
-- The word dictionary in `public/data/dictionary.json` is a curated common-word list (~2,700 words). Swap it for a larger word list if you need full Scrabble-dictionary coverage.
+- The word dictionary in `public/data/dictionary.json` (10,468 words) merges the original curated list with the [Google 10,000 English words](https://github.com/first20hours/google-10000-english) list (MIT-licensed, swear-filtered variant). It's a common-word list, not a Scrabble dictionary — being frequency-derived, it includes a handful of oddities (e.g. "aa", lowercased proper nouns like "aaron"). Swap it for a curated Scrabble word list if that noise matters for your use case.
+- The currency converter offers all 30 currencies Frankfurter/the ECB publish reference rates for (see `CURRENCIES` in `Currency.astro`).
 - Tax and NI figures in the UK salary calculator reflect the 2024/25 tax year and are for guidance only.
 - Every tool page carries a `WebApplication` JSON-LD block (see `src/utils/seo.ts`) plus a `BreadcrumbList` block (added in `ToolLayout.astro`), a canonical URL, and Open Graph/Twitter Card tags (including the generated `og-image.png`) via `Layout.astro`.
 - Every calculator has a "Copy" or "Copy summary" button next to its result, plus a "🔗 Share" button that copies a link pre-filled with the current inputs via URL query params (see `src/utils/shareLink.ts`) — e.g. `/tools/network/?cidr=10.0.0.0/8`.
