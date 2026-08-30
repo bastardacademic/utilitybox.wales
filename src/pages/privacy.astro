@@ -6,7 +6,7 @@ const lastUpdated = 'August 2026';
 
 <Layout
   title="Privacy Policy"
-  description="How UtilityBox handles data: what runs in your browser, what our server sees, and what happens if we ever add ads or analytics."
+  description="How UtilityBox handles data: what runs in your browser, what our server sees, and how Google AdSense works on this site."
 >
   <div class="container privacy-page">
     <h1>Privacy Policy</h1>
@@ -25,7 +25,10 @@ const lastUpdated = 'August 2026';
       <h2>What happens on this site right now</h2>
       <ul>
         <li>We don't require accounts, logins, or any personal information to use any tool.</li>
-        <li>We don't set cookies or run any JavaScript analytics or tracking scripts.</li>
+        <li>
+          We don't run our own analytics and don't set any cookies ourselves. We do use Google AdSense to show
+          ads, and Google's ad script sets cookies of its own — see "Advertising" below.
+        </li>
         <li>
           Our web hosting provider's server automatically records standard access logs for every request
           (IP address, page requested, referrer, user agent, and timestamp), the same as almost any website.
@@ -55,11 +58,25 @@ const lastUpdated = 'August 2026';
     </section>
 
     <section>
-      <h2>Advertising and analytics</h2>
+      <h2>Advertising</h2>
       <p>
-        This site does not currently show ads or run analytics software. If that changes — for example, if we
-        add Google AdSense or a privacy-focused analytics tool — we will update this page first to explain what
-        that means for you, including any cookies involved and how to opt out, before it goes live.
+        This site shows ads served by <strong>Google AdSense</strong>. To do that, every page loads a script
+        from Google (<code>pagead2.googlesyndication.com</code>). Google may set cookies and use information
+        about your device and browsing activity to choose which ads to show you, including personalized ads
+        based on your interests, unless you've opted out or restricted this.
+      </p>
+      <p>You can:</p>
+      <ul>
+        <li><a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer">Manage or turn off ad personalization</a> directly with Google.</li>
+        <li><a href="https://myaccount.google.com/data-and-privacy" target="_blank" rel="noopener noreferrer">Review your wider Google privacy settings</a>.</li>
+        <li>Use a browser or extension that blocks third-party ad cookies or scripts.</li>
+      </ul>
+      <p>
+        We don't control what Google does with the data its ad script collects — see
+        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google's Privacy Policy</a>
+        and <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener noreferrer">how Google uses information from sites that use its services</a>
+        for that. We still don't run any analytics of our own, and we don't sell or share data with anyone
+        beyond what's needed for Google to serve ads.
       </p>
     </section>
 
@@ -123,5 +140,11 @@ const lastUpdated = 'August 2026';
 
   section li {
     color: var(--color-text-muted);
+  }
+
+  section code {
+    background: var(--color-surface-alt);
+    padding: 1px 5px;
+    border-radius: 4px;
   }
 </style>
