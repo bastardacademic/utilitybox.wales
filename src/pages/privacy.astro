@@ -1,0 +1,127 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const lastUpdated = 'August 2026';
+---
+
+<Layout
+  title="Privacy Policy"
+  description="How UtilityBox handles data: what runs in your browser, what our server sees, and what happens if we ever add ads or analytics."
+>
+  <div class="container privacy-page">
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: {lastUpdated}</p>
+
+    <section>
+      <h2>Overview</h2>
+      <p>
+        UtilityBox is a collection of free calculators and utility tools. Every calculation — the scientific
+        calculator, unit converter, UK salary calculator, network calculator, word tools, and generators — runs
+        entirely in your browser using JavaScript. Nothing you type into those tools is sent to our server.
+      </p>
+    </section>
+
+    <section>
+      <h2>What happens on this site right now</h2>
+      <ul>
+        <li>We don't require accounts, logins, or any personal information to use any tool.</li>
+        <li>We don't set cookies or run any JavaScript analytics or tracking scripts.</li>
+        <li>
+          Our web hosting provider's server automatically records standard access logs for every request
+          (IP address, page requested, referrer, user agent, and timestamp), the same as almost any website.
+          These logs are used only to keep the site running, debug problems, and detect abuse — we don't
+          analyse them for marketing purposes or share them with third parties.
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Third-party requests</h2>
+      <p>Two tools on this site talk to an external service in order to work:</p>
+      <ul>
+        <li>
+          <strong>Currency Converter</strong> — fetches exchange rates from the
+          <a href="https://www.frankfurter.app" target="_blank" rel="noopener noreferrer">Frankfurter API</a>
+          (European Central Bank data). Your device makes this request directly, so your IP address is visible
+          to that service the same way it would be to any site you visit. We don't send it any of your other
+          data. See the <a href="https://www.frankfurter.app" target="_blank" rel="noopener noreferrer">Frankfurter</a> project for their terms.
+        </li>
+        <li>
+          <strong>Word Unscrambler / Word Builder</strong> — download a static word list from our own server.
+          No data is sent, only received.
+        </li>
+      </ul>
+      <p>No other tool on this site makes any network request.</p>
+    </section>
+
+    <section>
+      <h2>Advertising and analytics</h2>
+      <p>
+        This site does not currently show ads or run analytics software. If that changes — for example, if we
+        add Google AdSense or a privacy-focused analytics tool — we will update this page first to explain what
+        that means for you, including any cookies involved and how to opt out, before it goes live.
+      </p>
+    </section>
+
+    <section>
+      <h2>Your rights</h2>
+      <p>
+        Because we don't collect personal data beyond standard server logs, there is very little of yours for us
+        to hold. If you're in the UK or EU (GDPR) or California (CCPA) and have questions about what our server
+        logs contain or want something removed, contact us using the details below and we'll do our best to help.
+      </p>
+    </section>
+
+    <section>
+      <h2>Changes to this policy</h2>
+      <p>
+        If we change what data this site collects — most likely by adding ads or analytics — we'll update this
+        page and the "Last updated" date above.
+      </p>
+    </section>
+
+    <section>
+      <h2>Contact</h2>
+      <p>Questions about this policy? Email <strong>privacy@utilitybox.wales</strong>.</p>
+      <p><a href="/">← Back to home</a></p>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .privacy-page {
+    max-width: 720px;
+    padding-block: var(--space-6) var(--space-8);
+  }
+
+  .updated {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin-bottom: var(--space-6);
+  }
+
+  section {
+    margin-bottom: var(--space-6);
+  }
+
+  section h2 {
+    margin-bottom: var(--space-3);
+    font-size: 1.2rem;
+  }
+
+  section ul {
+    margin: 0 0 var(--space-4);
+    padding-left: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  section p {
+    color: var(--color-text-muted);
+  }
+
+  section li {
+    color: var(--color-text-muted);
+  }
+</style>

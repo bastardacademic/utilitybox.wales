@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import PlaceholderImageGenerator from '../../components/tools/PlaceholderImageGenerator.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free placeholder image generator. Create a custom SVG placeholder with any size, color, and label for mockups and layouts.';
+const schema = toolSchema({ name: 'Placeholder Image Generator', description, path: '/tools/placeholder-image/' });
+---
+
+<ToolLayout
+  title="Placeholder Image Generator"
+  description={description}
+  category="Generators"
+  schema={schema}
+>
+  <PlaceholderImageGenerator />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Just SVG</h3>
+      <p>Generated as plain SVG, so it stays crisp at any size and downloads as a tiny file.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

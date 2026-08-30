@@ -1,0 +1,184 @@
+---
+---
+
+<div class="random-tool">
+  <div class="field">
+    <label class="label" for="rnd-length">Length: <span id="rnd-length-value">16</span></label>
+    <input id="rnd-length" type="range" min="4" max="128" value="16" class="range-input" />
+  </div>
+
+  <div class="rnd-options">
+    <label class="checkbox-field"><input type="checkbox" id="rnd-upper" checked /> Uppercase (A-Z)</label>
+    <label class="checkbox-field"><input type="checkbox" id="rnd-lower" checked /> Lowercase (a-z)</label>
+    <label class="checkbox-field"><input type="checkbox" id="rnd-numbers" checked /> Numbers (0-9)</label>
+    <label class="checkbox-field"><input type="checkbox" id="rnd-symbols" /> Symbols (!@#$…)</label>
+    <label class="checkbox-field"><input type="checkbox" id="rnd-ambiguous" /> Exclude ambiguous characters (0, O, 1, l, I)</label>
+  </div>
+
+  <div class="rnd-actions">
+    <button type="button" id="rnd-generate" class="btn">Generate</button>
+    <button type="button" id="rnd-copy" class="btn btn-secondary">Copy</button>
+  </div>
+
+  <div class="field" style="margin-top: var(--space-4)">
+    <span class="label">Generated string</span>
+    <div class="result-box" id="rnd-output" role="status" aria-live="polite">Click Generate</div>
+  </div>
+
+  <div class="rnd-strength" id="rnd-strength" hidden>
+    <span class="label">Estimated strength</span>
+    <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+    <span id="strength-label"></span>
+  </div>
+
+  <hr class="rnd-divider" />
+
+  <div class="field">
+    <button type="button" id="rnd-uuid" class="btn btn-secondary">Generate UUID v4</button>
+    <div class="result-box" id="uuid-output" style="margin-top: var(--space-3)"></div>
+  </div>
+</div>
+
+<script>
+  import { generateRandomString, calculatePasswordStrength, generateUUID } from '../../utils/generators';
+
+  const lengthInput = document.getElementById('rnd-length') as HTMLInputElement;
+  const lengthValue = document.getElementById('rnd-length-value') as HTMLElement;
+  const upperCheckbox = document.getElementById('rnd-upper') as HTMLInputElement;
+  const lowerCheckbox = document.getElementById('rnd-lower') as HTMLInputElement;
+  const numbersCheckbox = document.getElementById('rnd-numbers') as HTMLInputElement;
+  const symbolsCheckbox = document.getElementById('rnd-symbols') as HTMLInputElement;
+  const ambiguousCheckbox = document.getElementById('rnd-ambiguous') as HTMLInputElement;
+  const generateBtn = document.getElementById('rnd-generate') as HTMLButtonElement;
+  const copyBtn = document.getElementById('rnd-copy') as HTMLButtonElement;
+  const output = document.getElementById('rnd-output') as HTMLElement;
+  const strengthBox = document.getElementById('rnd-strength') as HTMLElement;
+  const strengthFill = document.getElementById('strength-fill') as HTMLElement;
+  const strengthLabel = document.getElementById('strength-label') as HTMLElement;
+  const uuidBtn = document.getElementById('rnd-uuid') as HTMLButtonElement;
+  const uuidOutput = document.getElementById('uuid-output') as HTMLElement;
+
+  function generate() {
+    try {
+      const value = generateRandomString({
+        length: parseInt(lengthInput.value, 10),
+        uppercase: upperCheckbox.checked,
+        lowercase: lowerCheckbox.checked,
+        numbers: numbersCheckbox.checked,
+        symbols: symbolsCheckbox.checked,
+        excludeAmbiguous: ambiguousCheckbox.checked
+      });
+      output.textContent = value;
+      output.classList.remove('error');
+
+      const strength = calculatePasswordStrength(value);
+      strengthBox.hidden = false;
+      strengthFill.style.width = `${(strength.score / 5) * 100}%`;
+      strengthFill.dataset.level = String(strength.score);
+      strengthLabel.textContent = `${strength.label} (${Math.round(strength.entropy)} bits of entropy)`;
+    } catch (err) {
+      output.textContent = err instanceof Error ? err.message : 'Could not generate string';
+      output.classList.add('error');
+      strengthBox.hidden = true;
+    }
+  }
+
+  lengthInput.addEventListener('input', () => {
+    lengthValue.textContent = lengthInput.value;
+    generate();
+  });
+
+  [upperCheckbox, lowerCheckbox, numbersCheckbox, symbolsCheckbox, ambiguousCheckbox].forEach((el) =>
+    el.addEventListener('change', generate)
+  );
+
+  generateBtn.addEventListener('click', generate);
+
+  copyBtn.addEventListener('click', async () => {
+    if (!output.textContent) return;
+    try {
+      await navigator.clipboard.writeText(output.textContent);
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => { copyBtn.textContent = original; }, 1500);
+    } catch {
+      // Clipboard API unavailable — silently ignore.
+    }
+  });
+
+  uuidBtn.addEventListener('click', () => {
+    uuidOutput.textContent = generateUUID();
+  });
+
+  generate();
+</script>
+
+<style>
+  .random-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .range-input {
+    width: 100%;
+  }
+
+  .rnd-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  .rnd-actions {
+    display: flex;
+    gap: var(--space-3);
+  }
+
+  #rnd-output {
+    font-size: 1.1rem;
+    word-break: break-all;
+  }
+  #rnd-output.error { color: var(--color-danger); }
+
+  .rnd-strength {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+
+  .strength-bar {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--color-surface-alt);
+    overflow: hidden;
+  }
+  .strength-fill {
+    height: 100%;
+    width: 0;
+    background: var(--color-danger);
+    transition: width 0.2s ease, background-color 0.2s ease;
+  }
+  .strength-fill[data-level="1"] { background: var(--color-danger); }
+  .strength-fill[data-level="2"] { background: var(--color-warning); }
+  .strength-fill[data-level="3"] { background: #eab308; }
+  .strength-fill[data-level="4"] { background: var(--color-success); }
+  .strength-fill[data-level="5"] { background: var(--color-accent); }
+
+  .rnd-divider {
+    border: none;
+    border-top: 1px solid var(--color-border);
+    margin: var(--space-2) 0;
+  }
+</style>

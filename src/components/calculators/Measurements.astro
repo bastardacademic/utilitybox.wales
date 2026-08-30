@@ -1,0 +1,199 @@
+---
+const CATEGORIES = ['length', 'weight', 'temperature', 'volume', 'area', 'speed', 'data', 'time'];
+---
+
+<div class="measure-calc">
+  <div class="field">
+    <label class="label" for="measure-category">Category</label>
+    <select id="measure-category" class="input">
+      {CATEGORIES.map((cat) => (
+        <option value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+      ))}
+    </select>
+  </div>
+
+  <div class="measure-row">
+    <div class="field">
+      <label class="label" for="measure-value">Value</label>
+      <input id="measure-value" class="input" type="number" value="1" step="any" />
+    </div>
+    <div class="field">
+      <label class="label" for="measure-from">From</label>
+      <select id="measure-from" class="input"></select>
+    </div>
+    <button type="button" id="measure-swap" class="btn btn-secondary" aria-label="Swap units">⇄</button>
+    <div class="field">
+      <label class="label" for="measure-to">To</label>
+      <select id="measure-to" class="input"></select>
+    </div>
+  </div>
+
+  <div class="field">
+    <div class="result-row">
+      <span class="label">Result</span>
+      <span class="result-actions">
+        <button type="button" id="measure-share" class="copy-btn">🔗 Share</button>
+        <button type="button" id="measure-copy" class="copy-btn">Copy</button>
+      </span>
+    </div>
+    <div class="result-box" id="measure-result" role="status" aria-live="polite">—</div>
+  </div>
+</div>
+
+<script>
+  import { convertUnit, UNIT_DEFINITIONS, type UnitCategory } from '../../utils/calculators';
+  import { getShareParams, copyShareLink } from '../../utils/shareLink';
+
+  const categorySelect = document.getElementById('measure-category') as HTMLSelectElement;
+  const valueInput = document.getElementById('measure-value') as HTMLInputElement;
+  const fromSelect = document.getElementById('measure-from') as HTMLSelectElement;
+  const toSelect = document.getElementById('measure-to') as HTMLSelectElement;
+  const swapBtn = document.getElementById('measure-swap') as HTMLButtonElement;
+  const resultBox = document.getElementById('measure-result') as HTMLElement;
+  const copyBtn = document.getElementById('measure-copy') as HTMLButtonElement;
+
+  function populateUnits() {
+    const category = categorySelect.value as UnitCategory;
+    const units = UNIT_DEFINITIONS[category];
+    const optionsHtml = Object.entries(units)
+      .map(([key, def]) => `<option value="${key}">${def.label}</option>`)
+      .join('');
+    fromSelect.innerHTML = optionsHtml;
+    toSelect.innerHTML = optionsHtml;
+
+    const keys = Object.keys(units);
+    if (keys.length > 1) toSelect.value = keys[1];
+    convert();
+  }
+
+  function convert() {
+    const category = categorySelect.value as UnitCategory;
+    const value = parseFloat(valueInput.value);
+
+    if (Number.isNaN(value)) {
+      resultBox.textContent = 'Enter a valid number';
+      resultBox.classList.add('error');
+      return;
+    }
+
+    try {
+      const result = convertUnit(value, category, fromSelect.value, toSelect.value);
+      const fromLabel = UNIT_DEFINITIONS[category][fromSelect.value].label;
+      const toLabel = UNIT_DEFINITIONS[category][toSelect.value].label;
+      resultBox.textContent = `${value} ${fromLabel} = ${Number(result.toFixed(8))} ${toLabel}`;
+      resultBox.classList.remove('error');
+    } catch (err) {
+      resultBox.textContent = err instanceof Error ? err.message : 'Conversion failed';
+      resultBox.classList.add('error');
+    }
+  }
+
+  categorySelect.addEventListener('change', populateUnits);
+  fromSelect.addEventListener('change', convert);
+  toSelect.addEventListener('change', convert);
+  valueInput.addEventListener('input', convert);
+  swapBtn.addEventListener('click', () => {
+    const temp = fromSelect.value;
+    fromSelect.value = toSelect.value;
+    toSelect.value = temp;
+    convert();
+  });
+
+  // Pre-fill from a shared link, e.g. ?category=length&value=5&from=m&to=ft
+  const shareParams = getShareParams();
+  const sharedCategory = shareParams.get('category');
+  if (sharedCategory && Array.from(categorySelect.options).some((o) => o.value === sharedCategory)) {
+    categorySelect.value = sharedCategory;
+  }
+
+  populateUnits();
+
+  const sharedValue = shareParams.get('value');
+  const sharedFrom = shareParams.get('from');
+  const sharedTo = shareParams.get('to');
+  if (sharedValue) valueInput.value = sharedValue;
+  if (sharedFrom && Array.from(fromSelect.options).some((o) => o.value === sharedFrom)) fromSelect.value = sharedFrom;
+  if (sharedTo && Array.from(toSelect.options).some((o) => o.value === sharedTo)) toSelect.value = sharedTo;
+  if (sharedValue || sharedFrom || sharedTo) convert();
+
+  copyBtn.addEventListener('click', async () => {
+    if (!resultBox.textContent || resultBox.classList.contains('error')) return;
+    try {
+      await navigator.clipboard.writeText(resultBox.textContent);
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => { copyBtn.textContent = original; }, 1500);
+    } catch {
+      // Clipboard API unavailable — silently ignore.
+    }
+  });
+
+  const shareBtn = document.getElementById('measure-share') as HTMLButtonElement;
+  shareBtn.addEventListener('click', () => {
+    copyShareLink(
+      { category: categorySelect.value, value: valueInput.value, from: fromSelect.value, to: toSelect.value },
+      shareBtn
+    );
+  });
+</script>
+
+<style>
+  .measure-calc {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .result-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-1);
+  }
+  .result-row .label { margin-bottom: 0; }
+
+  .result-actions {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    border-radius: var(--radius-sm);
+    padding: 2px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .copy-btn:hover {
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+  }
+
+  .measure-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto 1fr;
+    gap: var(--space-3);
+    align-items: end;
+  }
+
+  #measure-swap {
+    margin-bottom: 4px;
+  }
+
+  #measure-result.error {
+    color: var(--color-danger);
+  }
+
+  @media (max-width: 640px) {
+    .measure-row {
+      grid-template-columns: 1fr;
+    }
+    #measure-swap {
+      justify-self: center;
+      transform: rotate(90deg);
+    }
+  }
+</style>

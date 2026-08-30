@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import HtmlEntityEncoder from '../../components/tools/HtmlEntityEncoder.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free HTML entity encoder and decoder. Escape reserved HTML characters or decode named and numeric entities back to plain text.';
+const schema = toolSchema({ name: 'HTML Entity Encoder / Decoder', description, path: '/tools/html-entities/' });
+---
+
+<ToolLayout
+  title="HTML Entity Encoder / Decoder"
+  description={description}
+  category="Developer Tools"
+  schema={schema}
+>
+  <HtmlEntityEncoder />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Decoding</h3>
+      <p>Decoding understands every named and numeric HTML entity, not just the common ones.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

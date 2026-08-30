@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import UKSalary from '../../components/calculators/UKSalary.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free UK salary calculator for the 2024/25 tax year. Work out your take-home pay after income tax, National Insurance and student loan.';
+const schema = toolSchema({ name: 'UK Salary Calculator', description, path: '/tools/uk-salary/' });
+---
+
+<ToolLayout
+  title="UK Salary Calculator"
+  description={description}
+  category="Calculators"
+  schema={schema}
+>
+  <UKSalary />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>2024/25 tax year</h3>
+      <p>Uses the current personal allowance, income tax bands (including Scottish rates) and Class 1 National Insurance thresholds.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

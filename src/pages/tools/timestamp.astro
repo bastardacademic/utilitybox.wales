@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import TimestampConverter from '../../components/tools/TimestampConverter.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free Unix timestamp converter. Convert a Unix timestamp to a readable date, or a date to a Unix timestamp, in seconds or milliseconds.';
+const schema = toolSchema({ name: 'Unix Timestamp Converter', description, path: '/tools/timestamp/' });
+---
+
+<ToolLayout
+  title="Unix Timestamp Converter"
+  description={description}
+  category="Developer Tools"
+  schema={schema}
+>
+  <TimestampConverter />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Seconds or milliseconds</h3>
+      <p>Paste a timestamp in either seconds or milliseconds — it's detected automatically from the magnitude of the number.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

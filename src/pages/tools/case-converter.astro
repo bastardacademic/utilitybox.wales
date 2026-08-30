@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import CaseConverter from '../../components/tools/CaseConverter.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free text case converter. Convert text to UPPERCASE, lowercase, Title Case, camelCase, PascalCase, snake_case, kebab-case, and more, all at once.';
+const schema = toolSchema({ name: 'Case Converter', description, path: '/tools/case-converter/' });
+---
+
+<ToolLayout
+  title="Case Converter"
+  description={description}
+  category="Word Games"
+  schema={schema}
+>
+  <CaseConverter />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Nine formats at once</h3>
+      <p>Type once and copy whichever case you need — handy for variable names, titles, and constants.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

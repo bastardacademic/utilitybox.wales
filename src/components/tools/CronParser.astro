@@ -1,0 +1,186 @@
+---
+const PRESETS = [
+  { label: 'Choose an example…', value: '' },
+  { label: 'Every minute', value: '* * * * *' },
+  { label: 'Every 15 minutes', value: '*/15 * * * *' },
+  { label: 'Every hour, on the hour', value: '0 * * * *' },
+  { label: 'Every day at midnight', value: '0 0 * * *' },
+  { label: 'Every day at 09:00', value: '0 9 * * *' },
+  { label: 'Every weekday at 09:00', value: '0 9 * * 1-5' },
+  { label: 'Every Monday at 09:00', value: '0 9 * * 1' },
+  { label: 'First day of every month', value: '0 0 1 * *' }
+];
+---
+
+<div class="cron-tool">
+  <div class="field">
+    <label class="label" for="cron-preset">Examples</label>
+    <select id="cron-preset" class="input">
+      {PRESETS.map((p) => <option value={p.value}>{p.label}</option>)}
+    </select>
+  </div>
+
+  <div class="field">
+    <div class="result-row">
+      <label class="label" for="cron-input">Cron expression</label>
+      <button type="button" id="cron-share" class="copy-btn">🔗 Share</button>
+    </div>
+    <input id="cron-input" class="input mono-input" type="text" spellcheck="false" placeholder="0 9 * * 1-5" />
+    <p class="cron-hint">Format: minute hour day-of-month month day-of-week (e.g. <code>*/15 9-17 * * 1-5</code>)</p>
+  </div>
+
+  <div id="cron-error" class="cron-error" hidden></div>
+
+  <div id="cron-output" class="cron-output" hidden>
+    <div class="field">
+      <span class="label">Summary</span>
+      <div class="result-box" id="cron-summary"></div>
+    </div>
+
+    <div class="field">
+      <span class="label">Next run times</span>
+      <ol class="cron-next-runs" id="cron-next-runs"></ol>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { parseCron, describeCron, getNextRunTimes, CronError } from '../../utils/cron';
+  import { getShareParams, copyShareLink } from '../../utils/shareLink';
+
+  const presetSelect = document.getElementById('cron-preset') as HTMLSelectElement;
+  const input = document.getElementById('cron-input') as HTMLInputElement;
+  const errorBox = document.getElementById('cron-error') as HTMLElement;
+  const outputBox = document.getElementById('cron-output') as HTMLElement;
+  const summaryBox = document.getElementById('cron-summary') as HTMLElement;
+  const nextRunsList = document.getElementById('cron-next-runs') as HTMLElement;
+  const shareBtn = document.getElementById('cron-share') as HTMLButtonElement;
+
+  function run() {
+    const expression = input.value.trim();
+    if (!expression) {
+      errorBox.hidden = true;
+      outputBox.hidden = true;
+      return;
+    }
+
+    try {
+      const cron = parseCron(expression);
+      summaryBox.textContent = describeCron(cron);
+
+      try {
+        const nextRuns = getNextRunTimes(cron, 5);
+        nextRunsList.innerHTML = nextRuns.map((d) => `<li>${d.toLocaleString()}</li>`).join('');
+      } catch (err) {
+        nextRunsList.innerHTML = `<li class="cron-warning">${err instanceof CronError ? err.message : 'Could not compute next run times.'}</li>`;
+      }
+
+      errorBox.hidden = true;
+      outputBox.hidden = false;
+    } catch (err) {
+      errorBox.textContent = err instanceof CronError ? err.message : 'Could not parse this cron expression.';
+      errorBox.hidden = false;
+      outputBox.hidden = true;
+    }
+  }
+
+  let debounceTimer: ReturnType<typeof setTimeout>;
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(run, 200);
+  });
+
+  presetSelect.addEventListener('change', () => {
+    if (presetSelect.value) {
+      input.value = presetSelect.value;
+      run();
+    }
+  });
+
+  shareBtn.addEventListener('click', () => {
+    copyShareLink({ expr: input.value.trim() }, shareBtn);
+  });
+
+  // Pre-fill from a shared link, e.g. ?expr=0%209%20*%20*%201-5
+  const sharedExpr = getShareParams().get('expr');
+  if (sharedExpr) {
+    input.value = sharedExpr;
+    run();
+  }
+</script>
+
+<style>
+  .cron-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .mono-input {
+    font-family: var(--font-mono);
+  }
+
+  .cron-hint {
+    margin: var(--space-2) 0 0;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+  .cron-hint code {
+    background: var(--color-surface-alt);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  .result-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-1);
+  }
+  .result-row .label { margin-bottom: 0; }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    border-radius: var(--radius-sm);
+    padding: 2px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .copy-btn:hover {
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+  }
+
+  .cron-error {
+    color: var(--color-danger);
+    background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+    border: 1px solid var(--color-danger);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    font-size: 0.9rem;
+  }
+
+  .cron-output {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .cron-next-runs {
+    margin: 0;
+    padding-left: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+  }
+
+  .cron-warning {
+    color: var(--color-warning);
+    font-family: var(--font-sans);
+  }
+</style>

@@ -1,0 +1,106 @@
+---
+---
+
+<div class="status-tool">
+  <div class="field">
+    <label class="label" for="status-search">Search by code, name, or category</label>
+    <input id="status-search" class="input" type="text" spellcheck="false" placeholder="e.g. 404, not found, 4xx" />
+  </div>
+
+  <div class="status-list" id="status-list"></div>
+</div>
+
+<script>
+  import { searchHttpStatus, type HttpStatus } from '../../utils/httpStatus';
+
+  const searchInput = document.getElementById('status-search') as HTMLInputElement;
+  const listEl = document.getElementById('status-list') as HTMLElement;
+
+  function escapeHtml(text: string): string {
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function render(results: HttpStatus[]) {
+    if (results.length === 0) {
+      listEl.innerHTML = '<p class="status-empty">No matching status codes.</p>';
+      return;
+    }
+
+    listEl.innerHTML = results
+      .map(
+        (s) => `
+        <div class="status-item">
+          <div class="status-code status-${s.category}">${s.code}</div>
+          <div class="status-body">
+            <strong>${escapeHtml(s.name)}</strong>
+            <p>${escapeHtml(s.description)}</p>
+          </div>
+        </div>`
+      )
+      .join('');
+  }
+
+  searchInput.addEventListener('input', () => render(searchHttpStatus(searchInput.value)));
+  render(searchHttpStatus(''));
+</script>
+
+<style>
+  .status-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .status-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-height: 560px;
+    overflow-y: auto;
+  }
+
+  .status-item {
+    display: flex;
+    gap: var(--space-3);
+    align-items: flex-start;
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+  }
+
+  .status-code {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    color: var(--color-primary-contrast);
+    background: var(--color-text-muted);
+  }
+  .status-1xx { background: #64748b; }
+  .status-2xx { background: var(--color-success); }
+  .status-3xx { background: var(--color-primary); }
+  .status-4xx { background: var(--color-warning); }
+  .status-5xx { background: var(--color-danger); }
+
+  .status-body strong {
+    display: block;
+    margin-bottom: 2px;
+  }
+  .status-body p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+
+  .status-empty {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+</style>

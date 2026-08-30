@@ -1,0 +1,282 @@
+---
+---
+
+<div class="regex-tool">
+  <div class="regex-pattern-row">
+    <div class="field pattern-field">
+      <label class="label" for="regex-pattern">Pattern</label>
+      <div class="pattern-input-wrap">
+        <span class="slash">/</span>
+        <input id="regex-pattern" class="input mono-input" type="text" spellcheck="false" placeholder="[a-z]+" />
+        <span class="slash">/</span>
+      </div>
+    </div>
+    <div class="field flags-field">
+      <span class="label">Flags</span>
+      <div class="flags-row">
+        <label><input type="checkbox" id="flag-g" checked /> g</label>
+        <label><input type="checkbox" id="flag-i" /> i</label>
+        <label><input type="checkbox" id="flag-m" /> m</label>
+        <label><input type="checkbox" id="flag-s" /> s</label>
+      </div>
+    </div>
+    <button type="button" id="regex-share" class="copy-btn share-btn">🔗 Share</button>
+  </div>
+
+  <div id="regex-error" class="regex-error" hidden></div>
+
+  <div class="field">
+    <label class="label" for="regex-text">Test string</label>
+    <textarea id="regex-text" class="input mono-textarea" rows="8" spellcheck="false" placeholder="Paste text to test against your pattern"></textarea>
+  </div>
+
+  <div class="field">
+    <span class="label">Highlighted matches</span>
+    <div id="regex-highlight" class="result-box regex-highlight"></div>
+  </div>
+
+  <div class="field">
+    <span class="label" id="regex-match-count">Matches</span>
+    <div id="regex-matches" class="regex-matches"></div>
+  </div>
+</div>
+
+<script>
+  import { testRegex, highlightMatches, type RegexMatch } from '../../utils/regexTool';
+  import { getShareParams, copyShareLink } from '../../utils/shareLink';
+
+  const patternInput = document.getElementById('regex-pattern') as HTMLInputElement;
+  const textInput = document.getElementById('regex-text') as HTMLTextAreaElement;
+  const errorBox = document.getElementById('regex-error') as HTMLElement;
+  const highlightBox = document.getElementById('regex-highlight') as HTMLElement;
+  const matchesBox = document.getElementById('regex-matches') as HTMLElement;
+  const matchCountLabel = document.getElementById('regex-match-count') as HTMLElement;
+  const shareBtn = document.getElementById('regex-share') as HTMLButtonElement;
+
+  const flagCheckboxes: Record<string, HTMLInputElement> = {
+    g: document.getElementById('flag-g') as HTMLInputElement,
+    i: document.getElementById('flag-i') as HTMLInputElement,
+    m: document.getElementById('flag-m') as HTMLInputElement,
+    s: document.getElementById('flag-s') as HTMLInputElement
+  };
+
+  function getFlags(): string {
+    return Object.entries(flagCheckboxes)
+      .filter(([, el]) => el.checked)
+      .map(([flag]) => flag)
+      .join('');
+  }
+
+  function renderMatchList(matches: RegexMatch[]) {
+    if (matches.length === 0) {
+      matchesBox.innerHTML = '<p class="regex-empty">No matches yet.</p>';
+      return;
+    }
+
+    matchesBox.innerHTML = matches
+      .slice(0, 200)
+      .map((m, i) => {
+        const groups = m.groups.length
+          ? `<div class="regex-groups">Groups: ${m.groups.map((g, gi) => `$${gi + 1}=${g === undefined ? '<em>undefined</em>' : `"${escapeHtml(g)}"`}`).join(', ')}</div>`
+          : '';
+        return `<div class="regex-match-item"><strong>#${i + 1}</strong> "${escapeHtml(m.match)}" <span class="regex-match-index">at index ${m.index}</span>${groups}</div>`;
+      })
+      .join('');
+  }
+
+  function escapeHtml(text: string): string {
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function run() {
+    const pattern = patternInput.value;
+    const flags = getFlags();
+    const text = textInput.value;
+
+    if (!pattern) {
+      errorBox.hidden = true;
+      highlightBox.textContent = text;
+      matchCountLabel.textContent = 'Matches';
+      renderMatchList([]);
+      return;
+    }
+
+    const result = testRegex(pattern, flags, text);
+
+    if (!result.valid) {
+      errorBox.textContent = result.error ?? 'Invalid regular expression';
+      errorBox.hidden = false;
+      highlightBox.textContent = text;
+      matchCountLabel.textContent = 'Matches';
+      renderMatchList([]);
+      return;
+    }
+
+    errorBox.hidden = true;
+    highlightBox.innerHTML = highlightMatches(text, result.matches);
+    matchCountLabel.textContent = `Matches (${result.matches.length})`;
+    renderMatchList(result.matches);
+  }
+
+  let debounceTimer: ReturnType<typeof setTimeout>;
+  function scheduleRun() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(run, 150);
+  }
+
+  patternInput.addEventListener('input', scheduleRun);
+  textInput.addEventListener('input', scheduleRun);
+  Object.values(flagCheckboxes).forEach((el) => el.addEventListener('change', run));
+
+  shareBtn.addEventListener('click', () => {
+    copyShareLink({ pattern: patternInput.value, flags: getFlags(), text: textInput.value }, shareBtn);
+  });
+
+  // Pre-fill from a shared link, e.g. ?pattern=%5Ba-z%5D%2B&flags=gi&text=Hello
+  (function restoreFromShareLink() {
+    const params = getShareParams();
+    const pattern = params.get('pattern');
+    const flags = params.get('flags');
+    const text = params.get('text');
+
+    if (pattern !== null) patternInput.value = pattern;
+    if (text !== null) textInput.value = text;
+    if (flags !== null) {
+      Object.entries(flagCheckboxes).forEach(([flag, el]) => {
+        el.checked = flags.includes(flag);
+      });
+    }
+
+    run();
+  })();
+</script>
+
+<style>
+  .regex-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .regex-pattern-row {
+    display: flex;
+    align-items: end;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .pattern-field {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .pattern-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .slash {
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+  }
+
+  .mono-input {
+    font-family: var(--font-mono);
+  }
+
+  .flags-field {
+    margin-bottom: 0;
+  }
+
+  .flags-row {
+    display: flex;
+    gap: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+  }
+  .flags-row label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+
+  .share-btn {
+    margin-bottom: 2px;
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    border-radius: var(--radius-sm);
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .copy-btn:hover {
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+  }
+
+  .regex-error {
+    color: var(--color-danger);
+    background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+    border: 1px solid var(--color-danger);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    font-size: 0.9rem;
+  }
+
+  .mono-textarea {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    resize: vertical;
+  }
+
+  .regex-highlight {
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 3rem;
+  }
+  .regex-highlight :global(mark) {
+    background: color-mix(in srgb, var(--color-primary) 35%, transparent);
+    color: inherit;
+    border-radius: 2px;
+  }
+
+  .regex-matches {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .regex-match-item {
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-3);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+
+  .regex-match-index {
+    color: var(--color-text-muted);
+  }
+
+  .regex-groups {
+    margin-top: var(--space-1);
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+  }
+
+  .regex-empty {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin: 0;
+  }
+</style>

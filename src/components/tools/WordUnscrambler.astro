@@ -1,0 +1,150 @@
+---
+---
+
+<div class="unscramble-tool">
+  <div class="field">
+    <label class="label" for="uns-letters">Enter your scrambled letters</label>
+    <input
+      id="uns-letters"
+      class="input"
+      type="text"
+      autocomplete="off"
+      spellcheck="false"
+      maxlength="20"
+      placeholder="e.g. tarince"
+    />
+  </div>
+
+  <label class="checkbox-field">
+    <input type="checkbox" id="uns-exact" />
+    Only show words using all letters
+  </label>
+
+  <button type="button" id="uns-find" class="btn">Find words</button>
+
+  <p id="uns-status" class="uns-status"></p>
+
+  <div class="uns-results" id="uns-results"></div>
+</div>
+
+<script>
+  import { unscramble, loadDictionary } from '../../utils/words';
+
+  const lettersInput = document.getElementById('uns-letters') as HTMLInputElement;
+  const exactCheckbox = document.getElementById('uns-exact') as HTMLInputElement;
+  const findBtn = document.getElementById('uns-find') as HTMLButtonElement;
+  const statusEl = document.getElementById('uns-status') as HTMLElement;
+  const resultsEl = document.getElementById('uns-results') as HTMLElement;
+
+  async function find() {
+    const letters = lettersInput.value.trim();
+    if (!letters) {
+      statusEl.textContent = 'Enter some letters first.';
+      resultsEl.innerHTML = '';
+      return;
+    }
+
+    statusEl.textContent = 'Searching…';
+    resultsEl.innerHTML = '';
+    findBtn.disabled = true;
+
+    try {
+      const dictionary = await loadDictionary();
+      const results = unscramble(letters, dictionary, exactCheckbox.checked);
+
+      if (results.length === 0) {
+        statusEl.textContent = 'No matching words found.';
+        return;
+      }
+
+      statusEl.textContent = `Found ${results.length} word${results.length === 1 ? '' : 's'}.`;
+
+      const byLength = new Map<number, typeof results>();
+      for (const result of results) {
+        const bucket = byLength.get(result.length) ?? [];
+        bucket.push(result);
+        byLength.set(result.length, bucket);
+      }
+
+      const lengths = Array.from(byLength.keys()).sort((a, b) => b - a);
+      resultsEl.innerHTML = lengths
+        .map((len) => {
+          const words = byLength.get(len) ?? [];
+          const chips = words
+            .map((w) => `<span class="word-chip">${w.word}<span class="chip-score">${w.score}</span></span>`)
+            .join('');
+          return `<div class="length-group"><h3>${len} letters</h3><div class="chip-row">${chips}</div></div>`;
+        })
+        .join('');
+    } catch (err) {
+      statusEl.textContent = 'Could not load the dictionary. Please try again.';
+    } finally {
+      findBtn.disabled = false;
+    }
+  }
+
+  findBtn.addEventListener('click', find);
+  exactCheckbox.addEventListener('change', () => { if (lettersInput.value.trim()) find(); });
+  lettersInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') find(); });
+</script>
+
+<style>
+  .unscramble-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  .uns-status {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  .length-group {
+    margin-bottom: var(--space-4);
+  }
+  .length-group h3 {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: var(--space-2);
+  }
+
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .word-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: var(--space-1) var(--space-3);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    text-transform: capitalize;
+  }
+
+  .chip-score {
+    background: var(--color-primary);
+    color: var(--color-primary-contrast);
+    border-radius: 999px;
+    font-size: 0.7rem;
+    padding: 1px 6px;
+  }
+</style>

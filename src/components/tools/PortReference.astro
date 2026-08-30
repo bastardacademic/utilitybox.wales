@@ -1,0 +1,85 @@
+---
+---
+
+<div class="port-tool">
+  <div class="field">
+    <label class="label" for="port-search">Search by port number, service, or protocol</label>
+    <input id="port-search" class="input" type="text" spellcheck="false" placeholder="e.g. 443, ssh, tcp" />
+  </div>
+
+  <div class="port-list-wrap">
+    <table class="port-table">
+      <thead>
+        <tr><th>Port</th><th>Protocol</th><th>Service</th><th>Description</th></tr>
+      </thead>
+      <tbody id="port-list"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  import { searchPorts, type PortInfo } from '../../utils/ports';
+
+  const searchInput = document.getElementById('port-search') as HTMLInputElement;
+  const listEl = document.getElementById('port-list') as HTMLElement;
+
+  function escapeHtml(text: string): string {
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function render(results: PortInfo[]) {
+    if (results.length === 0) {
+      listEl.innerHTML = '<tr><td colspan="4" class="port-empty">No matching ports.</td></tr>';
+      return;
+    }
+
+    listEl.innerHTML = results
+      .map(
+        (p) => `<tr>
+          <td class="port-num">${p.port}</td>
+          <td>${p.protocol}</td>
+          <td><strong>${escapeHtml(p.service)}</strong></td>
+          <td class="port-desc">${escapeHtml(p.description)}</td>
+        </tr>`
+      )
+      .join('');
+  }
+
+  searchInput.addEventListener('input', () => render(searchPorts(searchInput.value)));
+  render(searchPorts(''));
+</script>
+
+<style>
+  .port-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .port-list-wrap {
+    max-height: 560px;
+    overflow-y: auto;
+    overflow-x: auto;
+  }
+
+  .port-table {
+    width: 100%;
+  }
+
+  .port-num {
+    font-family: var(--font-mono);
+    font-weight: 700;
+  }
+
+  .port-desc {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    min-width: 220px;
+  }
+
+  .port-empty {
+    color: var(--color-text-muted);
+    text-align: center;
+    padding: var(--space-4);
+  }
+</style>

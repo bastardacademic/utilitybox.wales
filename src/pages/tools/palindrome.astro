@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import PalindromeChecker from '../../components/tools/PalindromeChecker.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free palindrome checker. Find out instantly if a word or phrase reads the same forwards and backwards, ignoring case and punctuation.';
+const schema = toolSchema({ name: 'Palindrome Checker', description, path: '/tools/palindrome/' });
+---
+
+<ToolLayout
+  title="Palindrome Checker"
+  description={description}
+  category="Word Games"
+  schema={schema}
+>
+  <PalindromeChecker />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Try a phrase</h3>
+      <p>Punctuation, spaces, and capitalization are ignored, so "A man, a plan, a canal: Panama" still counts.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

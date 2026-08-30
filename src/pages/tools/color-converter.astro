@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import ColorConverter from '../../components/tools/ColorConverter.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free color converter and palette generator. Convert between HEX, RGB, and HSL, and generate a matching color palette.';
+const schema = toolSchema({ name: 'Color Converter', description, path: '/tools/color-converter/' });
+---
+
+<ToolLayout
+  title="Color Converter"
+  description={description}
+  category="Generators"
+  schema={schema}
+>
+  <ColorConverter />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Palette generation</h3>
+      <p>Generates evenly-spaced hues around the color wheel from your chosen color — click any swatch to copy its hex code.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

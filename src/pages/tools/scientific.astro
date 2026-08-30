@@ -1,0 +1,47 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import Scientific from '../../components/calculators/Scientific.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free scientific calculator with trigonometry, logarithms, powers, roots and constants. Runs entirely in your browser — no sign-up, no tracking.';
+const schema = toolSchema({ name: 'Scientific Calculator', description, path: '/tools/scientific/' });
+---
+
+<ToolLayout
+  title="Scientific Calculator"
+  description={description}
+  category="Calculators"
+  schema={schema}
+>
+  <Scientific />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Tips</h3>
+      <ul>
+        <li>Switch between degrees and radians for trig functions.</li>
+        <li>Use <code>^</code> for powers, e.g. <code>2^10</code>.</li>
+        <li>Use <code>pi</code> and <code>e</code> as constants.</li>
+        <li>Press Enter to evaluate.</li>
+      </ul>
+    </div>
+  </Fragment>
+</ToolLayout>
+
+<style>
+  .side-card ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .side-card code {
+    background: var(--color-surface-alt);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+</style>

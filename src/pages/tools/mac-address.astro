@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import MacFormatter from '../../components/tools/MacFormatter.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free MAC address formatter and validator. Convert between colon, hyphen, and dot notation, and check if an address is locally administered or multicast.';
+const schema = toolSchema({ name: 'MAC Address Formatter', description, path: '/tools/mac-address/' });
+---
+
+<ToolLayout
+  title="MAC Address Formatter"
+  description={description}
+  category="Networking"
+  schema={schema}
+>
+  <MacFormatter />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Accepts any format</h3>
+      <p>Paste a MAC address with colons, hyphens, dots, or no separator at all — it's normalized automatically.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

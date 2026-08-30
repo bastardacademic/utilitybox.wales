@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import AnagramSolver from '../../components/tools/AnagramSolver.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free anagram checker. Find out whether two words or phrases are anagrams of each other.';
+const schema = toolSchema({ name: 'Anagram Solver', description, path: '/tools/anagram/' });
+---
+
+<ToolLayout
+  title="Anagram Solver"
+  description={description}
+  category="Word Games"
+  schema={schema}
+>
+  <AnagramSolver />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Looking for word lists instead?</h3>
+      <p>To find every word hiding in a set of letters, try the <a href="/tools/unscrambler/">Word Unscrambler</a> or <a href="/tools/word-builder/">Word Builder</a>.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

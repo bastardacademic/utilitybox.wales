@@ -1,0 +1,48 @@
+---
+---
+
+<div class="pal-tool">
+  <div class="field">
+    <label class="label" for="pal-input">Text to check</label>
+    <input id="pal-input" class="input" type="text" spellcheck="false" placeholder="e.g. A man, a plan, a canal: Panama" />
+  </div>
+
+  <div class="result-box" id="pal-result" role="status" aria-live="polite">Type something to check.</div>
+</div>
+
+<script>
+  import { isPalindrome } from '../../utils/words';
+
+  const input = document.getElementById('pal-input') as HTMLInputElement;
+  const result = document.getElementById('pal-result') as HTMLElement;
+
+  function update() {
+    const value = input.value;
+    if (!value.trim()) {
+      result.textContent = 'Type something to check.';
+      result.classList.remove('error');
+      return;
+    }
+
+    const palindrome = isPalindrome(value);
+    result.textContent = palindrome
+      ? `Yes — "${value}" is a palindrome.`
+      : `No — "${value}" is not a palindrome.`;
+    result.classList.remove('error');
+    result.classList.toggle('pal-yes', palindrome);
+    result.classList.toggle('pal-no', !palindrome);
+  }
+
+  input.addEventListener('input', update);
+</script>
+
+<style>
+  .pal-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .pal-yes { color: var(--color-success); }
+  .pal-no { color: var(--color-text-muted); }
+</style>

@@ -1,0 +1,128 @@
+---
+---
+
+<div class="ts-tool">
+  <section class="ts-section">
+    <h3>Timestamp → Date</h3>
+    <div class="ts-row">
+      <input id="ts-unix" class="input mono-input" type="text" spellcheck="false" placeholder="e.g. 1700000000" />
+      <button type="button" id="ts-now" class="btn btn-secondary">Now</button>
+    </div>
+    <div class="result-box" id="ts-date-result"></div>
+  </section>
+
+  <section class="ts-section">
+    <h3>Date → Timestamp</h3>
+    <input id="ts-datetime" class="input" type="datetime-local" step="1" />
+    <div class="result-row">
+      <div class="result-box mono-input" id="ts-unix-result"></div>
+      <button type="button" id="ts-copy" class="copy-btn">Copy</button>
+    </div>
+  </section>
+</div>
+
+<script>
+  import { unixToDate, parseDateStringToUnixSeconds, currentUnixSeconds, TimestampError } from '../../utils/timestamp';
+
+  const unixInput = document.getElementById('ts-unix') as HTMLInputElement;
+  const nowBtn = document.getElementById('ts-now') as HTMLButtonElement;
+  const dateResult = document.getElementById('ts-date-result') as HTMLElement;
+
+  const datetimeInput = document.getElementById('ts-datetime') as HTMLInputElement;
+  const unixResult = document.getElementById('ts-unix-result') as HTMLElement;
+  const copyBtn = document.getElementById('ts-copy') as HTMLButtonElement;
+
+  function updateFromUnix() {
+    const raw = unixInput.value.trim();
+    if (!raw) {
+      dateResult.textContent = '';
+      dateResult.classList.remove('error');
+      return;
+    }
+    try {
+      const date = unixToDate(parseFloat(raw));
+      dateResult.innerHTML = `Local: <strong>${date.toLocaleString()}</strong><br>UTC: <strong>${date.toUTCString()}</strong><br>ISO 8601: <strong>${date.toISOString()}</strong>`;
+      dateResult.classList.remove('error');
+    } catch (err) {
+      dateResult.textContent = err instanceof TimestampError ? err.message : 'Invalid timestamp';
+      dateResult.classList.add('error');
+    }
+  }
+
+  function updateFromDate() {
+    const raw = datetimeInput.value;
+    if (!raw) {
+      unixResult.textContent = '';
+      return;
+    }
+    try {
+      const seconds = parseDateStringToUnixSeconds(raw);
+      unixResult.textContent = `${seconds} (seconds) / ${seconds * 1000} (ms)`;
+    } catch (err) {
+      unixResult.textContent = err instanceof TimestampError ? err.message : 'Invalid date';
+    }
+  }
+
+  unixInput.addEventListener('input', updateFromUnix);
+  nowBtn.addEventListener('click', () => {
+    unixInput.value = String(currentUnixSeconds());
+    updateFromUnix();
+  });
+
+  datetimeInput.addEventListener('input', updateFromDate);
+
+  copyBtn.addEventListener('click', async () => {
+    if (!unixResult.textContent) return;
+    try {
+      await navigator.clipboard.writeText(unixResult.textContent);
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => { copyBtn.textContent = original; }, 1500);
+    } catch {
+      // Clipboard API unavailable — silently ignore.
+    }
+  });
+
+  // Seed both sides with the current time.
+  unixInput.value = String(currentUnixSeconds());
+  updateFromUnix();
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  datetimeInput.value = now.toISOString().slice(0, 19);
+  updateFromDate();
+</script>
+
+<style>
+  .ts-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .ts-section h3 {
+    font-size: 0.95rem;
+    margin-bottom: var(--space-2);
+  }
+
+  .mono-input {
+    font-family: var(--font-mono);
+  }
+
+  .ts-row {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+  .ts-row .input {
+    flex: 1;
+  }
+
+  #ts-date-result {
+    line-height: 1.8;
+  }
+
+  .ts-section .result-row {
+    margin-top: var(--space-2);
+    margin-bottom: 0;
+  }
+</style>

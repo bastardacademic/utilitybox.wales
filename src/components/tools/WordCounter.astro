@@ -1,0 +1,86 @@
+---
+---
+
+<div class="wc-tool">
+  <div class="field">
+    <label class="label" for="wc-input">Your text</label>
+    <textarea id="wc-input" class="input mono-textarea" rows="12" spellcheck="false" placeholder="Paste or type your text here"></textarea>
+  </div>
+
+  <div class="wc-stats">
+    <div class="wc-stat"><strong id="wc-words">0</strong><span>Words</span></div>
+    <div class="wc-stat"><strong id="wc-chars">0</strong><span>Characters</span></div>
+    <div class="wc-stat"><strong id="wc-chars-nospace">0</strong><span>Characters (no spaces)</span></div>
+    <div class="wc-stat"><strong id="wc-sentences">0</strong><span>Sentences</span></div>
+    <div class="wc-stat"><strong id="wc-paragraphs">0</strong><span>Paragraphs</span></div>
+    <div class="wc-stat"><strong id="wc-reading">0 sec</strong><span>Reading time</span></div>
+    <div class="wc-stat"><strong id="wc-speaking">0 sec</strong><span>Speaking time</span></div>
+  </div>
+</div>
+
+<script>
+  import { getTextStats, formatDuration } from '../../utils/textStats';
+
+  const input = document.getElementById('wc-input') as HTMLTextAreaElement;
+
+  const els = {
+    words: document.getElementById('wc-words') as HTMLElement,
+    chars: document.getElementById('wc-chars') as HTMLElement,
+    charsNoSpace: document.getElementById('wc-chars-nospace') as HTMLElement,
+    sentences: document.getElementById('wc-sentences') as HTMLElement,
+    paragraphs: document.getElementById('wc-paragraphs') as HTMLElement,
+    reading: document.getElementById('wc-reading') as HTMLElement,
+    speaking: document.getElementById('wc-speaking') as HTMLElement
+  };
+
+  function update() {
+    const stats = getTextStats(input.value);
+    els.words.textContent = stats.words.toLocaleString();
+    els.chars.textContent = stats.characters.toLocaleString();
+    els.charsNoSpace.textContent = stats.charactersNoSpaces.toLocaleString();
+    els.sentences.textContent = stats.sentences.toLocaleString();
+    els.paragraphs.textContent = stats.paragraphs.toLocaleString();
+    els.reading.textContent = formatDuration(stats.readingTimeMinutes);
+    els.speaking.textContent = formatDuration(stats.speakingTimeMinutes);
+  }
+
+  input.addEventListener('input', update);
+  update();
+</script>
+
+<style>
+  .wc-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .mono-textarea {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    resize: vertical;
+  }
+
+  .wc-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: var(--space-3);
+  }
+
+  .wc-stat {
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .wc-stat strong {
+    font-size: 1.3rem;
+  }
+  .wc-stat span {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+</style>

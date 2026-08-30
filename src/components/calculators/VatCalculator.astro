@@ -1,0 +1,98 @@
+---
+---
+
+<div class="vat-tool">
+  <div class="vat-mode">
+    <label><input type="radio" name="vat-mode" value="add" checked /> Add VAT</label>
+    <label><input type="radio" name="vat-mode" value="remove" /> Remove VAT</label>
+  </div>
+
+  <div class="vat-row">
+    <div class="field">
+      <label class="label" for="vat-amount" id="vat-amount-label">Net amount (£)</label>
+      <input id="vat-amount" class="input" type="number" min="0" step="any" value="100" />
+    </div>
+    <div class="field">
+      <label class="label" for="vat-rate">VAT rate (%)</label>
+      <input id="vat-rate" class="input" type="number" min="0" max="100" step="0.5" value="20" />
+    </div>
+  </div>
+
+  <div class="field">
+    <span class="label">Result</span>
+    <div class="result-box" id="vat-result"></div>
+  </div>
+</div>
+
+<script>
+  import { addVat, removeVat } from '../../utils/finance';
+
+  const amountInput = document.getElementById('vat-amount') as HTMLInputElement;
+  const rateInput = document.getElementById('vat-rate') as HTMLInputElement;
+  const amountLabel = document.getElementById('vat-amount-label') as HTMLElement;
+  const result = document.getElementById('vat-result') as HTMLElement;
+  const modeRadios = document.querySelectorAll<HTMLInputElement>('input[name="vat-mode"]');
+
+  const gbp = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' });
+
+  function getMode(): 'add' | 'remove' {
+    return (document.querySelector<HTMLInputElement>('input[name="vat-mode"]:checked')?.value as 'add' | 'remove') ?? 'add';
+  }
+
+  function update() {
+    const mode = getMode();
+    amountLabel.textContent = mode === 'add' ? 'Net amount (£, excl. VAT)' : 'Gross amount (£, incl. VAT)';
+
+    const amount = parseFloat(amountInput.value);
+    const rate = parseFloat(rateInput.value);
+
+    if (Number.isNaN(amount) || Number.isNaN(rate)) {
+      result.textContent = 'Enter valid numbers';
+      result.classList.add('error');
+      return;
+    }
+
+    const r = mode === 'add' ? addVat(amount, rate) : removeVat(amount, rate);
+    result.innerHTML = `Net: <strong>${gbp.format(r.net)}</strong><br>VAT (${r.rate}%): <strong>${gbp.format(r.vat)}</strong><br>Gross: <strong>${gbp.format(r.gross)}</strong>`;
+    result.classList.remove('error');
+  }
+
+  amountInput.addEventListener('input', update);
+  rateInput.addEventListener('input', update);
+  modeRadios.forEach((r) => r.addEventListener('change', update));
+  update();
+</script>
+
+<style>
+  .vat-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .vat-mode {
+    display: flex;
+    gap: var(--space-4);
+    font-weight: 600;
+  }
+  .vat-mode label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    cursor: pointer;
+  }
+
+  .vat-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+  }
+
+  #vat-result {
+    line-height: 1.8;
+  }
+
+  @media (max-width: 480px) {
+    .vat-row { grid-template-columns: 1fr; }
+  }
+</style>

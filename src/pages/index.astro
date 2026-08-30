@@ -1,0 +1,168 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const toolGroups = [
+  {
+    category: 'Calculators',
+    tools: [
+      { href: '/tools/scientific', name: 'Scientific Calculator', description: 'Trigonometry, logarithms, powers and roots.' },
+      { href: '/tools/currency', name: 'Currency Converter', description: 'Live exchange rates for major world currencies.' },
+      { href: '/tools/measurements', name: 'Unit Converter', description: 'Length, weight, temperature, volume, area, speed, data and time.' },
+      { href: '/tools/uk-salary', name: 'UK Salary Calculator', description: 'Take-home pay after tax, NI, student loan and pension.' },
+      { href: '/tools/percentage', name: 'Percentage Calculator', description: 'Percentage of a number, what % one value is of another, and percentage change.' },
+      { href: '/tools/vat', name: 'VAT Calculator', description: 'Add or remove UK VAT at any rate.' },
+      { href: '/tools/tip', name: 'Tip Calculator', description: 'Work out the tip and split the bill between people.' },
+      { href: '/tools/loan', name: 'Loan Repayment Calculator', description: 'Monthly payment, total repaid and total interest on a loan.' }
+    ]
+  },
+  {
+    category: 'Networking',
+    tools: [
+      { href: '/tools/network', name: 'Network / CIDR Calculator', description: 'Subnet masks, host ranges, and subnet splitting.' },
+      { href: '/tools/http-status', name: 'HTTP Status Code Reference', description: 'Search every common HTTP status code with an explanation.' },
+      { href: '/tools/port-lookup', name: 'Port Number Reference', description: 'Common TCP/UDP ports and the services that use them.' },
+      { href: '/tools/mac-address', name: 'MAC Address Formatter', description: 'Validate and reformat MAC addresses between notations.' }
+    ]
+  },
+  {
+    category: 'Word Games',
+    tools: [
+      { href: '/tools/unscrambler', name: 'Word Unscrambler', description: 'Find every valid word hiding in a set of letters.' },
+      { href: '/tools/word-builder', name: 'Word Builder', description: 'Build the highest-scoring words from your letter tiles.' },
+      { href: '/tools/word-counter', name: 'Word Counter', description: 'Word count, character count, and reading time, live.' },
+      { href: '/tools/case-converter', name: 'Case Converter', description: 'UPPERCASE, lowercase, Title Case, camelCase and more, all at once.' },
+      { href: '/tools/palindrome', name: 'Palindrome Checker', description: 'Check if a word or phrase reads the same backwards.' },
+      { href: '/tools/anagram', name: 'Anagram Solver', description: 'Check whether two words or phrases are anagrams.' }
+    ]
+  },
+  {
+    category: 'Generators',
+    tools: [
+      { href: '/tools/random-string', name: 'Random String Generator', description: 'Secure random passwords, tokens and UUIDs.' },
+      { href: '/tools/lorem', name: 'Lorem Ipsum Generator', description: 'Placeholder text by word, sentence or paragraph.' },
+      { href: '/tools/color-converter', name: 'Color Converter', description: 'Convert between HEX, RGB and HSL, and generate a palette.' },
+      { href: '/tools/slug', name: 'Slug Generator', description: 'Turn any text into a clean, URL-safe slug.' },
+      { href: '/tools/placeholder-image', name: 'Placeholder Image Generator', description: 'Custom SVG placeholder images for mockups.' }
+    ]
+  },
+  {
+    category: 'Developer Tools',
+    tools: [
+      { href: '/tools/json-formatter', name: 'JSON Formatter & Validator', description: 'Pretty-print, minify, and validate JSON with clear error locations.' },
+      { href: '/tools/regex-tester', name: 'Regex Tester', description: 'Test regular expressions with live match highlighting.' },
+      { href: '/tools/diff-viewer', name: 'Diff Viewer', description: 'Compare two blocks of text line by line.' },
+      { href: '/tools/base64', name: 'Base64 Encoder / Decoder', description: 'Encode or decode Base64, with a URL-safe option.' },
+      { href: '/tools/jwt-decoder', name: 'JWT Decoder', description: 'Decode a JWT header and payload — signature not verified.' },
+      { href: '/tools/cron-parser', name: 'Cron Expression Parser', description: 'Understand a cron schedule and see its next run times.' },
+      { href: '/tools/hash-generator', name: 'Hash Generator', description: 'SHA-1, SHA-256, SHA-384 and SHA-512 hashes of any text.' },
+      { href: '/tools/url-encoder', name: 'URL Encoder / Decoder', description: 'Percent-encode or decode text for URLs.' },
+      { href: '/tools/timestamp', name: 'Unix Timestamp Converter', description: 'Convert between Unix timestamps and readable dates.' },
+      { href: '/tools/html-entities', name: 'HTML Entity Encoder / Decoder', description: 'Escape or decode HTML entities.' }
+    ]
+  }
+];
+
+const allTools = toolGroups.flatMap((group) => group.tools);
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'UtilityBox',
+  url: 'https://utilitybox.wales/',
+  description: 'Free online calculators and everyday utility tools — no sign-up required.'
+};
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  itemListElement: allTools.map((tool, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: tool.name,
+    url: `https://utilitybox.wales${tool.href}/`
+  }))
+};
+---
+
+<Layout title="UtilityBox" description="Free online calculators and everyday utility tools — no sign-up required.">
+  <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+  <section class="hero">
+    <div class="container">
+      <h1>Free tools that just work.</h1>
+      <p class="hero-sub">Calculators, converters, generators and more — fast, private, and free to use.</p>
+    </div>
+  </section>
+
+  <div class="container tools-directory">
+    {toolGroups.map((group) => (
+      <section class="tool-group">
+        <h2>{group.category}</h2>
+        <div class="tool-cards">
+          {group.tools.map((tool) => (
+            <a href={tool.href} class="tool-card card">
+              <h3>{tool.name}</h3>
+              <p>{tool.description}</p>
+            </a>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+</Layout>
+
+<style>
+  .hero {
+    padding-block: var(--space-8) var(--space-6);
+    text-align: center;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .hero-sub {
+    color: var(--color-text-muted);
+    font-size: 1.15rem;
+    max-width: 560px;
+    margin-inline: auto;
+  }
+
+  .tools-directory {
+    padding-block: var(--space-6) var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .tool-group h2 {
+    margin-bottom: var(--space-4);
+  }
+
+  .tool-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .tool-card {
+    display: block;
+    padding: var(--space-4);
+    color: var(--color-text);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .tool-card:hover {
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-primary);
+  }
+
+  .tool-card h3 {
+    margin-bottom: var(--space-2);
+    font-size: 1.05rem;
+    color: var(--color-text);
+  }
+
+  .tool-card p {
+    margin-bottom: 0;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+</style>

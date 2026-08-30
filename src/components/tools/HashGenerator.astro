@@ -1,0 +1,99 @@
+---
+---
+
+<div class="hash-tool">
+  <div class="field">
+    <label class="label" for="hash-input">Text</label>
+    <textarea id="hash-input" class="input mono-textarea" rows="6" spellcheck="false" placeholder="Type or paste text to hash"></textarea>
+  </div>
+
+  <div class="hash-results" id="hash-results">
+    {['SHA-1', 'SHA-256', 'SHA-384', 'SHA-512'].map((algo) => (
+      <div class="hash-item">
+        <span class="label">{algo}</span>
+        <div class="result-row">
+          <div class="result-box mono-input hash-output" id={`hash-${algo}`}></div>
+          <button type="button" class="copy-btn hash-copy" data-target={`hash-${algo}`}>Copy</button>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<script>
+  import { hashText, HASH_ALGORITHMS } from '../../utils/hash';
+
+  const input = document.getElementById('hash-input') as HTMLTextAreaElement;
+
+  async function update() {
+    const text = input.value;
+    await Promise.all(
+      HASH_ALGORITHMS.map(async (algo) => {
+        const el = document.getElementById(`hash-${algo}`) as HTMLElement;
+        el.textContent = text ? await hashText(algo, text) : '';
+      })
+    );
+  }
+
+  input.addEventListener('input', update);
+
+  document.querySelectorAll<HTMLButtonElement>('.hash-copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const targetId = btn.dataset.target;
+      if (!targetId) return;
+      const el = document.getElementById(targetId) as HTMLElement;
+      if (!el.textContent) return;
+      try {
+        await navigator.clipboard.writeText(el.textContent);
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      } catch {
+        // Clipboard API unavailable — silently ignore.
+      }
+    });
+  });
+
+  update();
+</script>
+
+<style>
+  .hash-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .mono-textarea {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    resize: vertical;
+  }
+
+  .mono-input {
+    font-family: var(--font-mono);
+  }
+
+  .hash-results {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .hash-item .result-row {
+    align-items: stretch;
+    margin-bottom: 0;
+  }
+
+  .hash-output {
+    flex: 1;
+    min-height: 1.2rem;
+    padding: var(--space-2) var(--space-3);
+    word-break: break-all;
+    font-size: 0.82rem;
+  }
+
+  .hash-copy {
+    flex-shrink: 0;
+  }
+</style>

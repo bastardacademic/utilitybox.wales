@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import DiffViewer from '../../components/tools/DiffViewer.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free text diff viewer. Compare two blocks of text line by line and see exactly what was added, removed, or unchanged.';
+const schema = toolSchema({ name: 'Diff Viewer', description, path: '/tools/diff-viewer/' });
+---
+
+<ToolLayout
+  title="Diff Viewer"
+  description={description}
+  category="Developer Tools"
+  schema={schema}
+>
+  <DiffViewer />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>How it works</h3>
+      <p>Uses a line-by-line comparison (LCS diff), the same approach behind most command-line diff tools. Limited to 2,000 lines per side to stay fast in the browser.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

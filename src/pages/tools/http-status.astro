@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import HttpStatusReference from '../../components/tools/HttpStatusReference.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free HTTP status code reference. Search every common status code from 1xx to 5xx with a plain-English explanation.';
+const schema = toolSchema({ name: 'HTTP Status Code Reference', description, path: '/tools/http-status/' });
+---
+
+<ToolLayout
+  title="HTTP Status Code Reference"
+  description={description}
+  category="Networking"
+  schema={schema}
+>
+  <HttpStatusReference />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Categories</h3>
+      <p>1xx informational, 2xx success, 3xx redirection, 4xx client errors, 5xx server errors.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

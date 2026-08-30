@@ -1,0 +1,33 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import Base64Tool from '../../components/tools/Base64Tool.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free Base64 encoder and decoder with full UTF-8 support and an optional URL-safe alphabet, running entirely in your browser.';
+const schema = toolSchema({ name: 'Base64 Encoder / Decoder', description, path: '/tools/base64/' });
+---
+
+<ToolLayout
+  title="Base64 Encoder / Decoder"
+  description={description}
+  category="Developer Tools"
+  schema={schema}
+>
+  <Base64Tool />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>URL-safe base64</h3>
+      <p>Swaps <code>+</code>/<code>/</code> for <code>-</code>/<code>_</code> and drops padding — the variant used in JWTs and URLs. Decoding accepts either alphabet automatically.</p>
+    </div>
+  </Fragment>
+</ToolLayout>
+
+<style>
+  .side-card code {
+    background: var(--color-surface-alt);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+</style>

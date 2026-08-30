@@ -1,0 +1,109 @@
+---
+---
+
+<div class="pct-tool">
+  <section class="pct-section">
+    <h3>X% of Y</h3>
+    <div class="pct-row">
+      <input id="pct-a-x" class="input" type="number" value="20" step="any" aria-label="Percentage" />
+      <span>% of</span>
+      <input id="pct-a-y" class="input" type="number" value="50" step="any" aria-label="Of value" />
+    </div>
+    <div class="result-box" id="pct-a-result"></div>
+  </section>
+
+  <section class="pct-section">
+    <h3>X is what % of Y?</h3>
+    <div class="pct-row">
+      <input id="pct-b-x" class="input" type="number" value="10" step="any" aria-label="Part value" />
+      <span>is what % of</span>
+      <input id="pct-b-y" class="input" type="number" value="50" step="any" aria-label="Whole value" />
+    </div>
+    <div class="result-box" id="pct-b-result"></div>
+  </section>
+
+  <section class="pct-section">
+    <h3>% change from X to Y</h3>
+    <div class="pct-row">
+      <input id="pct-c-x" class="input" type="number" value="50" step="any" aria-label="From value" />
+      <span>to</span>
+      <input id="pct-c-y" class="input" type="number" value="65" step="any" aria-label="To value" />
+    </div>
+    <div class="result-box" id="pct-c-result"></div>
+  </section>
+</div>
+
+<script>
+  import { percentOf, whatPercentageIs, percentChange } from '../../utils/finance';
+
+  function fmt(n: number): string {
+    return Number(n.toFixed(4)).toLocaleString();
+  }
+
+  function wireUp(xId: string, yId: string, resultId: string, compute: (x: number, y: number) => string) {
+    const xInput = document.getElementById(xId) as HTMLInputElement;
+    const yInput = document.getElementById(yId) as HTMLInputElement;
+    const result = document.getElementById(resultId) as HTMLElement;
+
+    function update() {
+      const x = parseFloat(xInput.value);
+      const y = parseFloat(yInput.value);
+      if (Number.isNaN(x) || Number.isNaN(y)) {
+        result.textContent = 'Enter valid numbers';
+        result.classList.add('error');
+        return;
+      }
+      try {
+        result.textContent = compute(x, y);
+        result.classList.remove('error');
+      } catch (err) {
+        result.textContent = err instanceof Error ? err.message : 'Could not calculate';
+        result.classList.add('error');
+      }
+    }
+
+    xInput.addEventListener('input', update);
+    yInput.addEventListener('input', update);
+    update();
+  }
+
+  wireUp('pct-a-x', 'pct-a-y', 'pct-a-result', (x, y) => `${fmt(x)}% of ${fmt(y)} = ${fmt(percentOf(x, y))}`);
+  wireUp('pct-b-x', 'pct-b-y', 'pct-b-result', (x, y) => `${fmt(x)} is ${fmt(whatPercentageIs(x, y))}% of ${fmt(y)}`);
+  wireUp('pct-c-x', 'pct-c-y', 'pct-c-result', (x, y) => {
+    const { difference, percentChange: change } = percentChange(x, y);
+    const direction = change >= 0 ? 'increase' : 'decrease';
+    return `${fmt(x)} → ${fmt(y)} is a ${fmt(Math.abs(change))}% ${direction} (difference: ${fmt(difference)})`;
+  });
+</script>
+
+<style>
+  .pct-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .pct-section h3 {
+    font-size: 0.95rem;
+    margin-bottom: var(--space-2);
+  }
+
+  .pct-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+  .pct-row span {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+  .pct-row .input {
+    max-width: 140px;
+  }
+
+  @media (max-width: 480px) {
+    .pct-row { flex-wrap: wrap; }
+  }
+</style>

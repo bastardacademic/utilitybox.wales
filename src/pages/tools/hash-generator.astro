@@ -1,0 +1,33 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import HashGenerator from '../../components/tools/HashGenerator.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free hash generator. Compute SHA-1, SHA-256, SHA-384, and SHA-512 hashes of any text using your browser\'s built-in cryptography.';
+const schema = toolSchema({ name: 'Hash Generator', description, path: '/tools/hash-generator/' });
+---
+
+<ToolLayout
+  title="Hash Generator"
+  description={description}
+  category="Developer Tools"
+  schema={schema}
+>
+  <HashGenerator />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Native Web Crypto</h3>
+      <p>Uses the browser's built-in <code>crypto.subtle.digest</code> API — the same cryptographic primitives used by browsers themselves.</p>
+    </div>
+  </Fragment>
+</ToolLayout>
+
+<style>
+  .side-card code {
+    background: var(--color-surface-alt);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+</style>

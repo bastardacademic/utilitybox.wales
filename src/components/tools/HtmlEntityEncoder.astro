@@ -1,0 +1,117 @@
+---
+---
+
+<div class="entity-tool">
+  <div class="entity-mode">
+    <label><input type="radio" name="entity-mode" value="encode" checked /> Encode</label>
+    <label><input type="radio" name="entity-mode" value="decode" /> Decode</label>
+  </div>
+
+  <label class="entity-all" id="entity-all-field">
+    <input type="checkbox" id="entity-all" />
+    Also escape non-ASCII characters as numeric entities
+  </label>
+
+  <div class="field">
+    <label class="label" for="entity-input" id="entity-input-label">HTML</label>
+    <textarea id="entity-input" class="input mono-textarea" rows="6" spellcheck="false" placeholder="Type or paste text here"></textarea>
+  </div>
+
+  <div class="field">
+    <div class="result-row">
+      <span class="label" id="entity-output-label">Result</span>
+      <button type="button" id="entity-copy" class="copy-btn">Copy</button>
+    </div>
+    <div class="result-box mono-textarea entity-output" id="entity-output" role="status" aria-live="polite"></div>
+  </div>
+</div>
+
+<script>
+  import { encodeHtmlEntitiesBasic, encodeHtmlEntitiesAll, decodeHtmlEntities } from '../../utils/htmlEntities';
+
+  const input = document.getElementById('entity-input') as HTMLTextAreaElement;
+  const output = document.getElementById('entity-output') as HTMLElement;
+  const allCheckbox = document.getElementById('entity-all') as HTMLInputElement;
+  const allField = document.getElementById('entity-all-field') as HTMLElement;
+  const inputLabel = document.getElementById('entity-input-label') as HTMLElement;
+  const outputLabel = document.getElementById('entity-output-label') as HTMLElement;
+  const copyBtn = document.getElementById('entity-copy') as HTMLButtonElement;
+  const modeRadios = document.querySelectorAll<HTMLInputElement>('input[name="entity-mode"]');
+
+  function getMode(): 'encode' | 'decode' {
+    return (document.querySelector<HTMLInputElement>('input[name="entity-mode"]:checked')?.value as 'encode' | 'decode') ?? 'encode';
+  }
+
+  function update() {
+    const encoding = getMode() === 'encode';
+    inputLabel.textContent = encoding ? 'Text' : 'HTML with entities';
+    outputLabel.textContent = encoding ? 'Encoded' : 'Decoded';
+    allField.style.display = encoding ? 'flex' : 'none';
+
+    const text = input.value;
+    output.textContent = !text
+      ? ''
+      : encoding
+        ? (allCheckbox.checked ? encodeHtmlEntitiesAll(text) : encodeHtmlEntitiesBasic(text))
+        : decodeHtmlEntities(text);
+  }
+
+  input.addEventListener('input', update);
+  allCheckbox.addEventListener('change', update);
+  modeRadios.forEach((r) => r.addEventListener('change', update));
+
+  copyBtn.addEventListener('click', async () => {
+    if (!output.textContent) return;
+    try {
+      await navigator.clipboard.writeText(output.textContent);
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => { copyBtn.textContent = original; }, 1500);
+    } catch {
+      // Clipboard API unavailable — silently ignore.
+    }
+  });
+
+  update();
+</script>
+
+<style>
+  .entity-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .entity-mode {
+    display: flex;
+    gap: var(--space-4);
+    font-weight: 600;
+  }
+  .entity-mode label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    cursor: pointer;
+  }
+
+  .entity-all {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .mono-textarea {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    resize: vertical;
+  }
+
+  .entity-output {
+    min-height: 120px;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+</style>

@@ -1,0 +1,214 @@
+---
+---
+
+<div class="color-tool">
+  <div class="color-row">
+    <input id="color-picker" type="color" class="color-picker" value="#2563eb" />
+    <div class="field color-swatch-field">
+      <label class="label" for="color-hex">Hex</label>
+      <input id="color-hex" class="input mono-input" type="text" spellcheck="false" placeholder="#2563eb" />
+    </div>
+    <button type="button" id="color-random" class="btn btn-secondary">Random</button>
+  </div>
+
+  <div class="color-formats">
+    <div class="color-format">
+      <span class="label">HEX</span>
+      <div class="result-row">
+        <div class="result-box mono-input" id="format-hex"></div>
+        <button type="button" class="copy-btn color-copy" data-target="format-hex">Copy</button>
+      </div>
+    </div>
+    <div class="color-format">
+      <span class="label">RGB</span>
+      <div class="result-row">
+        <div class="result-box mono-input" id="format-rgb"></div>
+        <button type="button" class="copy-btn color-copy" data-target="format-rgb">Copy</button>
+      </div>
+    </div>
+    <div class="color-format">
+      <span class="label">HSL</span>
+      <div class="result-row">
+        <div class="result-box mono-input" id="format-hsl"></div>
+        <button type="button" class="copy-btn color-copy" data-target="format-hsl">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="color-error" class="color-error" hidden></div>
+
+  <div class="field">
+    <div class="result-row">
+      <span class="label">Palette</span>
+      <div class="palette-controls">
+        <label class="palette-count-label" for="palette-count">Colors</label>
+        <input id="palette-count" class="input palette-count" type="number" min="2" max="10" value="5" />
+      </div>
+    </div>
+    <div class="palette-row" id="palette-row"></div>
+  </div>
+</div>
+
+<script>
+  import { hexToRgb, rgbToHex, rgbToHsl, isValidHex, generatePalette, randomHexColor } from '../../utils/color';
+
+  const colorPicker = document.getElementById('color-picker') as HTMLInputElement;
+  const hexInput = document.getElementById('color-hex') as HTMLInputElement;
+  const randomBtn = document.getElementById('color-random') as HTMLButtonElement;
+  const errorBox = document.getElementById('color-error') as HTMLElement;
+  const paletteCountInput = document.getElementById('palette-count') as HTMLInputElement;
+  const paletteRow = document.getElementById('palette-row') as HTMLElement;
+
+  const formatEls = {
+    hex: document.getElementById('format-hex') as HTMLElement,
+    rgb: document.getElementById('format-rgb') as HTMLElement,
+    hsl: document.getElementById('format-hsl') as HTMLElement
+  };
+
+  function renderPalette(hex: string) {
+    const count = Math.max(2, Math.min(10, parseInt(paletteCountInput.value, 10) || 5));
+    const colors = generatePalette(hex, count);
+    paletteRow.innerHTML = colors
+      .map((c) => `<button type="button" class="swatch" style="background:${c}" data-color="${c}" title="${c}"></button>`)
+      .join('');
+  }
+
+  function applyColor(hex: string) {
+    if (!isValidHex(hex)) {
+      errorBox.textContent = 'Enter a valid hex color, e.g. #2563eb.';
+      errorBox.hidden = false;
+      return;
+    }
+    errorBox.hidden = true;
+
+    const rgb = hexToRgb(hex);
+    const hsl = rgbToHsl(rgb);
+    const normalizedHex = rgbToHex(rgb);
+
+    colorPicker.value = normalizedHex;
+    hexInput.value = normalizedHex;
+    formatEls.hex.textContent = normalizedHex;
+    formatEls.rgb.textContent = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+    formatEls.hsl.textContent = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+
+    renderPalette(normalizedHex);
+  }
+
+  colorPicker.addEventListener('input', () => applyColor(colorPicker.value));
+  hexInput.addEventListener('input', () => {
+    if (isValidHex(hexInput.value)) applyColor(hexInput.value);
+    else {
+      errorBox.textContent = 'Enter a valid hex color, e.g. #2563eb.';
+      errorBox.hidden = false;
+    }
+  });
+
+  randomBtn.addEventListener('click', () => applyColor(randomHexColor()));
+  paletteCountInput.addEventListener('input', () => renderPalette(formatEls.hex.textContent || '#2563eb'));
+
+  document.querySelectorAll<HTMLButtonElement>('.color-copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const targetId = btn.dataset.target;
+      if (!targetId) return;
+      const el = document.getElementById(targetId) as HTMLElement;
+      if (!el.textContent) return;
+      try {
+        await navigator.clipboard.writeText(el.textContent);
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      } catch {
+        // Clipboard API unavailable — silently ignore.
+      }
+    });
+  });
+
+  paletteRow.addEventListener('click', async (event) => {
+    const target = (event.target as HTMLElement).closest<HTMLButtonElement>('.swatch');
+    if (!target?.dataset.color) return;
+    try {
+      await navigator.clipboard.writeText(target.dataset.color);
+      target.title = 'Copied!';
+      setTimeout(() => { target.title = target.dataset.color ?? ''; }, 1500);
+    } catch {
+      // Clipboard API unavailable — silently ignore.
+    }
+  });
+
+  applyColor('#2563eb');
+</script>
+
+<style>
+  .color-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .mono-input {
+    font-family: var(--font-mono);
+  }
+
+  .color-row {
+    display: flex;
+    align-items: end;
+    gap: var(--space-3);
+  }
+
+  .color-picker {
+    width: 48px;
+    height: 42px;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: none;
+    cursor: pointer;
+  }
+
+  .color-swatch-field {
+    flex: 1;
+    margin-bottom: 0;
+  }
+
+  .color-formats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-3);
+  }
+
+  .color-error {
+    color: var(--color-danger);
+    font-size: 0.85rem;
+  }
+
+  .palette-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .palette-count-label {
+    margin-bottom: 0;
+    font-size: 0.8rem;
+  }
+  .palette-count {
+    width: 60px;
+  }
+
+  .palette-row {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  .swatch {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+  }
+
+  @media (max-width: 640px) {
+    .color-formats { grid-template-columns: 1fr; }
+  }
+</style>

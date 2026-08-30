@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import PercentageCalculator from '../../components/calculators/PercentageCalculator.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free percentage calculator. Find X% of Y, work out what percentage one number is of another, and calculate percentage change.';
+const schema = toolSchema({ name: 'Percentage Calculator', description, path: '/tools/percentage/' });
+---
+
+<ToolLayout
+  title="Percentage Calculator"
+  description={description}
+  category="Calculators"
+  schema={schema}
+>
+  <PercentageCalculator />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Three calculators in one</h3>
+      <p>Find a percentage of a number, work out what percentage one value is of another, or calculate the percentage change between two values.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

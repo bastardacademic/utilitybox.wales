@@ -1,0 +1,33 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import WordBuilder from '../../components/tools/WordBuilder.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free Scrabble word builder. Find every valid word from your available letters, with pattern matching and point scoring.';
+const schema = toolSchema({ name: 'Word Builder', description, path: '/tools/word-builder/' });
+---
+
+<ToolLayout
+  title="Word Builder"
+  description={description}
+  category="Word Games"
+  schema={schema}
+>
+  <WordBuilder />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Pattern matching</h3>
+      <p>Use <code>_</code> as a wildcard in the pattern field, e.g. <code>c_t</code> matches "cat" and "cot".</p>
+    </div>
+  </Fragment>
+</ToolLayout>
+
+<style>
+  .side-card code {
+    background: var(--color-surface-alt);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+</style>

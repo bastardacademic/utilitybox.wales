@@ -1,0 +1,132 @@
+---
+---
+
+<div class="urlenc-tool">
+  <div class="urlenc-mode">
+    <label><input type="radio" name="urlenc-mode" value="encode" checked /> Encode</label>
+    <label><input type="radio" name="urlenc-mode" value="decode" /> Decode</label>
+  </div>
+
+  <label class="urlenc-full">
+    <input type="checkbox" id="urlenc-full" />
+    Full URI mode (leaves <code>: / ? # [ ] @</code> untouched — for encoding a whole URL rather than one component)
+  </label>
+
+  <div class="field">
+    <label class="label" for="urlenc-input" id="urlenc-input-label">Text</label>
+    <textarea id="urlenc-input" class="input mono-textarea" rows="6" spellcheck="false" placeholder="Type or paste text here"></textarea>
+  </div>
+
+  <div class="field">
+    <div class="result-row">
+      <span class="label" id="urlenc-output-label">Result</span>
+      <button type="button" id="urlenc-copy" class="copy-btn">Copy</button>
+    </div>
+    <div class="result-box mono-textarea urlenc-output" id="urlenc-output" role="status" aria-live="polite"></div>
+  </div>
+</div>
+
+<script>
+  import { urlEncode, urlDecode, urlEncodeFull, urlDecodeFull, UrlEncodingError } from '../../utils/urlEncoding';
+
+  const input = document.getElementById('urlenc-input') as HTMLTextAreaElement;
+  const output = document.getElementById('urlenc-output') as HTMLElement;
+  const fullModeCheckbox = document.getElementById('urlenc-full') as HTMLInputElement;
+  const inputLabel = document.getElementById('urlenc-input-label') as HTMLElement;
+  const outputLabel = document.getElementById('urlenc-output-label') as HTMLElement;
+  const copyBtn = document.getElementById('urlenc-copy') as HTMLButtonElement;
+  const modeRadios = document.querySelectorAll<HTMLInputElement>('input[name="urlenc-mode"]');
+
+  function getMode(): 'encode' | 'decode' {
+    return (document.querySelector<HTMLInputElement>('input[name="urlenc-mode"]:checked')?.value as 'encode' | 'decode') ?? 'encode';
+  }
+
+  function update() {
+    const encoding = getMode() === 'encode';
+    inputLabel.textContent = encoding ? 'Text' : 'Encoded text';
+    outputLabel.textContent = encoding ? 'Encoded' : 'Decoded';
+
+    const text = input.value;
+    if (!text) {
+      output.textContent = '';
+      output.classList.remove('error');
+      return;
+    }
+
+    try {
+      const full = fullModeCheckbox.checked;
+      output.textContent = encoding
+        ? (full ? urlEncodeFull(text) : urlEncode(text))
+        : (full ? urlDecodeFull(text) : urlDecode(text));
+      output.classList.remove('error');
+    } catch (err) {
+      output.textContent = err instanceof UrlEncodingError ? err.message : 'Could not process this text.';
+      output.classList.add('error');
+    }
+  }
+
+  input.addEventListener('input', update);
+  fullModeCheckbox.addEventListener('change', update);
+  modeRadios.forEach((r) => r.addEventListener('change', update));
+
+  copyBtn.addEventListener('click', async () => {
+    if (!output.textContent || output.classList.contains('error')) return;
+    try {
+      await navigator.clipboard.writeText(output.textContent);
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => { copyBtn.textContent = original; }, 1500);
+    } catch {
+      // Clipboard API unavailable — silently ignore.
+    }
+  });
+</script>
+
+<style>
+  .urlenc-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .urlenc-mode {
+    display: flex;
+    gap: var(--space-4);
+    font-weight: 600;
+  }
+  .urlenc-mode label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    cursor: pointer;
+  }
+
+  .urlenc-full {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  .urlenc-full input {
+    margin-top: 3px;
+  }
+  .urlenc-full code {
+    background: var(--color-surface-alt);
+    padding: 0 4px;
+    border-radius: 3px;
+  }
+
+  .mono-textarea {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    resize: vertical;
+  }
+
+  .urlenc-output {
+    min-height: 120px;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+</style>

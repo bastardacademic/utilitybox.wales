@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import WordUnscrambler from '../../components/tools/WordUnscrambler.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free word unscrambler. Enter scrambled letters and instantly find every valid word, grouped by length and scored for Scrabble.';
+const schema = toolSchema({ name: 'Word Unscrambler', description, path: '/tools/unscrambler/' });
+---
+
+<ToolLayout
+  title="Word Unscrambler"
+  description={description}
+  category="Word Games"
+  schema={schema}
+>
+  <WordUnscrambler />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>How it works</h3>
+      <p>Enter your letters and we'll search a dictionary of common English words for every valid match, including sub-words shorter than your full rack.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

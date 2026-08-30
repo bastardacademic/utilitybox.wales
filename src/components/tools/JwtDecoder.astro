@@ -1,0 +1,169 @@
+---
+---
+
+<div class="jwt-tool">
+  <div class="jwt-notice">
+    ⚠️ This only <strong>decodes</strong> a JWT — it does not verify the signature. A decoded token tells you what it
+    claims, not whether it's genuine. Never trust a JWT's contents without verifying it against the issuer's key.
+  </div>
+
+  <div class="field">
+    <div class="result-row">
+      <label class="label" for="jwt-input">JWT</label>
+      <button type="button" id="jwt-share" class="copy-btn">🔗 Share</button>
+    </div>
+    <textarea id="jwt-input" class="input mono-textarea" rows="4" spellcheck="false" placeholder="eyJhbGciOi...header.eyJzdWIiOi...payload.signature"></textarea>
+  </div>
+
+  <div id="jwt-error" class="jwt-error" hidden></div>
+
+  <div id="jwt-output" class="jwt-output" hidden>
+    <div class="jwt-section">
+      <span class="label">Header</span>
+      <pre class="result-box mono-textarea" id="jwt-header"></pre>
+    </div>
+    <div class="jwt-section">
+      <span class="label">Payload</span>
+      <pre class="result-box mono-textarea" id="jwt-payload"></pre>
+      <div id="jwt-claims" class="jwt-claims"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { decodeJwt, JwtError, JWT_DATE_CLAIMS, formatUnixTimestamp } from '../../utils/jwt';
+  import { getShareParams, copyShareLink } from '../../utils/shareLink';
+
+  const input = document.getElementById('jwt-input') as HTMLTextAreaElement;
+  const errorBox = document.getElementById('jwt-error') as HTMLElement;
+  const outputBox = document.getElementById('jwt-output') as HTMLElement;
+  const headerBox = document.getElementById('jwt-header') as HTMLElement;
+  const payloadBox = document.getElementById('jwt-payload') as HTMLElement;
+  const claimsBox = document.getElementById('jwt-claims') as HTMLElement;
+
+  function decode() {
+    const token = input.value.trim();
+    if (!token) {
+      errorBox.hidden = true;
+      outputBox.hidden = true;
+      return;
+    }
+
+    try {
+      const decoded = decodeJwt(token);
+      headerBox.textContent = JSON.stringify(decoded.header, null, 2);
+      payloadBox.textContent = JSON.stringify(decoded.payload, null, 2);
+
+      const payload = decoded.payload as Record<string, unknown>;
+      const claimLines: string[] = [];
+      for (const [claim, label] of Object.entries(JWT_DATE_CLAIMS)) {
+        const value = payload?.[claim];
+        if (typeof value === 'number') {
+          claimLines.push(`<div><strong>${label}:</strong> ${formatUnixTimestamp(value)}</div>`);
+        }
+      }
+      claimsBox.innerHTML = claimLines.join('');
+
+      errorBox.hidden = true;
+      outputBox.hidden = false;
+    } catch (err) {
+      errorBox.textContent = err instanceof JwtError ? err.message : 'Could not decode this token.';
+      errorBox.hidden = false;
+      outputBox.hidden = true;
+    }
+  }
+
+  let debounceTimer: ReturnType<typeof setTimeout>;
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(decode, 200);
+  });
+
+  const shareBtn = document.getElementById('jwt-share') as HTMLButtonElement;
+  shareBtn.addEventListener('click', () => {
+    copyShareLink({ token: input.value.trim() }, shareBtn);
+  });
+
+  // Pre-fill from a shared link, e.g. ?token=eyJ...
+  const sharedToken = getShareParams().get('token');
+  if (sharedToken) {
+    input.value = sharedToken;
+    decode();
+  }
+</script>
+
+<style>
+  .jwt-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .jwt-notice {
+    background: color-mix(in srgb, var(--color-warning) 12%, transparent);
+    border: 1px solid var(--color-warning);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    font-size: 0.9rem;
+    color: var(--color-text);
+  }
+
+  .mono-textarea {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    resize: vertical;
+  }
+
+  .jwt-error {
+    color: var(--color-danger);
+    background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+    border: 1px solid var(--color-danger);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    font-size: 0.9rem;
+  }
+
+  .jwt-output {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .jwt-section pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 0;
+  }
+
+  .jwt-claims {
+    margin-top: var(--space-2);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+
+  .result-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-1);
+  }
+  .result-row .label { margin-bottom: 0; }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    border-radius: var(--radius-sm);
+    padding: 2px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .copy-btn:hover {
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+  }
+</style>

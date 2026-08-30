@@ -1,0 +1,122 @@
+---
+---
+
+<div class="mac-tool">
+  <div class="field">
+    <label class="label" for="mac-input">MAC address</label>
+    <input id="mac-input" class="input mono-input" type="text" spellcheck="false" placeholder="AA:BB:CC:DD:EE:FF" />
+  </div>
+
+  <div class="mac-options">
+    <div class="field">
+      <label class="label" for="mac-format">Format</label>
+      <select id="mac-format" class="input">
+        <option value="colon">Colon (AA:BB:CC:DD:EE:FF)</option>
+        <option value="hyphen">Hyphen (AA-BB-CC-DD-EE-FF)</option>
+        <option value="dot">Dot (AABB.CCDD.EEFF)</option>
+        <option value="none">None (AABBCCDDEEFF)</option>
+      </select>
+    </div>
+    <label class="mac-case">
+      <input type="checkbox" id="mac-uppercase" checked /> Uppercase
+    </label>
+  </div>
+
+  <div class="field">
+    <div class="result-row">
+      <span class="label">Result</span>
+      <button type="button" id="mac-copy" class="copy-btn">Copy</button>
+    </div>
+    <div class="result-box mono-input" id="mac-result" role="status" aria-live="polite"></div>
+  </div>
+
+  <div class="mac-info" id="mac-info"></div>
+</div>
+
+<script>
+  import { formatMac, isLocallyAdministered, isMulticast, MacError, type MacFormat } from '../../utils/mac';
+
+  const input = document.getElementById('mac-input') as HTMLInputElement;
+  const formatSelect = document.getElementById('mac-format') as HTMLSelectElement;
+  const uppercaseCheckbox = document.getElementById('mac-uppercase') as HTMLInputElement;
+  const result = document.getElementById('mac-result') as HTMLElement;
+  const info = document.getElementById('mac-info') as HTMLElement;
+  const copyBtn = document.getElementById('mac-copy') as HTMLButtonElement;
+
+  function update() {
+    const value = input.value.trim();
+    if (!value) {
+      result.textContent = '';
+      result.classList.remove('error');
+      info.innerHTML = '';
+      return;
+    }
+
+    try {
+      const formatted = formatMac(value, formatSelect.value as MacFormat, uppercaseCheckbox.checked);
+      result.textContent = formatted;
+      result.classList.remove('error');
+
+      const local = isLocallyAdministered(value);
+      const multicast = isMulticast(value);
+      info.innerHTML = `
+        <span class="tag">${local ? 'Locally administered' : 'Universally administered (factory OUI)'}</span>
+        <span class="tag">${multicast ? 'Multicast' : 'Unicast'}</span>
+      `;
+    } catch (err) {
+      result.textContent = err instanceof MacError ? err.message : 'Invalid MAC address';
+      result.classList.add('error');
+      info.innerHTML = '';
+    }
+  }
+
+  input.addEventListener('input', update);
+  formatSelect.addEventListener('change', update);
+  uppercaseCheckbox.addEventListener('change', update);
+
+  copyBtn.addEventListener('click', async () => {
+    if (!result.textContent || result.classList.contains('error')) return;
+    try {
+      await navigator.clipboard.writeText(result.textContent);
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => { copyBtn.textContent = original; }, 1500);
+    } catch {
+      // Clipboard API unavailable — silently ignore.
+    }
+  });
+</script>
+
+<style>
+  .mac-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .mono-input {
+    font-family: var(--font-mono);
+  }
+
+  .mac-options {
+    display: flex;
+    align-items: end;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .mac-case {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding-bottom: 10px;
+  }
+
+  .mac-info {
+    display: flex;
+    gap: var(--space-2);
+  }
+</style>

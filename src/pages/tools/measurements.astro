@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import Measurements from '../../components/calculators/Measurements.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free unit converter for length, weight, temperature, volume, area, speed, data and time. Convert between metric and imperial instantly.';
+const schema = toolSchema({ name: 'Unit Converter', description, path: '/tools/measurements/' });
+---
+
+<ToolLayout
+  title="Unit Converter"
+  description={description}
+  category="Calculators"
+  schema={schema}
+>
+  <Measurements />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Categories</h3>
+      <p>Length, weight, temperature, volume, area, speed, data storage and time — all in one converter.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

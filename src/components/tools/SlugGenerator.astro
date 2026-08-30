@@ -1,0 +1,79 @@
+---
+---
+
+<div class="slug-tool">
+  <div class="field">
+    <label class="label" for="slug-input">Text</label>
+    <input id="slug-input" class="input" type="text" spellcheck="false" placeholder="My Blog Post Title!" />
+  </div>
+
+  <div class="slug-sep">
+    <label><input type="radio" name="slug-sep" value="-" checked /> Hyphen (kebab-case)</label>
+    <label><input type="radio" name="slug-sep" value="_" /> Underscore (snake_case)</label>
+  </div>
+
+  <div class="field">
+    <div class="result-row">
+      <span class="label">Slug</span>
+      <button type="button" id="slug-copy" class="copy-btn">Copy</button>
+    </div>
+    <div class="result-box mono-input" id="slug-result" role="status" aria-live="polite"></div>
+  </div>
+</div>
+
+<script>
+  import { toSlug } from '../../utils/slug';
+
+  const input = document.getElementById('slug-input') as HTMLInputElement;
+  const result = document.getElementById('slug-result') as HTMLElement;
+  const copyBtn = document.getElementById('slug-copy') as HTMLButtonElement;
+  const sepRadios = document.querySelectorAll<HTMLInputElement>('input[name="slug-sep"]');
+
+  function getSeparator(): '-' | '_' {
+    return (document.querySelector<HTMLInputElement>('input[name="slug-sep"]:checked')?.value as '-' | '_') ?? '-';
+  }
+
+  function update() {
+    result.textContent = input.value ? toSlug(input.value, getSeparator()) : '';
+  }
+
+  input.addEventListener('input', update);
+  sepRadios.forEach((r) => r.addEventListener('change', update));
+
+  copyBtn.addEventListener('click', async () => {
+    if (!result.textContent) return;
+    try {
+      await navigator.clipboard.writeText(result.textContent);
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => { copyBtn.textContent = original; }, 1500);
+    } catch {
+      // Clipboard API unavailable — silently ignore.
+    }
+  });
+</script>
+
+<style>
+  .slug-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .mono-input {
+    font-family: var(--font-mono);
+  }
+
+  .slug-sep {
+    display: flex;
+    gap: var(--space-4);
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+  .slug-sep label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    cursor: pointer;
+  }
+</style>

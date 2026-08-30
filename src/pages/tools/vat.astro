@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import VatCalculator from '../../components/calculators/VatCalculator.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free UK VAT calculator. Add or remove VAT at any rate and see the net, VAT, and gross amounts.';
+const schema = toolSchema({ name: 'VAT Calculator', description, path: '/tools/vat/' });
+---
+
+<ToolLayout
+  title="VAT Calculator"
+  description={description}
+  category="Calculators"
+  schema={schema}
+>
+  <VatCalculator />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Default rate</h3>
+      <p>Defaults to the UK standard rate of 20% — change it for the reduced (5%) or any other rate.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

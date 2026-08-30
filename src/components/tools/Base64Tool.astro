@@ -1,0 +1,191 @@
+---
+---
+
+<div class="b64-tool">
+  <div class="b64-toolbar">
+    <div class="b64-mode">
+      <label><input type="radio" name="b64-mode" value="encode" checked /> Encode</label>
+      <label><input type="radio" name="b64-mode" value="decode" /> Decode</label>
+    </div>
+    <label class="b64-urlsafe">
+      <input type="checkbox" id="b64-urlsafe" /> URL-safe
+    </label>
+  </div>
+
+  <div class="field">
+    <label class="label" for="b64-input" id="b64-input-label">Text</label>
+    <textarea id="b64-input" class="input mono-textarea" rows="6" spellcheck="false" placeholder="Type or paste text here"></textarea>
+  </div>
+
+  <div class="field">
+    <div class="result-row">
+      <span class="label" id="b64-output-label">Base64</span>
+      <span class="result-actions">
+        <button type="button" id="b64-share" class="copy-btn">🔗 Share</button>
+        <button type="button" id="b64-copy" class="copy-btn">Copy</button>
+      </span>
+    </div>
+    <div class="result-box mono-textarea b64-output" id="b64-output" role="status" aria-live="polite"></div>
+  </div>
+</div>
+
+<script>
+  import { base64Encode, base64Decode } from '../../utils/encoding';
+  import { getShareParams, copyShareLink } from '../../utils/shareLink';
+
+  const input = document.getElementById('b64-input') as HTMLTextAreaElement;
+  const output = document.getElementById('b64-output') as HTMLElement;
+  const urlSafeCheckbox = document.getElementById('b64-urlsafe') as HTMLInputElement;
+  const inputLabel = document.getElementById('b64-input-label') as HTMLElement;
+  const outputLabel = document.getElementById('b64-output-label') as HTMLElement;
+  const copyBtn = document.getElementById('b64-copy') as HTMLButtonElement;
+  const shareBtn = document.getElementById('b64-share') as HTMLButtonElement;
+  const modeRadios = document.querySelectorAll<HTMLInputElement>('input[name="b64-mode"]');
+
+  function getMode(): 'encode' | 'decode' {
+    return (document.querySelector<HTMLInputElement>('input[name="b64-mode"]:checked')?.value as 'encode' | 'decode') ?? 'encode';
+  }
+
+  function updateLabels() {
+    const encoding = getMode() === 'encode';
+    inputLabel.textContent = encoding ? 'Text' : 'Base64';
+    outputLabel.textContent = encoding ? 'Base64' : 'Text';
+  }
+
+  function run() {
+    updateLabels();
+    const mode = getMode();
+    const text = input.value;
+
+    if (!text) {
+      output.textContent = '';
+      output.classList.remove('error');
+      return;
+    }
+
+    try {
+      output.textContent = mode === 'encode' ? base64Encode(text, urlSafeCheckbox.checked) : base64Decode(text);
+      output.classList.remove('error');
+    } catch {
+      output.textContent = mode === 'encode' ? 'Could not encode this text.' : 'Could not decode — this is not valid base64.';
+      output.classList.add('error');
+    }
+  }
+
+  input.addEventListener('input', run);
+  urlSafeCheckbox.addEventListener('change', run);
+  modeRadios.forEach((radio) => radio.addEventListener('change', run));
+
+  copyBtn.addEventListener('click', async () => {
+    if (!output.textContent || output.classList.contains('error')) return;
+    try {
+      await navigator.clipboard.writeText(output.textContent);
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => { copyBtn.textContent = original; }, 1500);
+    } catch {
+      // Clipboard API unavailable — silently ignore.
+    }
+  });
+
+  shareBtn.addEventListener('click', () => {
+    copyShareLink({ mode: getMode(), text: input.value, urlsafe: urlSafeCheckbox.checked ? '1' : '' }, shareBtn);
+  });
+
+  // Pre-fill from a shared link, e.g. ?mode=decode&text=SGVsbG8%3D
+  (function restoreFromShareLink() {
+    const params = getShareParams();
+    const mode = params.get('mode');
+    const text = params.get('text');
+    const urlsafe = params.get('urlsafe');
+
+    if (mode === 'encode' || mode === 'decode') {
+      const radio = document.querySelector<HTMLInputElement>(`input[name="b64-mode"][value="${mode}"]`);
+      if (radio) radio.checked = true;
+    }
+    if (urlsafe) urlSafeCheckbox.checked = true;
+    if (text !== null) input.value = text;
+
+    run();
+  })();
+</script>
+
+<style>
+  .b64-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .b64-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .b64-mode {
+    display: flex;
+    gap: var(--space-4);
+    font-weight: 600;
+  }
+  .b64-mode label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    cursor: pointer;
+  }
+
+  .b64-urlsafe {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .mono-textarea {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    resize: vertical;
+  }
+
+  .b64-output {
+    min-height: 120px;
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .b64-output.error { color: var(--color-danger); }
+
+  .result-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-1);
+  }
+  .result-row .label { margin-bottom: 0; }
+
+  .result-actions {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    border-radius: var(--radius-sm);
+    padding: 2px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .copy-btn:hover {
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+  }
+</style>

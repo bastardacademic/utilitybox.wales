@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import TipCalculator from '../../components/calculators/TipCalculator.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free tip calculator. Work out the tip amount and split the total bill between any number of people.';
+const schema = toolSchema({ name: 'Tip Calculator', description, path: '/tools/tip/' });
+---
+
+<ToolLayout
+  title="Tip Calculator"
+  description={description}
+  category="Calculators"
+  schema={schema}
+>
+  <TipCalculator />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Splitting the bill</h3>
+      <p>Enter the number of people to see the tip and total per person, alongside the overall totals.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

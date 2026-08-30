@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import JwtDecoder from '../../components/tools/JwtDecoder.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free JWT decoder. Paste a JSON Web Token to see its header and payload — decoded entirely in your browser, signature not verified.';
+const schema = toolSchema({ name: 'JWT Decoder', description, path: '/tools/jwt-decoder/' });
+---
+
+<ToolLayout
+  title="JWT Decoder"
+  description={description}
+  category="Developer Tools"
+  schema={schema}
+>
+  <JwtDecoder />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Decode only</h3>
+      <p>This tool reads the header and payload of a JWT — it does not check the signature. Never treat a decoded token as verified.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import LoanCalculator from '../../components/calculators/LoanCalculator.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free loan and mortgage repayment calculator. Estimate your monthly payment, total repaid, and total interest for a fixed-rate loan.';
+const schema = toolSchema({ name: 'Loan Repayment Calculator', description, path: '/tools/loan/' });
+---
+
+<ToolLayout
+  title="Loan Repayment Calculator"
+  description={description}
+  category="Calculators"
+  schema={schema}
+>
+  <LoanCalculator />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Estimate only</h3>
+      <p>Uses the standard fixed-rate amortization formula. Real repayments may differ due to fees, rate changes, or overpayments.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

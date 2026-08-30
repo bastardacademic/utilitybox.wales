@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import UrlEncoder from '../../components/tools/UrlEncoder.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free URL encoder and decoder. Percent-encode or decode text for safe use in query strings and URLs.';
+const schema = toolSchema({ name: 'URL Encoder / Decoder', description, path: '/tools/url-encoder/' });
+---
+
+<ToolLayout
+  title="URL Encoder / Decoder"
+  description={description}
+  category="Developer Tools"
+  schema={schema}
+>
+  <UrlEncoder />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Component vs. full URI</h3>
+      <p>Default mode encodes everything, for a single query value. Full URI mode leaves URL structure characters untouched, for encoding an entire link.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

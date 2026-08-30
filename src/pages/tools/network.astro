@@ -1,0 +1,33 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import NetworkCalc from '../../components/calculators/NetworkCalc.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free network calculator for CIDR notation and subnet masks. Calculate network and broadcast addresses, host ranges, and split subnets.';
+const schema = toolSchema({ name: 'Network / CIDR Calculator', description, path: '/tools/network/' });
+---
+
+<ToolLayout
+  title="Network / CIDR Calculator"
+  description={description}
+  category="Networking"
+  schema={schema}
+>
+  <NetworkCalc />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Format</h3>
+      <p>Enter an address with a CIDR prefix, e.g. <code>10.0.0.0/8</code> or <code>192.168.1.0/24</code>.</p>
+    </div>
+  </Fragment>
+</ToolLayout>
+
+<style>
+  .side-card code {
+    background: var(--color-surface-alt);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+</style>

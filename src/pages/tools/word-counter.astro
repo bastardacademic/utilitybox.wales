@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import WordCounter from '../../components/tools/WordCounter.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free word counter and character counter. Get live word count, character count, sentence count, and estimated reading time.';
+const schema = toolSchema({ name: 'Word Counter', description, path: '/tools/word-counter/' });
+---
+
+<ToolLayout
+  title="Word Counter"
+  description={description}
+  category="Word Games"
+  schema={schema}
+>
+  <WordCounter />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Updates as you type</h3>
+      <p>Reading time is based on 225 words per minute; speaking time on 130 words per minute.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

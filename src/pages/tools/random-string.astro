@@ -1,0 +1,33 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import RandomString from '../../components/tools/RandomString.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free random string generator using cryptographically secure randomness. Generate strong passwords, tokens and UUID v4 values.';
+const schema = toolSchema({ name: 'Random String Generator', description, path: '/tools/random-string/' });
+---
+
+<ToolLayout
+  title="Random String Generator"
+  description={description}
+  category="Generators"
+  schema={schema}
+>
+  <RandomString />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Security</h3>
+      <p>Every character is generated using the browser's <code>crypto.getRandomValues()</code> API — nothing is sent to a server.</p>
+    </div>
+  </Fragment>
+</ToolLayout>
+
+<style>
+  .side-card code {
+    background: var(--color-surface-alt);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+</style>

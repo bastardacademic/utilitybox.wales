@@ -1,0 +1,161 @@
+---
+---
+
+<div class="placeholder-tool">
+  <div class="ph-row">
+    <div class="field">
+      <label class="label" for="ph-width">Width (px)</label>
+      <input id="ph-width" class="input" type="number" min="1" max="4000" value="600" />
+    </div>
+    <div class="field">
+      <label class="label" for="ph-height">Height (px)</label>
+      <input id="ph-height" class="input" type="number" min="1" max="4000" value="400" />
+    </div>
+  </div>
+
+  <div class="ph-row">
+    <div class="field">
+      <label class="label" for="ph-bg">Background</label>
+      <input id="ph-bg" class="input color-input" type="color" value="#2563eb" />
+    </div>
+    <div class="field">
+      <label class="label" for="ph-fg">Text color</label>
+      <input id="ph-fg" class="input color-input" type="color" value="#ffffff" />
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="label" for="ph-text">Label (optional — defaults to the dimensions)</label>
+    <input id="ph-text" class="input" type="text" spellcheck="false" placeholder="e.g. Hero image" />
+  </div>
+
+  <div id="ph-error" class="ph-error" hidden></div>
+
+  <div class="field">
+    <span class="label">Preview</span>
+    <div class="ph-preview" id="ph-preview"></div>
+  </div>
+
+  <div class="ph-actions">
+    <a id="ph-download" class="btn" download="placeholder.svg" href="#">Download SVG</a>
+    <button type="button" id="ph-copy-svg" class="btn btn-secondary">Copy SVG code</button>
+    <button type="button" id="ph-copy-uri" class="btn btn-secondary">Copy data URI</button>
+  </div>
+</div>
+
+<script>
+  import { generatePlaceholderSvg, svgToDataUri } from '../../utils/placeholderImage';
+
+  const widthInput = document.getElementById('ph-width') as HTMLInputElement;
+  const heightInput = document.getElementById('ph-height') as HTMLInputElement;
+  const bgInput = document.getElementById('ph-bg') as HTMLInputElement;
+  const fgInput = document.getElementById('ph-fg') as HTMLInputElement;
+  const textInput = document.getElementById('ph-text') as HTMLInputElement;
+  const errorBox = document.getElementById('ph-error') as HTMLElement;
+  const preview = document.getElementById('ph-preview') as HTMLElement;
+  const downloadLink = document.getElementById('ph-download') as HTMLAnchorElement;
+  const copySvgBtn = document.getElementById('ph-copy-svg') as HTMLButtonElement;
+  const copyUriBtn = document.getElementById('ph-copy-uri') as HTMLButtonElement;
+
+  let currentSvg = '';
+  let currentObjectUrl: string | null = null;
+
+  function update() {
+    const width = parseInt(widthInput.value, 10);
+    const height = parseInt(heightInput.value, 10);
+
+    try {
+      currentSvg = generatePlaceholderSvg({
+        width,
+        height,
+        bgColor: bgInput.value,
+        textColor: fgInput.value,
+        text: textInput.value
+      });
+      errorBox.hidden = true;
+
+      preview.innerHTML = currentSvg;
+      const svgEl = preview.querySelector('svg');
+      if (svgEl) {
+        svgEl.removeAttribute('width');
+        svgEl.removeAttribute('height');
+        svgEl.style.maxWidth = '100%';
+        svgEl.style.maxHeight = '360px';
+      }
+
+      if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
+      const blob = new Blob([currentSvg], { type: 'image/svg+xml' });
+      currentObjectUrl = URL.createObjectURL(blob);
+      downloadLink.href = currentObjectUrl;
+      downloadLink.download = `placeholder-${width}x${height}.svg`;
+    } catch (err) {
+      errorBox.textContent = err instanceof Error ? err.message : 'Could not generate image';
+      errorBox.hidden = false;
+      preview.innerHTML = '';
+    }
+  }
+
+  [widthInput, heightInput, bgInput, fgInput, textInput].forEach((el) => el.addEventListener('input', update));
+
+  async function copyText(text: string, btn: HTMLButtonElement) {
+    try {
+      await navigator.clipboard.writeText(text);
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = original; }, 1500);
+    } catch {
+      // Clipboard API unavailable — silently ignore.
+    }
+  }
+
+  copySvgBtn.addEventListener('click', () => copyText(currentSvg, copySvgBtn));
+  copyUriBtn.addEventListener('click', () => copyText(svgToDataUri(currentSvg), copyUriBtn));
+
+  update();
+</script>
+
+<style>
+  .placeholder-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .ph-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+  }
+
+  .color-input {
+    height: 42px;
+    padding: 2px;
+    cursor: pointer;
+  }
+
+  .ph-error {
+    color: var(--color-danger);
+    font-size: 0.85rem;
+  }
+
+  .ph-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    min-height: 120px;
+  }
+
+  .ph-actions {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 480px) {
+    .ph-row { grid-template-columns: 1fr; }
+  }
+</style>

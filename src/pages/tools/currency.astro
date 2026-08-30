@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import Currency from '../../components/calculators/Currency.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free currency converter with live exchange rates for major world currencies. Instant conversions, no sign-up required.';
+const schema = toolSchema({ name: 'Currency Converter', description, path: '/tools/currency/' });
+---
+
+<ToolLayout
+  title="Currency Converter"
+  description={description}
+  category="Calculators"
+  schema={schema}
+>
+  <Currency />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>About the rates</h3>
+      <p>Exchange rates are sourced from the European Central Bank via the Frankfurter API and update on each business day.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

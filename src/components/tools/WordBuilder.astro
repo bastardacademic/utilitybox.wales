@@ -1,0 +1,114 @@
+---
+---
+
+<div class="builder-tool">
+  <div class="field">
+    <label class="label" for="wb-letters">Available letters</label>
+    <input
+      id="wb-letters"
+      class="input"
+      type="text"
+      autocomplete="off"
+      spellcheck="false"
+      maxlength="20"
+      placeholder="e.g. scrabble"
+    />
+  </div>
+
+  <div class="field">
+    <label class="label" for="wb-pattern">Pattern (optional — use _ for any letter)</label>
+    <input
+      id="wb-pattern"
+      class="input"
+      type="text"
+      autocomplete="off"
+      spellcheck="false"
+      maxlength="20"
+      placeholder="e.g. c_t matches cat, cot"
+    />
+  </div>
+
+  <button type="button" id="wb-find" class="btn">Build words</button>
+
+  <p id="wb-status" class="wb-status"></p>
+
+  <div class="wb-results" id="wb-results"></div>
+</div>
+
+<script>
+  import { buildWords, loadDictionary } from '../../utils/words';
+
+  const lettersInput = document.getElementById('wb-letters') as HTMLInputElement;
+  const patternInput = document.getElementById('wb-pattern') as HTMLInputElement;
+  const findBtn = document.getElementById('wb-find') as HTMLButtonElement;
+  const statusEl = document.getElementById('wb-status') as HTMLElement;
+  const resultsEl = document.getElementById('wb-results') as HTMLElement;
+
+  async function find() {
+    const letters = lettersInput.value.trim();
+    if (!letters) {
+      statusEl.textContent = 'Enter your available letters first.';
+      resultsEl.innerHTML = '';
+      return;
+    }
+
+    statusEl.textContent = 'Building…';
+    resultsEl.innerHTML = '';
+    findBtn.disabled = true;
+
+    try {
+      const dictionary = await loadDictionary();
+      const results = buildWords(letters, dictionary, patternInput.value);
+
+      if (results.length === 0) {
+        statusEl.textContent = 'No words could be built from those letters.';
+        return;
+      }
+
+      statusEl.textContent = `Built ${results.length} word${results.length === 1 ? '' : 's'}, best score first.`;
+      resultsEl.innerHTML = `
+        <table>
+          <thead><tr><th>Word</th><th>Length</th><th>Scrabble score</th></tr></thead>
+          <tbody>
+            ${results
+              .slice(0, 200)
+              .map((r) => `<tr><td class="wb-word">${r.word}</td><td>${r.length}</td><td>${r.score}</td></tr>`)
+              .join('')}
+          </tbody>
+        </table>
+      `;
+    } catch {
+      statusEl.textContent = 'Could not load the dictionary. Please try again.';
+    } finally {
+      findBtn.disabled = false;
+    }
+  }
+
+  findBtn.addEventListener('click', find);
+  patternInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') find(); });
+  lettersInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') find(); });
+</script>
+
+<style>
+  .builder-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .wb-status {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  .wb-results {
+    max-height: 480px;
+    overflow-y: auto;
+  }
+
+  .wb-word {
+    text-transform: capitalize;
+    font-family: var(--font-mono);
+  }
+</style>

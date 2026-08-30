@@ -1,0 +1,122 @@
+---
+---
+
+<div class="lorem-tool">
+  <div class="lorem-controls">
+    <div class="field">
+      <label class="label" for="lorem-count">Count</label>
+      <input id="lorem-count" class="input" type="number" min="1" max="200" value="3" />
+    </div>
+
+    <div class="field">
+      <label class="label" for="lorem-unit">Unit</label>
+      <select id="lorem-unit" class="input">
+        <option value="paragraphs" selected>Paragraphs</option>
+        <option value="sentences">Sentences</option>
+        <option value="words">Words</option>
+      </select>
+    </div>
+
+    <label class="checkbox-field lorem-start">
+      <input type="checkbox" id="lorem-start" checked />
+      Start with "Lorem ipsum dolor sit amet…"
+    </label>
+  </div>
+
+  <div class="rnd-actions">
+    <button type="button" id="lorem-generate" class="btn">Generate</button>
+    <button type="button" id="lorem-copy" class="btn btn-secondary">Copy</button>
+  </div>
+
+  <div class="field" style="margin-top: var(--space-4)">
+    <span class="label">Generated text</span>
+    <div class="result-box lorem-output" id="lorem-output" role="status" aria-live="polite"></div>
+  </div>
+</div>
+
+<script>
+  import { generateLoremIpsum, type LoremUnit } from '../../utils/generators';
+
+  const countInput = document.getElementById('lorem-count') as HTMLInputElement;
+  const unitSelect = document.getElementById('lorem-unit') as HTMLSelectElement;
+  const startCheckbox = document.getElementById('lorem-start') as HTMLInputElement;
+  const generateBtn = document.getElementById('lorem-generate') as HTMLButtonElement;
+  const copyBtn = document.getElementById('lorem-copy') as HTMLButtonElement;
+  const output = document.getElementById('lorem-output') as HTMLElement;
+
+  function generate() {
+    try {
+      const text = generateLoremIpsum({
+        count: parseInt(countInput.value, 10),
+        unit: unitSelect.value as LoremUnit,
+        startWithLorem: startCheckbox.checked
+      });
+      output.textContent = text;
+      output.classList.remove('error');
+    } catch (err) {
+      output.textContent = err instanceof Error ? err.message : 'Could not generate text';
+      output.classList.add('error');
+    }
+  }
+
+  generateBtn.addEventListener('click', generate);
+  [countInput, unitSelect, startCheckbox].forEach((el) => el.addEventListener('change', generate));
+
+  copyBtn.addEventListener('click', async () => {
+    if (!output.textContent) return;
+    try {
+      await navigator.clipboard.writeText(output.textContent);
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => { copyBtn.textContent = original; }, 1500);
+    } catch {
+      // Clipboard API unavailable — silently ignore.
+    }
+  });
+
+  generate();
+</script>
+
+<style>
+  .lorem-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .lorem-controls {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: var(--space-3) var(--space-4);
+    align-items: end;
+  }
+
+  .lorem-start {
+    grid-column: 1 / -1;
+  }
+
+  .checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  .rnd-actions {
+    display: flex;
+    gap: var(--space-3);
+  }
+
+  .lorem-output {
+    white-space: pre-wrap;
+    font-family: var(--font-sans);
+    line-height: 1.6;
+  }
+  .lorem-output.error { color: var(--color-danger); font-family: var(--font-mono); }
+
+  @media (max-width: 480px) {
+    .lorem-controls { grid-template-columns: 1fr; }
+  }
+</style>

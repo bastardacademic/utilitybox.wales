@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import JsonFormatter from '../../components/tools/JsonFormatter.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free JSON formatter and validator. Pretty-print or minify JSON and get clear error locations for invalid input, entirely in your browser.';
+const schema = toolSchema({ name: 'JSON Formatter & Validator', description, path: '/tools/json-formatter/' });
+---
+
+<ToolLayout
+  title="JSON Formatter & Validator"
+  description={description}
+  category="Developer Tools"
+  schema={schema}
+>
+  <JsonFormatter />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>How it works</h3>
+      <p>Paste any JSON and it's validated as you type. Use Format to pretty-print with your chosen indent, or Minify to collapse it to a single line.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

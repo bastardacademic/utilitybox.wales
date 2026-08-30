@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import PortReference from '../../components/tools/PortReference.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free network port number reference. Search common TCP/UDP ports and the services that use them.';
+const schema = toolSchema({ name: 'Port Number Reference', description, path: '/tools/port-lookup/' });
+---
+
+<ToolLayout
+  title="Port Number Reference"
+  description={description}
+  category="Networking"
+  schema={schema}
+>
+  <PortReference />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Covers the essentials</h3>
+      <p>The most common well-known and registered ports — web, mail, databases, and remote access — not the full IANA registry.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

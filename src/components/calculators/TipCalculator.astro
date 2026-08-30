@@ -1,0 +1,114 @@
+---
+---
+
+<div class="tip-tool">
+  <div class="tip-row">
+    <div class="field">
+      <label class="label" for="tip-bill">Bill amount (£)</label>
+      <input id="tip-bill" class="input" type="number" min="0" step="any" value="50" />
+    </div>
+    <div class="field">
+      <label class="label" for="tip-percent">Tip (%)</label>
+      <input id="tip-percent" class="input" type="number" min="0" max="100" step="1" value="12" />
+    </div>
+    <div class="field">
+      <label class="label" for="tip-people">Number of people</label>
+      <input id="tip-people" class="input" type="number" min="1" step="1" value="1" />
+    </div>
+  </div>
+
+  <div class="tip-presets">
+    <span class="label">Quick tip</span>
+    <div class="tip-preset-row">
+      {[10, 12, 15, 18, 20].map((p) => (
+        <button type="button" class="btn btn-secondary tip-preset" data-percent={p}>{p}%</button>
+      ))}
+    </div>
+  </div>
+
+  <div class="field">
+    <span class="label">Result</span>
+    <div class="result-box" id="tip-result"></div>
+  </div>
+</div>
+
+<script>
+  import { calculateTip } from '../../utils/finance';
+
+  const billInput = document.getElementById('tip-bill') as HTMLInputElement;
+  const percentInput = document.getElementById('tip-percent') as HTMLInputElement;
+  const peopleInput = document.getElementById('tip-people') as HTMLInputElement;
+  const result = document.getElementById('tip-result') as HTMLElement;
+  const presetButtons = document.querySelectorAll<HTMLButtonElement>('.tip-preset');
+
+  const gbp = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' });
+
+  function update() {
+    const bill = parseFloat(billInput.value);
+    const percent = parseFloat(percentInput.value);
+    const people = parseInt(peopleInput.value, 10);
+
+    if (Number.isNaN(bill) || Number.isNaN(percent) || Number.isNaN(people)) {
+      result.textContent = 'Enter valid numbers';
+      result.classList.add('error');
+      return;
+    }
+
+    try {
+      const r = calculateTip(bill, percent, people);
+      const perPersonLine = people > 1
+        ? `<br>Per person: <strong>${gbp.format(r.perPerson)}</strong> (tip: ${gbp.format(r.tipPerPerson)})`
+        : '';
+      result.innerHTML = `Tip: <strong>${gbp.format(r.tipAmount)}</strong><br>Total: <strong>${gbp.format(r.total)}</strong>${perPersonLine}`;
+      result.classList.remove('error');
+    } catch (err) {
+      result.textContent = err instanceof Error ? err.message : 'Could not calculate';
+      result.classList.add('error');
+    }
+  }
+
+  [billInput, percentInput, peopleInput].forEach((el) => el.addEventListener('input', update));
+
+  presetButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      percentInput.value = btn.dataset.percent ?? '12';
+      update();
+    });
+  });
+
+  update();
+</script>
+
+<style>
+  .tip-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .tip-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+  }
+
+  .tip-presets {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .tip-preset-row {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  #tip-result {
+    line-height: 1.8;
+  }
+
+  @media (max-width: 640px) {
+    .tip-row { grid-template-columns: 1fr; }
+  }
+</style>

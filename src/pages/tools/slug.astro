@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import SlugGenerator from '../../components/tools/SlugGenerator.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free slug generator. Convert any text into a clean, URL-safe slug in kebab-case or snake_case.';
+const schema = toolSchema({ name: 'Slug Generator', description, path: '/tools/slug/' });
+---
+
+<ToolLayout
+  title="Slug Generator"
+  description={description}
+  category="Generators"
+  schema={schema}
+>
+  <SlugGenerator />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>What it does</h3>
+      <p>Lowercases the text, strips accents and punctuation, and replaces spaces with your chosen separator.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

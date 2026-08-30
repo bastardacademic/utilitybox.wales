@@ -1,0 +1,117 @@
+---
+const CASES = [
+  { id: 'upper', label: 'UPPERCASE' },
+  { id: 'lower', label: 'lowercase' },
+  { id: 'title', label: 'Title Case' },
+  { id: 'sentence', label: 'Sentence case' },
+  { id: 'camel', label: 'camelCase' },
+  { id: 'pascal', label: 'PascalCase' },
+  { id: 'snake', label: 'snake_case' },
+  { id: 'kebab', label: 'kebab-case' },
+  { id: 'constant', label: 'CONSTANT_CASE' }
+];
+---
+
+<div class="case-tool">
+  <div class="field">
+    <label class="label" for="case-input">Your text</label>
+    <textarea id="case-input" class="input mono-textarea" rows="6" spellcheck="false" placeholder="Type or paste text here"></textarea>
+  </div>
+
+  <div class="case-results" id="case-results">
+    {CASES.map((c) => (
+      <div class="case-item">
+        <span class="label">{c.label}</span>
+        <div class="result-row">
+          <div class="result-box case-output" id={`case-${c.id}`}></div>
+          <button type="button" class="copy-btn case-copy" data-target={`case-${c.id}`}>Copy</button>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<script>
+  import {
+    toUpperCase, toLowerCase, toTitleCase, toSentenceCase,
+    toCamelCase, toPascalCase, toSnakeCase, toKebabCase, toConstantCase
+  } from '../../utils/textCase';
+
+  const input = document.getElementById('case-input') as HTMLTextAreaElement;
+
+  const converters: Record<string, (text: string) => string> = {
+    upper: toUpperCase,
+    lower: toLowerCase,
+    title: toTitleCase,
+    sentence: toSentenceCase,
+    camel: toCamelCase,
+    pascal: toPascalCase,
+    snake: toSnakeCase,
+    kebab: toKebabCase,
+    constant: toConstantCase
+  };
+
+  function update() {
+    const text = input.value;
+    for (const [id, convert] of Object.entries(converters)) {
+      const el = document.getElementById(`case-${id}`) as HTMLElement;
+      el.textContent = text ? convert(text) : '';
+    }
+  }
+
+  input.addEventListener('input', update);
+
+  document.querySelectorAll<HTMLButtonElement>('.case-copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const targetId = btn.dataset.target;
+      if (!targetId) return;
+      const el = document.getElementById(targetId) as HTMLElement;
+      if (!el.textContent) return;
+      try {
+        await navigator.clipboard.writeText(el.textContent);
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      } catch {
+        // Clipboard API unavailable — silently ignore.
+      }
+    });
+  });
+
+  update();
+</script>
+
+<style>
+  .case-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .mono-textarea {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    resize: vertical;
+  }
+
+  .case-results {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .case-item .result-row {
+    align-items: stretch;
+    margin-bottom: 0;
+  }
+
+  .case-output {
+    flex: 1;
+    min-height: 1.2rem;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .case-copy {
+    flex-shrink: 0;
+  }
+</style>

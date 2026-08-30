@@ -1,0 +1,89 @@
+---
+---
+
+<div class="loan-tool">
+  <div class="loan-row">
+    <div class="field">
+      <label class="label" for="loan-principal">Loan amount (£)</label>
+      <input id="loan-principal" class="input" type="number" min="0" step="any" value="200000" />
+    </div>
+    <div class="field">
+      <label class="label" for="loan-rate">Interest rate (% per year)</label>
+      <input id="loan-rate" class="input" type="number" min="0" max="100" step="0.01" value="4.5" />
+    </div>
+    <div class="field">
+      <label class="label" for="loan-term">Term (years)</label>
+      <input id="loan-term" class="input" type="number" min="1" step="1" value="25" />
+    </div>
+  </div>
+
+  <div class="field">
+    <span class="label">Result</span>
+    <div class="result-box" id="loan-result"></div>
+  </div>
+
+  <p class="loan-disclaimer">Estimate only, based on a standard fixed-rate amortizing loan. Does not account for fees, arrangement costs, or rate changes.</p>
+</div>
+
+<script>
+  import { calculateLoanRepayment } from '../../utils/finance';
+
+  const principalInput = document.getElementById('loan-principal') as HTMLInputElement;
+  const rateInput = document.getElementById('loan-rate') as HTMLInputElement;
+  const termInput = document.getElementById('loan-term') as HTMLInputElement;
+  const result = document.getElementById('loan-result') as HTMLElement;
+
+  const gbp = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' });
+
+  function update() {
+    const principal = parseFloat(principalInput.value);
+    const rate = parseFloat(rateInput.value);
+    const term = parseFloat(termInput.value);
+
+    if (Number.isNaN(principal) || Number.isNaN(rate) || Number.isNaN(term)) {
+      result.textContent = 'Enter valid numbers';
+      result.classList.add('error');
+      return;
+    }
+
+    try {
+      const r = calculateLoanRepayment(principal, rate, term);
+      result.innerHTML = `Monthly payment: <strong>${gbp.format(r.monthlyPayment)}</strong><br>Total repaid: <strong>${gbp.format(r.totalRepaid)}</strong><br>Total interest: <strong>${gbp.format(r.totalInterest)}</strong>`;
+      result.classList.remove('error');
+    } catch (err) {
+      result.textContent = err instanceof Error ? err.message : 'Could not calculate';
+      result.classList.add('error');
+    }
+  }
+
+  [principalInput, rateInput, termInput].forEach((el) => el.addEventListener('input', update));
+  update();
+</script>
+
+<style>
+  .loan-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .loan-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+  }
+
+  #loan-result {
+    line-height: 1.8;
+  }
+
+  .loan-disclaimer {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  @media (max-width: 640px) {
+    .loan-row { grid-template-columns: 1fr; }
+  }
+</style>

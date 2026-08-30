@@ -1,0 +1,47 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import RegexTester from '../../components/tools/RegexTester.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free regex tester with live match highlighting. Test regular expressions against your own text and see every match, group, and index instantly.';
+const schema = toolSchema({ name: 'Regex Tester', description, path: '/tools/regex-tester/' });
+---
+
+<ToolLayout
+  title="Regex Tester"
+  description={description}
+  category="Developer Tools"
+  schema={schema}
+>
+  <RegexTester />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Flags</h3>
+      <ul>
+        <li><code>g</code> — find all matches, not just the first</li>
+        <li><code>i</code> — case-insensitive</li>
+        <li><code>m</code> — <code>^</code>/<code>$</code> match line boundaries</li>
+        <li><code>s</code> — <code>.</code> matches newlines</li>
+      </ul>
+    </div>
+  </Fragment>
+</ToolLayout>
+
+<style>
+  .side-card ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .side-card code {
+    background: var(--color-surface-alt);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+</style>

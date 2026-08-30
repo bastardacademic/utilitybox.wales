@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import LoremIpsum from '../../components/tools/LoremIpsum.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free Lorem Ipsum generator. Create placeholder text by word, sentence or paragraph for design mockups and layouts.';
+const schema = toolSchema({ name: 'Lorem Ipsum Generator', description, path: '/tools/lorem/' });
+---
+
+<ToolLayout
+  title="Lorem Ipsum Generator"
+  description={description}
+  category="Generators"
+  schema={schema}
+>
+  <LoremIpsum />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Why Lorem Ipsum?</h3>
+      <p>Placeholder Latin-esque text keeps focus on layout and typography rather than readable content during design.</p>
+    </div>
+  </Fragment>
+</ToolLayout>
