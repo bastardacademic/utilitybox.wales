@@ -130,6 +130,23 @@ code, pre {
   box-shadow: var(--shadow-sm);
 }
 
+/* Sidebar info card used on tool pages. Global (not scoped to ToolLayout.astro) because
+   every tool page writes its own <div class="card side-card"> markup directly. */
+.side-card {
+  padding: var(--space-4);
+}
+
+.side-card h3 {
+  margin-bottom: var(--space-2);
+  font-size: 1rem;
+}
+
+.side-card p {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 0;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
