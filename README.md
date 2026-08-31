@@ -22,7 +22,7 @@ Free online calculators and everyday utility tools, built with [Astro](https://a
 
 **Word Games**
 - Word unscrambler
-- Word builder (with pattern matching and Scrabble scoring)
+- Word builder (with pattern matching and word-game scoring)
 - Word/character counter (with reading and speaking time estimates)
 - Case converter (UPPER/lower/Title/Sentence/camelCase/PascalCase/snake_case/kebab-case/CONSTANT_CASE)
 - Palindrome checker
@@ -72,7 +72,7 @@ src/
     calculators.ts    Expression evaluator, unit conversion, UK salary logic
     network.ts         IPv4 / CIDR math
     generators.ts       Random string + Lorem Ipsum generation
-    words.ts             Unscramble / word-building / Scrabble scoring
+    words.ts             Unscramble / word-building / word-game scoring
     json.ts               JSON format/minify/validate with error position
     regexTool.ts           Regex matching + HTML-safe match highlighting
     diff.ts                 Line-level LCS diff algorithm

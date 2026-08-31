@@ -1,10 +1,10 @@
 /**
  * Word game utilities: unscrambling, word building from letter tiles,
- * and Scrabble scoring. Dictionary word lists are loaded at call time
+ * and letter-value scoring. Dictionary word lists are loaded at call time
  * from /data/dictionary.json (see loadDictionary).
  */
 
-export const SCRABBLE_SCORES: Record<string, number> = {
+export const LETTER_SCORES: Record<string, number> = {
   a: 1, b: 3, c: 3, d: 2, e: 1, f: 4, g: 2, h: 4, i: 1, j: 8,
   k: 5, l: 1, m: 3, n: 1, o: 1, p: 3, q: 10, r: 1, s: 1, t: 1,
   u: 1, v: 4, w: 4, x: 8, y: 4, z: 10
@@ -12,8 +12,8 @@ export const SCRABBLE_SCORES: Record<string, number> = {
 
 export function scoreWord(word: string): number {
   return Array.from(word.toLowerCase())
-    .filter((c) => c in SCRABBLE_SCORES)
-    .reduce((total, c) => total + SCRABBLE_SCORES[c], 0);
+    .filter((c) => c in LETTER_SCORES)
+    .reduce((total, c) => total + LETTER_SCORES[c], 0);
 }
 
 let dictionaryCache: string[] | null = null;

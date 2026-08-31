@@ -11,7 +11,7 @@
       autocomplete="off"
       spellcheck="false"
       maxlength="20"
-      placeholder="e.g. scrabble"
+      placeholder="e.g. puzzle"
     />
   </div>
 
@@ -68,7 +68,7 @@
       statusEl.textContent = `Built ${results.length} word${results.length === 1 ? '' : 's'}, best score first.`;
       resultsEl.innerHTML = `
         <table>
-          <thead><tr><th>Word</th><th>Length</th><th>Scrabble score</th></tr></thead>
+          <thead><tr><th>Word</th><th>Length</th><th>Score</th></tr></thead>
           <tbody>
             ${results
               .slice(0, 200)
