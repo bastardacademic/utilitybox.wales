@@ -24,10 +24,20 @@ const schema = toolSchema({ name: 'Word Builder', description, path: '/tools/wor
   </Fragment>
 </ToolLayout>
 
+<p class="container dictionary-credit">
+  Word list includes data from the <a href="https://github.com/rdeits/cryptics/blob/master/raw_data/UKACD.txt" target="_blank" rel="noopener noreferrer">UK Advanced Cryptics Dictionary (UKACD)</a>, © J Ross Beresford 1993–2009, used under its BSD-style license.
+</p>
+
 <style>
   .side-card code {
     background: var(--color-surface-alt);
     padding: 1px 5px;
     border-radius: 4px;
+  }
+
+  .dictionary-credit {
+    padding-bottom: var(--space-6);
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
   }
 </style>
