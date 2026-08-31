@@ -255,4 +255,9 @@
   .net-split-error {
     color: var(--color-danger);
   }
+
+  @media (max-width: 480px) {
+    .net-split-row { flex-wrap: wrap; }
+    .net-split-row .field { max-width: none; flex-basis: 100%; }
+  }
 </style>
