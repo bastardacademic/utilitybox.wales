@@ -1,0 +1,153 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const lastUpdated = 'August 2026';
+---
+
+<Layout
+  title="Terms of Use"
+  description="The terms for using UtilityBox's free calculators and tools, including the accuracy disclaimer for financial and technical tools."
+>
+  <div class="container terms-page">
+    <h1>Terms of Use</h1>
+    <p class="updated">Last updated: {lastUpdated}</p>
+
+    <section>
+      <h2>Overview</h2>
+      <p>
+        These terms cover your use of UtilityBox (this website). By using the site, you agree to them. If you
+        don't agree, please don't use the site — there's no account or sign-up, so that's genuinely as simple
+        as closing the tab.
+      </p>
+    </section>
+
+    <section>
+      <h2>The service</h2>
+      <p>
+        UtilityBox provides free calculators and utility tools that run in your browser — no account, no
+        sign-up, no payment. We can change, add, remove, or discontinue any tool at any time, without notice.
+        We try not to break things, but we don't promise the site or any specific tool will always be
+        available, error-free, or uninterrupted.
+      </p>
+    </section>
+
+    <section>
+      <h2>No professional advice — accuracy isn't guaranteed</h2>
+      <p>
+        This is the important one. Every tool on this site — including the UK Salary, VAT, Loan Repayment, Tip,
+        and Percentage calculators, and the Network/CIDR calculator — is provided for general informational
+        purposes only. None of it is financial, tax, legal, or professional advice, and none of it should be
+        relied on as the sole basis for a financial, business, or technical decision.
+      </p>
+      <p>
+        We've tried to implement the underlying formulas correctly and verified them against known reference
+        figures, but tax rules, exchange rates, and interest calculations change, edge cases exist, and
+        software has bugs. Always double-check anything that actually matters — a mortgage decision, a tax
+        return, a production network configuration — with an authoritative source (HMRC, a qualified
+        accountant or financial adviser, your bank, official documentation) before acting on it.
+      </p>
+    </section>
+
+    <section>
+      <h2>No warranty, no liability</h2>
+      <p>
+        The site and its tools are provided "as is" and "as available," without warranties of any kind, express
+        or implied — including, without limitation, warranties of accuracy, merchantability, or fitness for a
+        particular purpose.
+      </p>
+      <p>
+        To the fullest extent permitted by law, we aren't liable for any loss or damage arising from your use
+        of, or inability to use, this site or any tool on it — including decisions made or actions taken based
+        on a tool's output. If you're a consumer in the UK, nothing in these terms excludes or limits liability
+        where it would be unlawful to do so.
+      </p>
+    </section>
+
+    <section>
+      <h2>Acceptable use</h2>
+      <p>Please don't:</p>
+      <ul>
+        <li>Try to disrupt, overload, or interfere with the site (e.g. automated scraping at a rate that affects other visitors).</li>
+        <li>Attempt to gain unauthorized access to any part of the site's infrastructure.</li>
+        <li>Use the site for anything unlawful.</li>
+      </ul>
+      <p>We reserve the right to block access for anyone who doesn't follow this.</p>
+    </section>
+
+    <section>
+      <h2>Third-party services</h2>
+      <p>
+        Some tools call out to third-party services to work — for example, the Currency Converter uses the
+        Frankfurter API, and the site shows ads served by Google AdSense. Those services have their own terms
+        and privacy practices, which we don't control. See our <a href="/privacy/">Privacy Policy</a> for the
+        full detail on what talks to what.
+      </p>
+    </section>
+
+    <section>
+      <h2>Content and word lists</h2>
+      <p>
+        The site's code and design are ours. The word list used by the Word Unscrambler and Word Builder tools
+        incorporates the UK Advanced Cryptics Dictionary — see the credit at the bottom of those tool pages for
+        the license it's used under.
+      </p>
+    </section>
+
+    <section>
+      <h2>Changes to these terms</h2>
+      <p>
+        We may update these terms as the site changes. If we do, we'll update the "Last updated" date above.
+        Continuing to use the site after a change means you accept the updated terms.
+      </p>
+    </section>
+
+    <section>
+      <h2>Governing law</h2>
+      <p>These terms are governed by the laws of England and Wales.</p>
+    </section>
+
+    <section>
+      <h2>Contact</h2>
+      <p>Questions about these terms? Email <strong>privacy@utilitybox.wales</strong>.</p>
+      <p><a href="/">← Back to home</a></p>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .terms-page {
+    max-width: 720px;
+    padding-block: var(--space-6) var(--space-8);
+  }
+
+  .updated {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin-bottom: var(--space-6);
+  }
+
+  section {
+    margin-bottom: var(--space-6);
+  }
+
+  section h2 {
+    margin-bottom: var(--space-3);
+    font-size: 1.2rem;
+  }
+
+  section ul {
+    margin: 0 0 var(--space-4);
+    padding-left: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  section p {
+    color: var(--color-text-muted);
+  }
+
+  section li {
+    color: var(--color-text-muted);
+  }
+</style>

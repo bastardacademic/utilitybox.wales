@@ -97,6 +97,7 @@ src/
   pages/
     404.astro          Custom not-found page
     privacy.astro     Privacy policy
+    terms.astro        Terms of Use
     sitemap.xml.ts     Hand-rolled sitemap endpoint (no extra dependency)
 public/
   data/dictionary.json  Word list used by the word-game tools

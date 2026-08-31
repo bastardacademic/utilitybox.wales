@@ -5,6 +5,7 @@ const SITE = 'https://utilitybox.wales';
 const PAGES: { path: string; priority: string; changefreq: string }[] = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
   { path: '/privacy/', priority: '0.3', changefreq: 'yearly' },
+  { path: '/terms/', priority: '0.3', changefreq: 'yearly' },
   { path: '/tools/scientific/', priority: '0.8', changefreq: 'monthly' },
   { path: '/tools/currency/', priority: '0.8', changefreq: 'monthly' },
   { path: '/tools/measurements/', priority: '0.8', changefreq: 'monthly' },
