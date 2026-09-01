@@ -1,0 +1,162 @@
+---
+---
+
+<div class="ipc-tool">
+  <div class="field">
+    <label class="label" for="ipc-input">IPv4 address (dotted decimal, hex, binary, or integer)</label>
+    <input
+      id="ipc-input"
+      class="input"
+      type="text"
+      value="192.168.1.1"
+      autocomplete="off"
+      spellcheck="false"
+      placeholder="e.g. 192.168.1.1, 0xC0A80101, or 3232235777"
+    />
+  </div>
+
+  <button type="button" id="ipc-convert" class="btn">Convert</button>
+
+  <div class="ipc-results" id="ipc-results" hidden>
+    <div class="result-row">
+      <span class="label">Results <span id="ipc-detected" class="ipc-detected"></span></span>
+      <span class="result-actions">
+        <button type="button" id="ipc-share" class="copy-btn">🔗 Share</button>
+        <button type="button" id="ipc-copy" class="copy-btn">Copy summary</button>
+      </span>
+    </div>
+    <table>
+      <tbody>
+        <tr><td>Dotted decimal</td><td id="r-dotted" class="num"></td></tr>
+        <tr><td>Binary</td><td id="r-binary" class="num"></td></tr>
+        <tr><td>Hexadecimal</td><td id="r-hex" class="num"></td></tr>
+        <tr><td>Integer (32-bit)</td><td id="r-integer" class="num"></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="field" id="ipc-error" hidden></div>
+</div>
+
+<script>
+  import { parseIpAnyFormat, NetworkError } from '../../utils/network';
+  import { getShareParams, copyShareLink } from '../../utils/shareLink';
+
+  const input = document.getElementById('ipc-input') as HTMLInputElement;
+  const convertBtn = document.getElementById('ipc-convert') as HTMLButtonElement;
+  const resultsBox = document.getElementById('ipc-results') as HTMLElement;
+  const errorBox = document.getElementById('ipc-error') as HTMLElement;
+  const detectedEl = document.getElementById('ipc-detected') as HTMLElement;
+  const copyBtn = document.getElementById('ipc-copy') as HTMLButtonElement;
+
+  let lastSummary = '';
+
+  function setText(id: string, value: string) {
+    (document.getElementById(id) as HTMLElement).textContent = value;
+  }
+
+  function convert() {
+    errorBox.hidden = true;
+    try {
+      const info = parseIpAnyFormat(input.value);
+      setText('r-dotted', info.dotted);
+      setText('r-binary', info.binary);
+      setText('r-hex', info.hex);
+      setText('r-integer', info.integer.toString());
+      detectedEl.textContent = `(read as ${info.detectedAs})`;
+      resultsBox.hidden = false;
+
+      lastSummary = [
+        `Dotted decimal: ${info.dotted}`,
+        `Binary: ${info.binary}`,
+        `Hexadecimal: ${info.hex}`,
+        `Integer (32-bit): ${info.integer}`
+      ].join('\n');
+    } catch (err) {
+      resultsBox.hidden = true;
+      errorBox.textContent = err instanceof NetworkError ? err.message : 'Could not parse that value';
+      errorBox.hidden = false;
+    }
+  }
+
+  convertBtn.addEventListener('click', convert);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') convert(); });
+
+  copyBtn.addEventListener('click', async () => {
+    if (!lastSummary) return;
+    try {
+      await navigator.clipboard.writeText(lastSummary);
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => { copyBtn.textContent = original; }, 1500);
+    } catch {
+      // Clipboard API unavailable — silently ignore.
+    }
+  });
+
+  const shareBtn = document.getElementById('ipc-share') as HTMLButtonElement;
+  shareBtn.addEventListener('click', () => {
+    copyShareLink({ value: input.value }, shareBtn);
+  });
+
+  // Pre-fill from a shared link, e.g. ?value=192.168.1.1
+  const sharedValue = getShareParams().get('value');
+  if (sharedValue) input.value = sharedValue;
+
+  convert();
+</script>
+
+<style>
+  .ipc-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  td.num { text-align: right; font-family: var(--font-mono); word-break: break-all; }
+
+  .result-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-2);
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+  .result-row .label { margin-bottom: 0; }
+
+  .ipc-detected {
+    font-weight: 400;
+    color: var(--color-text-muted);
+    text-transform: none;
+    font-size: 0.85rem;
+  }
+
+  .result-actions {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    border-radius: var(--radius-sm);
+    padding: 2px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .copy-btn:hover {
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+  }
+
+  #ipc-error {
+    color: var(--color-danger);
+    background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+    border: 1px solid var(--color-danger);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+  }
+</style>

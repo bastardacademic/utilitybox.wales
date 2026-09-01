@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import BandwidthCalculator from '../../components/calculators/BandwidthCalculator.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free data transfer time calculator. Work out how long a download or upload will take given a file size and connection speed.';
+const schema = toolSchema({ name: 'Bandwidth / Transfer Time Calculator', description, path: '/tools/bandwidth/' });
+---
+
+<ToolLayout
+  title="Bandwidth / Transfer Time Calculator"
+  description={description}
+  category="Networking"
+  schema={schema}
+>
+  <BandwidthCalculator />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Why the estimate is optimistic</h3>
+      <p>Real transfers run slower than the raw connection speed due to protocol overhead, other traffic sharing the link, and Wi-Fi/latency effects. Treat this as a best case.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

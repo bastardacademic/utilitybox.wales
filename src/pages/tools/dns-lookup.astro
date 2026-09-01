@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import DnsLookup from '../../components/tools/DnsLookup.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free DNS lookup tool. Query live A, AAAA, CNAME, MX, TXT, NS, SOA, SRV and CAA records for any domain via DNS-over-HTTPS.';
+const schema = toolSchema({ name: 'DNS Lookup', description, path: '/tools/dns-lookup/' });
+---
+
+<ToolLayout
+  title="DNS Lookup"
+  description={description}
+  category="Networking"
+  schema={schema}
+>
+  <DnsLookup />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>How this works</h3>
+      <p>Queries are sent to <a href="https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/" target="_blank" rel="noopener noreferrer">Cloudflare's public DNS-over-HTTPS resolver</a> directly from your browser — no lookup data passes through our server.</p>
+    </div>
+  </Fragment>
+</ToolLayout>

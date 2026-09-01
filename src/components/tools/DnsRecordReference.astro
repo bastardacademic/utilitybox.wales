@@ -1,0 +1,113 @@
+---
+---
+
+<div class="dns-ref-tool">
+  <div class="field">
+    <label class="label" for="dns-ref-search">Search by type or description</label>
+    <input id="dns-ref-search" class="input" type="text" spellcheck="false" placeholder="e.g. MX, mail, dnssec" />
+  </div>
+
+  <div class="dns-ref-list" id="dns-ref-list"></div>
+</div>
+
+<script>
+  import { searchDnsRecordTypes, type DnsRecordType } from '../../utils/dns';
+
+  const searchInput = document.getElementById('dns-ref-search') as HTMLInputElement;
+  const listEl = document.getElementById('dns-ref-list') as HTMLElement;
+
+  function escapeHtml(text: string): string {
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function render(results: DnsRecordType[]) {
+    if (results.length === 0) {
+      listEl.innerHTML = '<p class="dns-ref-empty">No matching record types.</p>';
+      return;
+    }
+
+    listEl.innerHTML = results
+      .map(
+        (r) => `
+        <div class="dns-ref-item">
+          <div class="dns-ref-type">${escapeHtml(r.type)}</div>
+          <div class="dns-ref-body">
+            <strong>${escapeHtml(r.name)}</strong>
+            <p>${escapeHtml(r.description)}</p>
+            <code>${escapeHtml(r.example)}</code>
+          </div>
+        </div>`
+      )
+      .join('');
+  }
+
+  searchInput.addEventListener('input', () => render(searchDnsRecordTypes(searchInput.value)));
+  render(searchDnsRecordTypes(''));
+</script>
+
+<style>
+  .dns-ref-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .dns-ref-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-height: 560px;
+    overflow-y: auto;
+  }
+
+  .dns-ref-item {
+    display: flex;
+    gap: var(--space-3);
+    align-items: flex-start;
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+  }
+
+  .dns-ref-type {
+    flex-shrink: 0;
+    min-width: 68px;
+    height: 36px;
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--color-primary-contrast);
+    background: var(--color-primary);
+  }
+
+  .dns-ref-body { min-width: 0; }
+  .dns-ref-body strong {
+    display: block;
+    margin-bottom: 2px;
+  }
+  .dns-ref-body p {
+    margin: 0 0 var(--space-2) 0;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+  .dns-ref-body code {
+    display: block;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 2px 8px;
+    font-size: 0.85rem;
+    word-break: break-all;
+  }
+
+  .dns-ref-empty {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+</style>

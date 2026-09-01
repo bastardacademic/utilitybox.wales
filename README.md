@@ -16,9 +16,14 @@ Free online calculators and everyday utility tools, built with [Astro](https://a
 
 **Networking**
 - CIDR / subnet calculator (network & broadcast address, host ranges, subnet splitting)
+- IPv6 subnet calculator (expand/compress, address classification, subnet ranges)
+- IP address converter (dotted decimal ⇄ binary ⇄ hex ⇄ 32-bit integer, auto-detected)
+- DNS lookup (live A/AAAA/CNAME/MX/TXT/NS/SOA/SRV/CAA queries via DNS-over-HTTPS)
+- DNS record type reference (searchable, A through TLSA)
 - HTTP status code reference (searchable, 1xx–5xx)
 - Port number reference (searchable common TCP/UDP ports)
 - MAC address formatter/validator (colon/hyphen/dot notation, locally-administered/multicast detection)
+- Bandwidth / transfer time calculator
 
 **Word Games**
 - Word unscrambler
@@ -52,11 +57,11 @@ Free online calculators and everyday utility tools, built with [Astro](https://a
 ```
 src/
   components/
-    calculators/    Scientific, Currency, Measurements, UKSalary, NetworkCalc,
+    calculators/    Scientific, Currency, Measurements, UKSalary, NetworkCalc, Ipv6Calculator, BandwidthCalculator,
                        PercentageCalculator, VatCalculator, TipCalculator, LoanCalculator
     tools/           WordUnscrambler, WordBuilder, RandomString, LoremIpsum,
                        JsonFormatter, RegexTester, DiffViewer, Base64Tool, JwtDecoder, CronParser,
-                       HttpStatusReference, PortReference, MacFormatter,
+                       HttpStatusReference, PortReference, MacFormatter, IpConverter, DnsLookup, DnsRecordReference,
                        WordCounter, CaseConverter, PalindromeChecker, AnagramSolver,
                        ColorConverter, SlugGenerator, PlaceholderImageGenerator,
                        HashGenerator, UrlEncoder, TimestampConverter, HtmlEntityEncoder
@@ -70,7 +75,10 @@ src/
     global.css        CSS variables, dark mode, base styles
   utils/
     calculators.ts    Expression evaluator, unit conversion, UK salary logic
-    network.ts         IPv4 / CIDR math
+    network.ts         IPv4 / CIDR math, multi-format IP address parsing
+    ipv6.ts             IPv6 parsing, expand/compress, classification, CIDR ranges
+    dns.ts              DNS record type reference data + DNS-over-HTTPS lookup helper
+    bandwidth.ts        Data transfer time calculation
     generators.ts       Random string + Lorem Ipsum generation
     words.ts             Unscramble / word-building / word-game scoring
     json.ts               JSON format/minify/validate with error position
@@ -137,7 +145,7 @@ Hosted via [IONOS Deploy Now](https://www.ionos.com/hosting/deploy-now), which b
 
 ## Notes
 
-- All interactive tools run entirely client-side — no user data is sent to a server, except the currency converter, which fetches exchange rates from the public Frankfurter API.
+- All interactive tools run entirely client-side — no user data is sent to a server, except the currency converter (fetches exchange rates from the public Frankfurter API) and the DNS Lookup tool (queries Cloudflare's public DNS-over-HTTPS resolver).
 - The word dictionary in `public/data/dictionary.json` (182,720 words, ~2.1MB) merges the original curated list, the [Google 10,000 English words](https://github.com/first20hours/google-10000-english) list (MIT-licensed, swear-filtered variant), and the [UK Advanced Cryptics Dictionary](https://github.com/rdeits/cryptics/blob/master/raw_data/UKACD.txt) (UKACD, © J Ross Beresford 1993–2009, BSD-style license — attribution required, credited at the bottom of `/tools/unscrambler` and `/tools/word-builder`). UKACD adds proper dictionary-grade coverage (British spellings like "colour"/"organise", genuinely valid short words) and doubles as ground truth: short words (≤3 letters) from the frequency-based Google list are only kept if UKACD or the original list also confirms them as real words, since frequency corpora are noisy at short lengths (raw web-text tokens like "cl", "pdf", "usa" would otherwise show up as if they were playable words). Checked against a standard profanity blocklist throughout. Client-side search over the full 182k-word list completes in well under 200ms.
 - The currency converter offers all 30 currencies Frankfurter/the ECB publish reference rates for (see `CURRENCIES` in `Currency.astro`).
 - Tax and NI figures in the UK salary calculator reflect the 2024/25 tax year and are for guidance only.

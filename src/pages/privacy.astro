@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-const lastUpdated = 'August 2026';
+const lastUpdated = 'September 2026';
 ---
 
 <Layout
@@ -40,7 +40,7 @@ const lastUpdated = 'August 2026';
 
     <section>
       <h2>Third-party requests</h2>
-      <p>Two tools on this site talk to an external service in order to work:</p>
+      <p>Three tools on this site talk to an external service in order to work:</p>
       <ul>
         <li>
           <strong>Currency Converter</strong> — fetches exchange rates from the
@@ -48,6 +48,12 @@ const lastUpdated = 'August 2026';
           (European Central Bank data). Your device makes this request directly, so your IP address is visible
           to that service the same way it would be to any site you visit. We don't send it any of your other
           data. See the <a href="https://www.frankfurter.app" target="_blank" rel="noopener noreferrer">Frankfurter</a> project for their terms.
+        </li>
+        <li>
+          <strong>DNS Lookup</strong> — sends the domain name (and record type) you enter directly from your
+          browser to <a href="https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/" target="_blank" rel="noopener noreferrer">Cloudflare's public DNS-over-HTTPS resolver</a>
+          to fetch the results. Nothing passes through our server. See
+          <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare's privacy policy</a> for their terms.
         </li>
         <li>
           <strong>Word Unscrambler / Word Builder</strong> — download a static word list from our own server.

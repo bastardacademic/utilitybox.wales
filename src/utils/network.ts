@@ -32,6 +32,61 @@ export function intToBinary(int: number): string {
   return int.toString(2).padStart(32, '0');
 }
 
+export function intToHex(int: number): string {
+  return '0x' + (int >>> 0).toString(16).toUpperCase().padStart(8, '0');
+}
+
+export function hexToInt(hex: string): number {
+  const clean = hex.trim().replace(/^0x/i, '');
+  if (!/^[0-9a-fA-F]{1,8}$/.test(clean)) throw new NetworkError(`Invalid hex value: ${hex}`);
+  return parseInt(clean, 16) >>> 0;
+}
+
+export function binaryToInt(binary: string): number {
+  const clean = binary.trim().replace(/[.\s]/g, '');
+  if (!/^[01]{1,32}$/.test(clean)) throw new NetworkError(`Invalid binary value: ${binary}`);
+  return parseInt(clean.padStart(32, '0'), 2) >>> 0;
+}
+
+export interface IpFormats {
+  dotted: string;
+  binary: string;
+  hex: string;
+  integer: number;
+  detectedAs: 'dotted decimal' | 'hexadecimal' | 'binary' | 'decimal integer';
+}
+
+/** Parse an IPv4 address given as dotted decimal, hex, 32-bit binary, or a plain integer, and return every format. */
+export function parseIpAnyFormat(input: string): IpFormats {
+  const trimmed = input.trim();
+  let int: number;
+  let detectedAs: IpFormats['detectedAs'];
+
+  if (isValidIPv4(trimmed)) {
+    int = ipToInt(trimmed);
+    detectedAs = 'dotted decimal';
+  } else if (/^0x[0-9a-fA-F]{1,8}$/i.test(trimmed) || /^[0-9a-fA-F]{8}$/.test(trimmed)) {
+    int = hexToInt(trimmed);
+    detectedAs = 'hexadecimal';
+  } else if (/^[01]{8}(\.[01]{8}){3}$/.test(trimmed) || /^[01]{32}$/.test(trimmed)) {
+    int = binaryToInt(trimmed);
+    detectedAs = 'binary';
+  } else if (/^\d{1,10}$/.test(trimmed) && Number(trimmed) <= 0xffffffff) {
+    int = Number(trimmed);
+    detectedAs = 'decimal integer';
+  } else {
+    throw new NetworkError('Enter a valid IPv4 address in dotted decimal, hex, 32-bit binary, or integer form');
+  }
+
+  return {
+    dotted: intToIp(int),
+    binary: formatBinaryOctets(intToBinary(int)),
+    hex: intToHex(int),
+    integer: int,
+    detectedAs
+  };
+}
+
 export function ipToBinary(ip: string): string {
   return intToBinary(ipToInt(ip));
 }

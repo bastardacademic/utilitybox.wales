@@ -1,0 +1,171 @@
+---
+import { LOOKUP_RECORD_TYPES } from '../../utils/dns';
+---
+
+<div class="dns-lookup-tool">
+  <div class="dns-lookup-row">
+    <div class="field dns-lookup-name-field">
+      <label class="label" for="dns-lookup-name">Domain name</label>
+      <input
+        id="dns-lookup-name"
+        class="input"
+        type="text"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="e.g. example.com"
+      />
+    </div>
+    <div class="field">
+      <label class="label" for="dns-lookup-type">Record type</label>
+      <select id="dns-lookup-type" class="input">
+        {LOOKUP_RECORD_TYPES.map((t) => <option value={t} selected={t === 'A'}>{t}</option>)}
+      </select>
+    </div>
+  </div>
+
+  <div class="dns-lookup-actions">
+    <button type="button" id="dns-lookup-btn" class="btn">Look up</button>
+    <button type="button" id="dns-lookup-share" class="copy-btn">🔗 Share</button>
+  </div>
+
+  <p id="dns-lookup-status" class="dns-lookup-status"></p>
+
+  <div class="dns-lookup-results" id="dns-lookup-results"></div>
+</div>
+
+<script>
+  import { lookupDns, dohStatusMessage, dnsTypeCodeToName } from '../../utils/dns';
+  import { getShareParams, copyShareLink } from '../../utils/shareLink';
+
+  const nameInput = document.getElementById('dns-lookup-name') as HTMLInputElement;
+  const typeSelect = document.getElementById('dns-lookup-type') as HTMLSelectElement;
+  const lookupBtn = document.getElementById('dns-lookup-btn') as HTMLButtonElement;
+  const statusEl = document.getElementById('dns-lookup-status') as HTMLElement;
+  const resultsEl = document.getElementById('dns-lookup-results') as HTMLElement;
+
+  function escapeHtml(text: string): string {
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  async function lookup() {
+    const name = nameInput.value.trim();
+    if (!name) {
+      statusEl.textContent = 'Enter a domain name first.';
+      resultsEl.innerHTML = '';
+      return;
+    }
+
+    statusEl.textContent = 'Looking up…';
+    resultsEl.innerHTML = '';
+    lookupBtn.disabled = true;
+
+    try {
+      const result = await lookupDns(name, typeSelect.value);
+
+      if (result.status !== 0) {
+        statusEl.textContent = dohStatusMessage(result.status);
+        return;
+      }
+
+      if (result.answers.length === 0) {
+        statusEl.textContent = `No ${typeSelect.value} records found for ${name}.`;
+        return;
+      }
+
+      statusEl.textContent = `${result.answers.length} record${result.answers.length === 1 ? '' : 's'} found.`;
+      resultsEl.innerHTML = `
+        <table>
+          <thead><tr><th>Name</th><th>Type</th><th>TTL</th><th>Data</th></tr></thead>
+          <tbody>
+            ${result.answers
+              .map(
+                (a) =>
+                  `<tr><td>${escapeHtml(a.name)}</td><td>${dnsTypeCodeToName(a.type)}</td><td>${a.ttl}</td><td class="dns-lookup-data">${escapeHtml(a.data)}</td></tr>`
+              )
+              .join('')}
+          </tbody>
+        </table>
+      `;
+    } catch {
+      statusEl.textContent = 'Lookup failed. The DNS resolver may be unreachable — please try again.';
+    } finally {
+      lookupBtn.disabled = false;
+    }
+  }
+
+  lookupBtn.addEventListener('click', lookup);
+  nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') lookup(); });
+  typeSelect.addEventListener('change', () => { if (nameInput.value.trim()) lookup(); });
+
+  const shareBtn = document.getElementById('dns-lookup-share') as HTMLButtonElement;
+  shareBtn.addEventListener('click', () => {
+    copyShareLink({ name: nameInput.value, type: typeSelect.value }, shareBtn);
+  });
+
+  // Pre-fill from a shared link, e.g. ?name=example.com&type=MX
+  (function restoreFromShareLink() {
+    const params = getShareParams();
+    const name = params.get('name');
+    const type = params.get('type');
+
+    if (name) nameInput.value = name;
+    if (type && [...typeSelect.options].some((o) => o.value === type)) typeSelect.value = type;
+    if (name) lookup();
+  })();
+</script>
+
+<style>
+  .dns-lookup-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .dns-lookup-row {
+    display: flex;
+    gap: var(--space-3);
+    align-items: end;
+  }
+  .dns-lookup-name-field { flex: 1; }
+
+  .dns-lookup-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    border-radius: var(--radius-sm);
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .copy-btn:hover {
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+  }
+
+  .dns-lookup-status {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  .dns-lookup-results {
+    overflow-x: auto;
+  }
+
+  .dns-lookup-data {
+    font-family: var(--font-mono);
+    word-break: break-all;
+  }
+
+  @media (max-width: 480px) {
+    .dns-lookup-row { flex-wrap: wrap; }
+    .dns-lookup-name-field { flex-basis: 100%; }
+  }
+</style>

@@ -1,0 +1,33 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import Ipv6Calculator from '../../components/calculators/Ipv6Calculator.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free IPv6 address tool. Expand and compress addresses, classify them (link-local, unique local, multicast, global unicast), and calculate subnet ranges.';
+const schema = toolSchema({ name: 'IPv6 Subnet Calculator', description, path: '/tools/ipv6-subnet/' });
+---
+
+<ToolLayout
+  title="IPv6 Subnet Calculator"
+  description={description}
+  category="Networking"
+  schema={schema}
+>
+  <Ipv6Calculator />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Format</h3>
+      <p>Enter an address like <code>2001:db8::1</code>, or with a prefix like <code>2001:db8::/32</code> for the subnet range. <code>::</code> compresses one run of zero groups.</p>
+    </div>
+  </Fragment>
+</ToolLayout>
+
+<style>
+  .side-card code {
+    background: var(--color-surface-alt);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+</style>

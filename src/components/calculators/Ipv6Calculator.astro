@@ -1,0 +1,221 @@
+---
+---
+
+<div class="v6-calc">
+  <div class="field">
+    <label class="label" for="v6-address">IPv6 address</label>
+    <input
+      id="v6-address"
+      class="input"
+      type="text"
+      value="2001:db8::1"
+      autocomplete="off"
+      spellcheck="false"
+      placeholder="e.g. 2001:db8::1"
+    />
+  </div>
+
+  <button type="button" id="v6-check" class="btn">Expand &amp; classify</button>
+
+  <div class="v6-results" id="v6-results" hidden>
+    <div class="result-row">
+      <span class="label">Results</span>
+      <span class="result-actions">
+        <button type="button" id="v6-share" class="copy-btn">🔗 Share</button>
+        <button type="button" id="v6-copy" class="copy-btn">Copy summary</button>
+      </span>
+    </div>
+    <table>
+      <tbody>
+        <tr><td>Expanded</td><td id="r-expanded" class="num"></td></tr>
+        <tr><td>Compressed</td><td id="r-compressed" class="num"></td></tr>
+        <tr><td>Address type</td><td id="r-type" class="num"></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="field" id="v6-error" hidden></div>
+
+  <hr class="v6-divider" />
+
+  <div class="v6-cidr">
+    <h3>Subnet range</h3>
+    <div class="field">
+      <label class="label" for="v6-cidr-input">Address with prefix</label>
+      <input
+        id="v6-cidr-input"
+        class="input"
+        type="text"
+        value="2001:db8::/32"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="e.g. 2001:db8::/32"
+      />
+    </div>
+    <button type="button" id="v6-cidr-calc" class="btn btn-secondary">Calculate range</button>
+
+    <div class="v6-cidr-results" id="v6-cidr-results" hidden>
+      <table>
+        <tbody>
+          <tr><td>Network address</td><td id="c-network" class="num"></td></tr>
+          <tr><td>Last address</td><td id="c-last" class="num"></td></tr>
+          <tr><td>Total addresses</td><td id="c-total" class="num"></td></tr>
+          <tr><td>Address type</td><td id="c-type" class="num"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="field" id="v6-cidr-error" hidden></div>
+  </div>
+</div>
+
+<script>
+  import { expandIpv6, compressIpv6, getIpv6Type, calculateIpv6Cidr, Ipv6Error } from '../../utils/ipv6';
+  import { getShareParams, copyShareLink } from '../../utils/shareLink';
+
+  const addressInput = document.getElementById('v6-address') as HTMLInputElement;
+  const checkBtn = document.getElementById('v6-check') as HTMLButtonElement;
+  const resultsBox = document.getElementById('v6-results') as HTMLElement;
+  const errorBox = document.getElementById('v6-error') as HTMLElement;
+  const copyBtn = document.getElementById('v6-copy') as HTMLButtonElement;
+
+  const cidrInput = document.getElementById('v6-cidr-input') as HTMLInputElement;
+  const cidrBtn = document.getElementById('v6-cidr-calc') as HTMLButtonElement;
+  const cidrResults = document.getElementById('v6-cidr-results') as HTMLElement;
+  const cidrError = document.getElementById('v6-cidr-error') as HTMLElement;
+
+  let lastSummary = '';
+
+  function setText(id: string, value: string) {
+    (document.getElementById(id) as HTMLElement).textContent = value;
+  }
+
+  function check() {
+    errorBox.hidden = true;
+    try {
+      const expanded = expandIpv6(addressInput.value);
+      const compressed = compressIpv6(addressInput.value);
+      const type = getIpv6Type(addressInput.value);
+      setText('r-expanded', expanded);
+      setText('r-compressed', compressed);
+      setText('r-type', type);
+      resultsBox.hidden = false;
+
+      lastSummary = [
+        `Expanded: ${expanded}`,
+        `Compressed: ${compressed}`,
+        `Address type: ${type}`
+      ].join('\n');
+    } catch (err) {
+      resultsBox.hidden = true;
+      errorBox.textContent = err instanceof Ipv6Error ? err.message : 'Could not parse that address';
+      errorBox.hidden = false;
+    }
+  }
+
+  function calcCidr() {
+    cidrError.hidden = true;
+    try {
+      const info = calculateIpv6Cidr(cidrInput.value);
+      setText('c-network', `${info.networkAddress} (${info.networkAddressExpanded})`);
+      setText('c-last', `${info.lastAddress} (${info.lastAddressExpanded})`);
+      setText('c-total', info.totalAddresses);
+      setText('c-type', info.type);
+      cidrResults.hidden = false;
+    } catch (err) {
+      cidrResults.hidden = true;
+      cidrError.textContent = err instanceof Ipv6Error ? err.message : 'Could not parse that CIDR range';
+      cidrError.hidden = false;
+    }
+  }
+
+  checkBtn.addEventListener('click', check);
+  addressInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') check(); });
+  cidrBtn.addEventListener('click', calcCidr);
+  cidrInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') calcCidr(); });
+
+  copyBtn.addEventListener('click', async () => {
+    if (!lastSummary) return;
+    try {
+      await navigator.clipboard.writeText(lastSummary);
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => { copyBtn.textContent = original; }, 1500);
+    } catch {
+      // Clipboard API unavailable — silently ignore.
+    }
+  });
+
+  const shareBtn = document.getElementById('v6-share') as HTMLButtonElement;
+  shareBtn.addEventListener('click', () => {
+    copyShareLink({ address: addressInput.value }, shareBtn);
+  });
+
+  // Pre-fill from a shared link, e.g. ?address=2001:db8::1
+  const sharedAddress = getShareParams().get('address');
+  if (sharedAddress) addressInput.value = sharedAddress;
+
+  check();
+  calcCidr();
+</script>
+
+<style>
+  .v6-calc {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  td.num { text-align: right; font-family: var(--font-mono); word-break: break-all; }
+
+  .result-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-2);
+  }
+  .result-row .label { margin-bottom: 0; }
+
+  .result-actions {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    border-radius: var(--radius-sm);
+    padding: 2px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .copy-btn:hover {
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+  }
+
+  #v6-error,
+  #v6-cidr-error {
+    color: var(--color-danger);
+    background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+    border: 1px solid var(--color-danger);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+  }
+
+  .v6-divider {
+    border: none;
+    border-top: 1px solid var(--color-border);
+    margin: var(--space-2) 0;
+  }
+
+  .v6-cidr h3 {
+    margin-top: 0;
+  }
+
+  .v6-cidr-results {
+    margin-top: var(--space-3);
+    overflow-x: auto;
+  }
+</style>

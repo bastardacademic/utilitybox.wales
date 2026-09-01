@@ -1,0 +1,33 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import IpConverter from '../../components/tools/IpConverter.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free IPv4 address converter. Convert between dotted decimal, binary, hexadecimal, and 32-bit integer formats.';
+const schema = toolSchema({ name: 'IP Address Converter', description, path: '/tools/ip-converter/' });
+---
+
+<ToolLayout
+  title="IP Address Converter"
+  description={description}
+  category="Networking"
+  schema={schema}
+>
+  <IpConverter />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Accepted formats</h3>
+      <p>Paste an address as dotted decimal (<code>192.168.1.1</code>), hex (<code>0xC0A80101</code>), 32-bit binary, or a plain integer — the format is detected automatically.</p>
+    </div>
+  </Fragment>
+</ToolLayout>
+
+<style>
+  .side-card code {
+    background: var(--color-surface-alt);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+</style>

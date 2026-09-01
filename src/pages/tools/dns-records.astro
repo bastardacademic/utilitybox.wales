@@ -1,0 +1,25 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import DnsRecordReference from '../../components/tools/DnsRecordReference.astro';
+import { toolSchema } from '../../utils/seo';
+
+const description =
+  'Free DNS record type reference. Search A, AAAA, CNAME, MX, TXT, NS, SOA, SRV, CAA and more, with a plain-language explanation and example.';
+const schema = toolSchema({ name: 'DNS Record Reference', description, path: '/tools/dns-records/' });
+---
+
+<ToolLayout
+  title="DNS Record Reference"
+  description={description}
+  category="Networking"
+  schema={schema}
+>
+  <DnsRecordReference />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Looking to run a lookup?</h3>
+      <p>Use the <a href="/tools/dns-lookup/">DNS Lookup</a> tool to query live records for a domain.</p>
+    </div>
+  </Fragment>
+</ToolLayout>
