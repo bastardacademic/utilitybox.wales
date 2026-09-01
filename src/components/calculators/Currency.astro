@@ -1,59 +1,60 @@
 ---
 // Every currency Frankfurter/the ECB publishes a reference rate for.
 const CURRENCIES = [
-  { code: 'AUD', name: 'Australian Dollar' },
-  { code: 'BRL', name: 'Brazilian Real' },
-  { code: 'CAD', name: 'Canadian Dollar' },
-  { code: 'CHF', name: 'Swiss Franc' },
-  { code: 'CNY', name: 'Chinese Renminbi Yuan' },
-  { code: 'CZK', name: 'Czech Koruna' },
-  { code: 'DKK', name: 'Danish Krone' },
-  { code: 'EUR', name: 'Euro' },
-  { code: 'GBP', name: 'British Pound' },
-  { code: 'HKD', name: 'Hong Kong Dollar' },
-  { code: 'HUF', name: 'Hungarian Forint' },
-  { code: 'IDR', name: 'Indonesian Rupiah' },
-  { code: 'ILS', name: 'Israeli New Shekel' },
-  { code: 'INR', name: 'Indian Rupee' },
-  { code: 'ISK', name: 'Icelandic Króna' },
-  { code: 'JPY', name: 'Japanese Yen' },
-  { code: 'KRW', name: 'South Korean Won' },
-  { code: 'MXN', name: 'Mexican Peso' },
-  { code: 'MYR', name: 'Malaysian Ringgit' },
-  { code: 'NOK', name: 'Norwegian Krone' },
-  { code: 'NZD', name: 'New Zealand Dollar' },
-  { code: 'PHP', name: 'Philippine Peso' },
-  { code: 'PLN', name: 'Polish Złoty' },
-  { code: 'RON', name: 'Romanian Leu' },
-  { code: 'SEK', name: 'Swedish Krona' },
-  { code: 'SGD', name: 'Singapore Dollar' },
-  { code: 'THB', name: 'Thai Baht' },
-  { code: 'TRY', name: 'Turkish Lira' },
-  { code: 'USD', name: 'United States Dollar' },
-  { code: 'ZAR', name: 'South African Rand' }
+  { code: 'AUD', name: 'Australian Dollar', symbol: '$' },
+  { code: 'BRL', name: 'Brazilian Real', symbol: 'R$' },
+  { code: 'CAD', name: 'Canadian Dollar', symbol: '$' },
+  { code: 'CHF', name: 'Swiss Franc', symbol: 'Fr' },
+  { code: 'CNY', name: 'Chinese Renminbi Yuan', symbol: '¥' },
+  { code: 'CZK', name: 'Czech Koruna', symbol: 'Kč' },
+  { code: 'DKK', name: 'Danish Krone', symbol: 'kr' },
+  { code: 'EUR', name: 'Euro', symbol: '€' },
+  { code: 'GBP', name: 'British Pound', symbol: '£' },
+  { code: 'HKD', name: 'Hong Kong Dollar', symbol: '$' },
+  { code: 'HUF', name: 'Hungarian Forint', symbol: 'Ft' },
+  { code: 'IDR', name: 'Indonesian Rupiah', symbol: 'Rp' },
+  { code: 'ILS', name: 'Israeli New Shekel', symbol: '₪' },
+  { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
+  { code: 'ISK', name: 'Icelandic Króna', symbol: 'kr' },
+  { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
+  { code: 'KRW', name: 'South Korean Won', symbol: '₩' },
+  { code: 'MXN', name: 'Mexican Peso', symbol: '$' },
+  { code: 'MYR', name: 'Malaysian Ringgit', symbol: 'RM' },
+  { code: 'NOK', name: 'Norwegian Krone', symbol: 'kr' },
+  { code: 'NZD', name: 'New Zealand Dollar', symbol: '$' },
+  { code: 'PHP', name: 'Philippine Peso', symbol: '₱' },
+  { code: 'PLN', name: 'Polish Złoty', symbol: 'zł' },
+  { code: 'RON', name: 'Romanian Leu', symbol: 'lei' },
+  { code: 'SEK', name: 'Swedish Krona', symbol: 'kr' },
+  { code: 'SGD', name: 'Singapore Dollar', symbol: '$' },
+  { code: 'THB', name: 'Thai Baht', symbol: '฿' },
+  { code: 'TRY', name: 'Turkish Lira', symbol: '₺' },
+  { code: 'USD', name: 'United States Dollar', symbol: '$' },
+  { code: 'ZAR', name: 'South African Rand', symbol: 'R' }
 ];
 ---
 
 <div class="currency-calc">
+  <div class="field cur-amount-field">
+    <label class="label" for="cur-amount">Amount</label>
+    <input id="cur-amount" class="input" type="number" value="1" min="0" step="any" />
+  </div>
+
   <div class="currency-row">
-    <div class="field">
-      <label class="label" for="cur-amount">Amount</label>
-      <input id="cur-amount" class="input" type="number" value="1" min="0" step="any" />
-    </div>
-    <div class="field">
+    <div class="field cur-select-field">
       <label class="label" for="cur-from">From</label>
       <select id="cur-from" class="input">
         {CURRENCIES.map((c) => (
-          <option value={c.code} selected={c.code === 'GBP'}>{c.code} — {c.name}</option>
+          <option value={c.code} selected={c.code === 'GBP'}>{c.code} ({c.symbol}) — {c.name}</option>
         ))}
       </select>
     </div>
-    <button type="button" id="cur-swap" class="btn btn-secondary" aria-label="Swap currencies">⇄</button>
-    <div class="field">
+    <button type="button" id="cur-swap" class="btn btn-secondary" aria-label="Swap currencies">⇄ Swap</button>
+    <div class="field cur-select-field">
       <label class="label" for="cur-to">To</label>
       <select id="cur-to" class="input">
         {CURRENCIES.map((c) => (
-          <option value={c.code} selected={c.code === 'USD'}>{c.code} — {c.name}</option>
+          <option value={c.code} selected={c.code === 'USD'}>{c.code} ({c.symbol}) — {c.name}</option>
         ))}
       </select>
     </div>
@@ -203,15 +204,23 @@ const CURRENCIES = [
     color: var(--color-text);
   }
 
+  .cur-amount-field {
+    max-width: 160px;
+  }
+
   .currency-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr auto 1fr;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
     gap: var(--space-3);
-    align-items: end;
+  }
+
+  .cur-select-field {
+    margin-bottom: 0;
   }
 
   #cur-swap {
-    margin-bottom: 4px;
+    align-self: center;
   }
 
   .cur-note {
@@ -225,12 +234,8 @@ const CURRENCIES = [
   }
 
   @media (max-width: 640px) {
-    .currency-row {
-      grid-template-columns: 1fr;
-    }
-    #cur-swap {
-      justify-self: center;
-      transform: rotate(90deg);
+    .cur-amount-field {
+      max-width: none;
     }
   }
 </style>
