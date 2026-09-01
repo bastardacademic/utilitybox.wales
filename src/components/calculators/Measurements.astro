@@ -12,17 +12,18 @@ const CATEGORIES = ['length', 'weight', 'temperature', 'volume', 'area', 'speed'
     </select>
   </div>
 
+  <div class="field measure-value-field">
+    <label class="label" for="measure-value">Value</label>
+    <input id="measure-value" class="input" type="number" value="1" step="any" />
+  </div>
+
   <div class="measure-row">
-    <div class="field">
-      <label class="label" for="measure-value">Value</label>
-      <input id="measure-value" class="input" type="number" value="1" step="any" />
-    </div>
-    <div class="field">
+    <div class="field measure-select-field">
       <label class="label" for="measure-from">From</label>
       <select id="measure-from" class="input"></select>
     </div>
-    <button type="button" id="measure-swap" class="btn btn-secondary" aria-label="Swap units">⇄</button>
-    <div class="field">
+    <button type="button" id="measure-swap" class="btn btn-secondary" aria-label="Swap units">⇄ Swap</button>
+    <div class="field measure-select-field">
       <label class="label" for="measure-to">To</label>
       <select id="measure-to" class="input"></select>
     </div>
@@ -172,28 +173,26 @@ const CATEGORIES = ['length', 'weight', 'temperature', 'volume', 'area', 'speed'
     color: var(--color-text);
   }
 
+  .measure-value-field {
+    max-width: 160px;
+  }
+
   .measure-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr auto 1fr;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
     gap: var(--space-3);
-    align-items: end;
+  }
+
+  .measure-select-field {
+    margin-bottom: 0;
   }
 
   #measure-swap {
-    margin-bottom: 4px;
+    align-self: center;
   }
 
   #measure-result.error {
     color: var(--color-danger);
-  }
-
-  @media (max-width: 640px) {
-    .measure-row {
-      grid-template-columns: 1fr;
-    }
-    #measure-swap {
-      justify-self: center;
-      transform: rotate(90deg);
-    }
   }
 </style>
