@@ -153,7 +153,7 @@ Hosted via [IONOS Deploy Now](https://www.ionos.com/hosting/deploy-now), which b
 - Every calculator has a "Copy" or "Copy summary" button next to its result, plus a "🔗 Share" button that copies a link pre-filled with the current inputs via URL query params (see `src/utils/shareLink.ts`) — e.g. `/tools/network/?cidr=10.0.0.0/8`.
 - A "Skip to content" link (visible on keyboard focus) lets keyboard/screen-reader users bypass the header nav.
 - The favicon/icon set (`favicon.ico`, `favicon-32.png`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`) was generated with a small pure-Python script (stdlib only, no installs) rather than a design tool — regenerate or replace with real brand assets whenever you have them.
-- `/privacy` describes what the site actually does today (no accounts, no cookies, no analytics). Update it before turning on ads or analytics — see the "Advertising and analytics" section, which is written to require that.
+- `/privacy` describes what the site actually does today: no accounts, no first-party cookies, Google AdSense for ads, and Plausible Analytics (cookieless, no personal data) for traffic stats.
 - `privacy@utilitybox.wales` in the privacy policy is a placeholder — point it at a real inbox before launch.
 - The Hash Generator uses `crypto.subtle`, which browsers only expose in a secure context (HTTPS or `localhost`). It'll work in dev and in production once the site is served over HTTPS, but not over plain HTTP.
 - The homepage nav is a grouped dropdown (`<details>`/`<summary>`, no extra JS library) matching the five tool categories on the homepage — see the `navGroups` array in `Layout.astro`.
