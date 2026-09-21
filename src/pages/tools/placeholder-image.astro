@@ -1,11 +1,33 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import PlaceholderImageGenerator from '../../components/tools/PlaceholderImageGenerator.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free placeholder image generator. Create a custom SVG placeholder with any size, color, and label for mockups and layouts.';
-const schema = toolSchema({ name: 'Placeholder Image Generator', description, path: '/tools/placeholder-image/' });
+
+const faqs = [
+  {
+    question: 'Why use an SVG placeholder instead of a JPEG or PNG?',
+    answer:
+      'SVG is a text-based vector format, so a placeholder generated as SVG stays perfectly sharp at any size — unlike a bitmap image, which gets blurry when scaled up — and the file itself is typically a few hundred bytes rather than the kilobytes a bitmap of the same dimensions would need.'
+  },
+  {
+    question: 'Can I use this for a real website, not just a mockup?',
+    answer:
+      "It's meant for design and development placeholders — filling a layout before real images are ready — rather than production content. For a real site, you'd normally replace it with actual photography or graphics before launch."
+  },
+  {
+    question: 'Does the generated image work as an <img> src?',
+    answer:
+      "Yes — it downloads as a standalone .svg file, which any browser or image tag can display directly like any other image format."
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'Placeholder Image Generator', description, path: '/tools/placeholder-image/' }),
+  faqSchema(faqs)
+];
 ---
 
 <ToolLayout
@@ -21,5 +43,17 @@ const schema = toolSchema({ name: 'Placeholder Image Generator', description, pa
       <h3>Just SVG</h3>
       <p>Generated as plain SVG, so it stays crisp at any size and downloads as a tiny file.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

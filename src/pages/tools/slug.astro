@@ -1,11 +1,30 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import SlugGenerator from '../../components/tools/SlugGenerator.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free slug generator. Convert any text into a clean, URL-safe slug in kebab-case or snake_case.';
-const schema = toolSchema({ name: 'Slug Generator', description, path: '/tools/slug/' });
+
+const faqs = [
+  {
+    question: 'What is a URL slug?',
+    answer:
+      "A slug is the human-readable part of a URL that identifies a specific page, usually derived from its title — e.g. the slug for a page titled \"10 Best Coffee Shops\" might be 10-best-coffee-shops. Slugs are lowercase, use only letters, numbers, and a separator, and avoid spaces or special characters that would need to be encoded in a URL."
+  },
+  {
+    question: 'What happens to accented characters and punctuation?',
+    answer:
+      "Accented letters are converted to their closest plain-ASCII equivalent (é becomes e, ñ becomes n), and anything that isn't a letter or number — punctuation, symbols, extra spaces — is replaced with the separator, then any repeated or leading/trailing separators are cleaned up."
+  },
+  {
+    question: 'Should I use a hyphen or an underscore in a slug?',
+    answer:
+      "Hyphens (kebab-case) are the near-universal convention for URL slugs, and Google has historically treated hyphens as word separators for SEO purposes but not underscores, treating an underscore-joined phrase as one word instead of several. Use kebab-case for URLs; snake_case is more common for things like filenames or database identifiers."
+  }
+];
+
+const schema = [toolSchema({ name: 'Slug Generator', description, path: '/tools/slug/' }), faqSchema(faqs)];
 ---
 
 <ToolLayout
@@ -21,5 +40,23 @@ const schema = toolSchema({ name: 'Slug Generator', description, path: '/tools/s
       <h3>What it does</h3>
       <p>Lowercases the text, strips accents and punctuation, and replaces spaces with your chosen separator.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Worked example</h2>
+      <p>
+        "Café: Déjà Vu!" becomes <code>cafe-deja-vu</code> in kebab-case, or <code>cafe_deja_vu</code> in snake_case —
+        accents stripped, punctuation removed, and spaces replaced with the separator.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

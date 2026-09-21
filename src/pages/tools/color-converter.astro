@@ -1,11 +1,30 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import ColorConverter from '../../components/tools/ColorConverter.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free color converter and palette generator. Convert between HEX, RGB, and HSL, and generate a matching color palette.';
-const schema = toolSchema({ name: 'Color Converter', description, path: '/tools/color-converter/' });
+
+const faqs = [
+  {
+    question: 'What is the difference between HEX, RGB, and HSL?',
+    answer:
+      'They all describe the same color, just structured differently. HEX (#2563eb) packs red, green, and blue into six hex digits, common in CSS and design tools. RGB (rgb(37, 99, 235)) gives the same three channels as plain 0-255 decimal numbers. HSL (hsl(221, 83%, 53%)) describes color by hue (position on the color wheel), saturation (intensity), and lightness — often more intuitive for adjusting a color by eye.'
+  },
+  {
+    question: 'How do I convert HEX to RGB?',
+    answer:
+      'Split the six hex digits into three pairs and convert each pair from hex to decimal: #2563eb splits into 25, 63, eb — which convert to 37, 99, 235, giving rgb(37, 99, 235).'
+  },
+  {
+    question: 'How does the palette generator choose its colors?',
+    answer:
+      "It converts your chosen color to HSL, then generates new colors at evenly-spaced hues around the color wheel while keeping the same saturation and lightness — producing a set of colors that are visually related but distinct, rather than random."
+  }
+];
+
+const schema = [toolSchema({ name: 'Color Converter', description, path: '/tools/color-converter/' }), faqSchema(faqs)];
 ---
 
 <ToolLayout
@@ -21,5 +40,23 @@ const schema = toolSchema({ name: 'Color Converter', description, path: '/tools/
       <h3>Palette generation</h3>
       <p>Generates evenly-spaced hues around the color wheel from your chosen color — click any swatch to copy its hex code.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Worked example</h2>
+      <p>
+        <code>#2563eb</code> converts to <code>rgb(37, 99, 235)</code> and <code>hsl(221, 83%, 53%)</code> — the same
+        blue, in three different formats.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

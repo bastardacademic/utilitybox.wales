@@ -1,11 +1,38 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import RandomString from '../../components/tools/RandomString.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free random string generator using cryptographically secure randomness. Generate strong passwords, tokens and UUID v4 values.';
-const schema = toolSchema({ name: 'Random String Generator', description, path: '/tools/random-string/' });
+
+const faqs = [
+  {
+    question: 'Is this safe to use for real passwords?',
+    answer:
+      "Yes. It uses the browser's crypto.getRandomValues() API — the same cryptographically secure random source used by encryption libraries — rather than Math.random(), which is not safe for anything security-related since its output can potentially be predicted. Nothing generated here is sent anywhere; it's created and shown entirely in your browser."
+  },
+  {
+    question: 'What does "exclude ambiguous characters" do?',
+    answer:
+      "It removes characters that are easy to misread or mistype when written down or read aloud — 0/O, 1/l/I, and | — useful when a generated string needs to be manually copied, printed, or read over the phone rather than pasted directly."
+  },
+  {
+    question: 'What is a UUID v4?',
+    answer:
+      'A UUID (Universally Unique Identifier) v4 is a 128-bit identifier generated almost entirely from random bits, formatted as 32 hex digits in five groups (e.g. f47ac10b-58cc-4372-a567-0e02b2c3d479). It\'s "universally unique" in practice because the chance of two randomly generated UUIDs colliding is astronomically small.'
+  },
+  {
+    question: 'How long should a password be?',
+    answer:
+      'Longer is generally better than more complex — a longer password using a smaller character set can be harder to crack than a shorter one using every character type. Most current guidance recommends at least 12-16 characters, mixing character types, for anything protecting a real account.'
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'Random String Generator', description, path: '/tools/random-string/' }),
+  faqSchema(faqs)
+];
 ---
 
 <ToolLayout
@@ -21,6 +48,18 @@ const schema = toolSchema({ name: 'Random String Generator', description, path: 
       <h3>Security</h3>
       <p>Every character is generated using the browser's <code>crypto.getRandomValues()</code> API — nothing is sent to a server.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>
 
