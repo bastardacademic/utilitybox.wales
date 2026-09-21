@@ -1,11 +1,38 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import Base64Tool from '../../components/tools/Base64Tool.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free Base64 encoder and decoder with full UTF-8 support and an optional URL-safe alphabet, running entirely in your browser.';
-const schema = toolSchema({ name: 'Base64 Encoder / Decoder', description, path: '/tools/base64/' });
+
+const faqs = [
+  {
+    question: 'What is Base64 encoding for?',
+    answer:
+      'Base64 represents arbitrary binary data using only 64 printable ASCII characters, so it can be safely embedded in places designed for plain text — email attachments, JSON fields, URLs, or data: URIs — that would otherwise choke on raw binary bytes.'
+  },
+  {
+    question: 'Is Base64 a form of encryption?',
+    answer:
+      "No — it's an encoding, not encryption. Anyone can decode Base64 back to the original data with no key or password needed; it provides no confidentiality at all. Never use it to \"hide\" sensitive data."
+  },
+  {
+    question: 'Why is the encoded output longer than the original text?',
+    answer:
+      "Base64 packs every 3 bytes of input into 4 output characters, so encoded output is roughly 33% larger than the original — the price of representing arbitrary binary data using only a 64-character alphabet."
+  },
+  {
+    question: 'What is the difference between standard and URL-safe Base64?',
+    answer:
+      "Standard Base64 uses + and / in its alphabet and pads the output with = signs — both of which have special meaning in a URL, so they'd need extra encoding if used there. URL-safe Base64 swaps + and / for - and _, and typically omits the padding, so the result can go directly into a URL or filename without further escaping. This is the variant used inside JWTs."
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'Base64 Encoder / Decoder', description, path: '/tools/base64/' }),
+  faqSchema(faqs)
+];
 ---
 
 <ToolLayout
@@ -21,6 +48,24 @@ const schema = toolSchema({ name: 'Base64 Encoder / Decoder', description, path:
       <h3>URL-safe base64</h3>
       <p>Swaps <code>+</code>/<code>/</code> for <code>-</code>/<code>_</code> and drops padding — the variant used in JWTs and URLs. Decoding accepts either alphabet automatically.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Worked example</h2>
+      <p>
+        The text <code>Hello, World!</code> encodes to <code>SGVsbG8sIFdvcmxkIQ==</code>. Decoding that string
+        returns the original text exactly — Base64 is lossless in both directions.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>
 

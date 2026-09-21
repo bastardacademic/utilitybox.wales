@@ -1,11 +1,35 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import JwtDecoder from '../../components/tools/JwtDecoder.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free JWT decoder. Paste a JSON Web Token to see its header and payload — decoded entirely in your browser, signature not verified.';
-const schema = toolSchema({ name: 'JWT Decoder', description, path: '/tools/jwt-decoder/' });
+
+const faqs = [
+  {
+    question: 'What are the three parts of a JWT?',
+    answer:
+      "A JWT is three Base64URL-encoded segments joined by dots: header.payload.signature. The header names the signing algorithm and token type. The payload holds the actual claims — data like a user ID, issued-at time, or expiry. The signature is a cryptographic value proving the header and payload haven't been altered since signing, computed with a secret or private key only the issuer holds."
+  },
+  {
+    question: 'Why can\'t this tool verify the signature?',
+    answer:
+      "Verifying a signature requires the issuer's secret (for HMAC algorithms) or public key (for RSA/ECDSA algorithms) — something only the system that issued the token has, by design. This tool can only decode the header and payload, which is just Base64URL decoding plus a JSON parse; it tells you nothing about whether the token is genuine or has been tampered with."
+  },
+  {
+    question: 'Is it safe to decode a JWT here?',
+    answer:
+      'Decoding happens entirely in your browser using standard Base64URL decoding — the token is never sent anywhere. That said, a JWT payload can contain sensitive claims, so treat any token the same way you\'d treat a password: avoid pasting one you don\'t control into any tool, this one included, if you\'re not sure what it contains.'
+  },
+  {
+    question: 'What are common claims like exp, iat, and nbf?',
+    answer:
+      'These are standard registered claim names: exp is the expiry time (the token should be rejected after this), iat is when the token was issued, and nbf ("not before") is the earliest time the token becomes valid. All three are Unix timestamps in seconds.'
+  }
+];
+
+const schema = [toolSchema({ name: 'JWT Decoder', description, path: '/tools/jwt-decoder/' }), faqSchema(faqs)];
 ---
 
 <ToolLayout
@@ -21,5 +45,17 @@ const schema = toolSchema({ name: 'JWT Decoder', description, path: '/tools/jwt-
       <h3>Decode only</h3>
       <p>This tool reads the header and payload of a JWT — it does not check the signature. Never treat a decoded token as verified.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

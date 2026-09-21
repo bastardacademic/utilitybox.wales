@@ -1,11 +1,35 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import HashGenerator from '../../components/tools/HashGenerator.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free hash generator. Compute SHA-1, SHA-256, SHA-384, and SHA-512 hashes of any text using your browser\'s built-in cryptography.';
-const schema = toolSchema({ name: 'Hash Generator', description, path: '/tools/hash-generator/' });
+
+const faqs = [
+  {
+    question: 'What is a hash function?',
+    answer:
+      'A hash function takes any input and produces a fixed-length string of characters that acts as a fingerprint for that input — the same input always produces the same hash, and even a tiny change to the input produces a completely different one. Common uses are verifying a downloaded file matches the original, and checking data integrity.'
+  },
+  {
+    question: 'Can a hash be reversed back to the original text?',
+    answer:
+      "No — that's the point of a cryptographic hash function. It's designed to be a one-way operation: computing the hash from the input is fast, but there's no way to recover the input from the hash alone (short of guessing inputs and checking, which is how weak passwords eventually get cracked)."
+  },
+  {
+    question: 'What is the difference between SHA-1, SHA-256, SHA-384, and SHA-512?',
+    answer:
+      "They differ mainly in output length and collision resistance. SHA-1 produces a 160-bit hash and is now considered cryptographically broken for security purposes (collisions have been demonstrated) — it survives mainly for compatibility with older systems. SHA-256, SHA-384, and SHA-512 are part of the SHA-2 family, with 256-, 384-, and 512-bit outputs respectively, and are currently considered secure for integrity-checking use."
+  },
+  {
+    question: 'Should I use this to hash passwords for storage?',
+    answer:
+      "No — raw SHA-256/512 hashes are fast to compute, which is exactly the wrong property for password storage since it makes brute-forcing guessed passwords cheap. Passwords should be hashed with a purpose-built, deliberately slow algorithm like bcrypt, scrypt, or Argon2, which also incorporate a per-password salt. This tool is for integrity checks and general-purpose hashing, not credential storage."
+  }
+];
+
+const schema = [toolSchema({ name: 'Hash Generator', description, path: '/tools/hash-generator/' }), faqSchema(faqs)];
 ---
 
 <ToolLayout
@@ -21,6 +45,24 @@ const schema = toolSchema({ name: 'Hash Generator', description, path: '/tools/h
       <h3>Native Web Crypto</h3>
       <p>Uses the browser's built-in <code>crypto.subtle.digest</code> API — the same cryptographic primitives used by browsers themselves.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Worked example</h2>
+      <p>
+        The text <code>hello</code> hashes to <code>2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824</code>
+        under SHA-256 — always exactly this value, for exactly this input, every time.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>
 

@@ -1,11 +1,30 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import DiffViewer from '../../components/tools/DiffViewer.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free text diff viewer. Compare two blocks of text line by line and see exactly what was added, removed, or unchanged.';
-const schema = toolSchema({ name: 'Diff Viewer', description, path: '/tools/diff-viewer/' });
+
+const faqs = [
+  {
+    question: 'What is an LCS diff?',
+    answer:
+      "LCS stands for Longest Common Subsequence — the algorithm finds the longest sequence of lines that appears, in order, in both texts. Everything in that shared sequence is marked unchanged; lines outside it are marked as added or removed. It's the same core approach used by command-line tools like diff and by Git."
+  },
+  {
+    question: 'Does this diff compare word-by-word or character-by-character?',
+    answer:
+      "No — it compares whole lines. If a single word changes in an otherwise identical line, that entire line is shown as one removed line and one added line, rather than highlighting just the changed word within it."
+  },
+  {
+    question: 'Why is there a 2,000-line limit?',
+    answer:
+      "LCS-based diffing runs in browser JavaScript here rather than on a server, and its cost grows with the size of both inputs. Capping each side at 2,000 lines keeps comparisons fast and the tab responsive for any pair of documents you're likely to compare by hand."
+  }
+];
+
+const schema = [toolSchema({ name: 'Diff Viewer', description, path: '/tools/diff-viewer/' }), faqSchema(faqs)];
 ---
 
 <ToolLayout
@@ -21,5 +40,17 @@ const schema = toolSchema({ name: 'Diff Viewer', description, path: '/tools/diff
       <h3>How it works</h3>
       <p>Uses a line-by-line comparison (LCS diff), the same approach behind most command-line diff tools. Limited to 2,000 lines per side to stay fast in the browser.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

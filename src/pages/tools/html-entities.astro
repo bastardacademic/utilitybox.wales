@@ -1,11 +1,33 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import HtmlEntityEncoder from '../../components/tools/HtmlEntityEncoder.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free HTML entity encoder and decoder. Escape reserved HTML characters or decode named and numeric entities back to plain text.';
-const schema = toolSchema({ name: 'HTML Entity Encoder / Decoder', description, path: '/tools/html-entities/' });
+
+const faqs = [
+  {
+    question: 'Why do I need to encode characters like < and & for HTML?',
+    answer:
+      "Because HTML itself uses < and > to mark tags, and & to start an entity — if you insert those characters literally into a page, a browser will try to interpret them as markup instead of displaying them as text, breaking the page or, in the case of untrusted user input, opening the door to cross-site scripting (XSS)."
+  },
+  {
+    question: 'What is the difference between a named entity and a numeric entity?',
+    answer:
+      "A named entity uses a mnemonic name, like &amp; for an ampersand or &copy; for ©. A numeric entity references a character by its Unicode code point instead, like &#169; (decimal) or &#xA9; (hex) for the same © symbol. Named entities are easier to read; numeric entities work for any character, including ones without a defined name."
+  },
+  {
+    question: 'Does encoding HTML entities prevent XSS on its own?',
+    answer:
+      "Escaping the five reserved characters (<, >, &, \", ') before inserting untrusted text into HTML is one important layer of XSS prevention, but it's not the whole story — where you're inserting text matters too (inside an HTML attribute, inside a <script> block, and inside a URL each need different handling). Always encode untrusted input for the specific context it's being placed into."
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'HTML Entity Encoder / Decoder', description, path: '/tools/html-entities/' }),
+  faqSchema(faqs)
+];
 ---
 
 <ToolLayout
@@ -21,5 +43,24 @@ const schema = toolSchema({ name: 'HTML Entity Encoder / Decoder', description, 
       <h3>Decoding</h3>
       <p>Decoding understands every named and numeric HTML entity, not just the common ones.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Worked example</h2>
+      <p>
+        The text <code>{'<script>alert("hi")</script>'}</code> encodes to
+        <code>&amp;lt;script&amp;gt;alert(&amp;quot;hi&amp;quot;)&amp;lt;/script&amp;gt;</code> — safe to display as
+        literal text on a page instead of being interpreted as a tag.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

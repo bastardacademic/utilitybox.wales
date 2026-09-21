@@ -1,11 +1,33 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import UrlEncoder from '../../components/tools/UrlEncoder.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free URL encoder and decoder. Percent-encode or decode text for safe use in query strings and URLs.';
-const schema = toolSchema({ name: 'URL Encoder / Decoder', description, path: '/tools/url-encoder/' });
+
+const faqs = [
+  {
+    question: 'What is percent-encoding?',
+    answer:
+      "Percent-encoding (URL encoding) replaces characters that aren't safe in a URL — spaces, &, =, ?, non-ASCII characters, and more — with a % followed by their two-digit hex code. A space becomes %20, & becomes %26, and so on, so the character can't be misread as part of the URL's own structure."
+  },
+  {
+    question: 'What is the difference between component and full URI encoding?',
+    answer:
+      "Component mode encodes everything that isn't a plain letter, digit, or a few safe symbols — appropriate for a single value going into a query string or path segment, since it also escapes structural characters like & and = that would otherwise break the URL. Full URI mode leaves URL-structure characters (: / ? # & =) untouched, so it's for encoding an entire URL without breaking its existing structure — only escaping things like spaces or special characters within it."
+  },
+  {
+    question: 'Why does encoding a space produce %20 in one mode and + in another?',
+    answer:
+      "%20 is the strict percent-encoding of a space. The + representation for spaces comes from a different, older convention (application/x-www-form-urlencoded, used in classic HTML form submissions) — the two aren't interchangeable in every context, so which one you need depends on where the encoded string is being used."
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'URL Encoder / Decoder', description, path: '/tools/url-encoder/' }),
+  faqSchema(faqs)
+];
 ---
 
 <ToolLayout
@@ -21,5 +43,26 @@ const schema = toolSchema({ name: 'URL Encoder / Decoder', description, path: '/
       <h3>Component vs. full URI</h3>
       <p>Default mode encodes everything, for a single query value. Full URI mode leaves URL structure characters untouched, for encoding an entire link.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Worked example</h2>
+      <p>
+        Component mode turns <code>hello world & more</code> into <code>hello%20world%20%26%20more</code> — every
+        space and the ampersand escaped. Full URI mode turns
+        <code>https://example.com/search?q=hello world</code> into
+        <code>https://example.com/search?q=hello%20world</code> — only the space inside the query value is escaped,
+        leaving the URL's own <code>://</code>, <code>?</code>, and <code>=</code> untouched.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

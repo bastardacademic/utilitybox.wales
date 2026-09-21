@@ -1,11 +1,30 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import RegexTester from '../../components/tools/RegexTester.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free regex tester with live match highlighting. Test regular expressions against your own text and see every match, group, and index instantly.';
-const schema = toolSchema({ name: 'Regex Tester', description, path: '/tools/regex-tester/' });
+
+const faqs = [
+  {
+    question: 'What does the "g" flag do in a regex?',
+    answer:
+      'Without the g (global) flag, a regex stops after finding the first match. With it, matching continues through the whole string, returning every match instead of just the first one — essential for anything beyond a simple yes/no test.'
+  },
+  {
+    question: 'What is a capture group?',
+    answer:
+      "Parentheses in a pattern create a capture group, extracting that specific part of a match separately from the full match. The pattern (\\d{4})-(\\d{2})-(\\d{2}) matched against a date like 2026-09-21 captures the year, month, and day as three separate groups, not just confirming the whole string matched."
+  },
+  {
+    question: 'Why does my pattern match more (or less) than I expect?',
+    answer:
+      "The most common cause is a quantifier being greedy by default — .* will grab as much as it possibly can, not the shortest possible match. Adding a ? after a quantifier (.*?) makes it lazy instead, matching as little as possible. Missing anchors (^ and $) can also let a pattern match a substring you didn't intend."
+  }
+];
+
+const schema = [toolSchema({ name: 'Regex Tester', description, path: '/tools/regex-tester/' }), faqSchema(faqs)];
 ---
 
 <ToolLayout
@@ -26,6 +45,24 @@ const schema = toolSchema({ name: 'Regex Tester', description, path: '/tools/reg
         <li><code>s</code> — <code>.</code> matches newlines</li>
       </ul>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Worked example</h2>
+      <p>
+        The pattern <code>\d+</code> with the global flag, run against "abc123def456", finds two matches:
+        "123" and "456" — every run of one or more digits, wherever it occurs in the text.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>
 

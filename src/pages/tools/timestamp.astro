@@ -1,11 +1,33 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import TimestampConverter from '../../components/tools/TimestampConverter.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free Unix timestamp converter. Convert a Unix timestamp to a readable date, or a date to a Unix timestamp, in seconds or milliseconds.';
-const schema = toolSchema({ name: 'Unix Timestamp Converter', description, path: '/tools/timestamp/' });
+
+const faqs = [
+  {
+    question: 'What is a Unix timestamp?',
+    answer:
+      "A Unix timestamp is the number of seconds (or milliseconds, depending on the system) that have elapsed since midnight UTC on 1 January 1970 — the Unix epoch. It's a single number that unambiguously represents a point in time, independent of time zone or calendar formatting."
+  },
+  {
+    question: 'How does this tool tell seconds and milliseconds apart?',
+    answer:
+      'By the size of the number. A timestamp in seconds stays under 11 digits until the year 2286, while the same moment in milliseconds is already 13 digits today — so any value below that threshold is treated as seconds, and anything larger as milliseconds.'
+  },
+  {
+    question: 'Why do timestamps not depend on time zone?',
+    answer:
+      "A Unix timestamp counts elapsed seconds from a fixed universal moment, so the same timestamp always refers to the same instant everywhere — it's converting that instant into a human-readable calendar date and time where time zone comes in, since the same moment reads as a different local time in different places."
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'Unix Timestamp Converter', description, path: '/tools/timestamp/' }),
+  faqSchema(faqs)
+];
 ---
 
 <ToolLayout
@@ -21,5 +43,23 @@ const schema = toolSchema({ name: 'Unix Timestamp Converter', description, path:
       <h3>Seconds or milliseconds</h3>
       <p>Paste a timestamp in either seconds or milliseconds — it's detected automatically from the magnitude of the number.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Worked example</h2>
+      <p>
+        The Unix timestamp <code>1700000000</code> (seconds) converts to
+        <code>Tue, 14 Nov 2023 22:13:20 UTC</code> — exactly 1,700,000,000 seconds after the epoch.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>
