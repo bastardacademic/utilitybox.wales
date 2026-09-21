@@ -8,7 +8,7 @@ Free online calculators and everyday utility tools, built with [Astro](https://a
 - Scientific calculator (trig, logs, powers, roots, constants)
 - Currency converter (live rates via the Frankfurter/ECB API)
 - Unit converter (length, weight, temperature, volume, area, speed, data, time)
-- UK salary calculator (income tax, National Insurance, student loan, pension — 2024/25 bands)
+- UK salary calculator (income tax, National Insurance, student loan, pension — 2026/27 bands)
 - Percentage calculator (X% of Y, what % is X of Y, percentage change)
 - VAT calculator (add/remove UK VAT at any rate)
 - Tip calculator (tip amount, total, per-person split)
@@ -148,7 +148,7 @@ Hosted via [IONOS Deploy Now](https://www.ionos.com/hosting/deploy-now), which b
 - All interactive tools run entirely client-side — no user data is sent to a server, except the currency converter (fetches exchange rates from the public Frankfurter API) and the DNS Lookup tool (queries Cloudflare's public DNS-over-HTTPS resolver).
 - The word dictionary in `public/data/dictionary.json` (182,720 words, ~2.1MB) merges the original curated list, the [Google 10,000 English words](https://github.com/first20hours/google-10000-english) list (MIT-licensed, swear-filtered variant), and the [UK Advanced Cryptics Dictionary](https://github.com/rdeits/cryptics/blob/master/raw_data/UKACD.txt) (UKACD, © J Ross Beresford 1993–2009, BSD-style license — attribution required, credited at the bottom of `/tools/unscrambler` and `/tools/word-builder`). UKACD adds proper dictionary-grade coverage (British spellings like "colour"/"organise", genuinely valid short words) and doubles as ground truth: short words (≤3 letters) from the frequency-based Google list are only kept if UKACD or the original list also confirms them as real words, since frequency corpora are noisy at short lengths (raw web-text tokens like "cl", "pdf", "usa" would otherwise show up as if they were playable words). Checked against a standard profanity blocklist throughout. Client-side search over the full 182k-word list completes in well under 200ms.
 - The currency converter offers all 30 currencies Frankfurter/the ECB publish reference rates for (see `CURRENCIES` in `Currency.astro`).
-- Tax and NI figures in the UK salary calculator reflect the 2024/25 tax year and are for guidance only.
+- Tax and NI figures in the UK salary calculator reflect the 2026/27 tax year and are for guidance only.
 - Every tool page carries a `WebApplication` JSON-LD block (see `src/utils/seo.ts`) plus a `BreadcrumbList` block (added in `ToolLayout.astro`), a canonical URL, and Open Graph/Twitter Card tags (including the generated `og-image.png`) via `Layout.astro`.
 - Every calculator has a "Copy" or "Copy summary" button next to its result, plus a "🔗 Share" button that copies a link pre-filled with the current inputs via URL query params (see `src/utils/shareLink.ts`) — e.g. `/tools/network/?cidr=10.0.0.0/8`.
 - A "Skip to content" link (visible on keyboard focus) lets keyboard/screen-reader users bypass the header nav.

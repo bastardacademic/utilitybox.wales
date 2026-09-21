@@ -1,6 +1,6 @@
 /**
  * Calculator utilities: scientific expression evaluation, unit conversion,
- * and UK salary calculation (2024/25 tax year bands).
+ * and UK salary calculation (2026/27 tax year bands).
  */
 
 // ---------------------------------------------------------------------------
@@ -366,7 +366,7 @@ export function convertUnit(value: number, category: UnitCategory, from: string,
 }
 
 // ---------------------------------------------------------------------------
-// UK salary calculator (2024/25 tax year)
+// UK salary calculator (2026/27 tax year)
 // ---------------------------------------------------------------------------
 
 export interface SalaryInput {
@@ -395,18 +395,25 @@ export interface SalaryResult {
 const PERSONAL_ALLOWANCE = 12570;
 const PERSONAL_ALLOWANCE_TAPER_START = 100000;
 
+// `upTo` is a cumulative threshold of *taxable income* (i.e. income already net of the
+// personal allowance), not of gross income — HMRC/Revenue Scotland publish these band
+// edges as gross-income thresholds assuming the standard £12,570 personal allowance, so
+// each edge below is that published gross threshold minus £12,570. Band widths are fixed
+// regardless of how much personal allowance an individual actually gets (it can be
+// tapered away for high earners), so calculating from taxable income this way stays
+// correct even when the allowance itself has been reduced.
 const ENGLAND_BANDS = [
-  { name: 'Basic rate', upTo: 50270, rate: 0.2 },
-  { name: 'Higher rate', upTo: 125140, rate: 0.4 },
+  { name: 'Basic rate', upTo: 37700, rate: 0.2 }, // gross threshold £50,270
+  { name: 'Higher rate', upTo: 112570, rate: 0.4 }, // gross threshold £125,140
   { name: 'Additional rate', upTo: Infinity, rate: 0.45 }
 ];
 
 const SCOTLAND_BANDS = [
-  { name: 'Starter rate', upTo: 14876, rate: 0.19 },
-  { name: 'Basic rate', upTo: 26561, rate: 0.2 },
-  { name: 'Intermediate rate', upTo: 43662, rate: 0.21 },
-  { name: 'Higher rate', upTo: 75000, rate: 0.42 },
-  { name: 'Advanced rate', upTo: 125140, rate: 0.45 },
+  { name: 'Starter rate', upTo: 3967, rate: 0.19 }, // gross threshold £16,537
+  { name: 'Basic rate', upTo: 16956, rate: 0.2 }, // gross threshold £29,526
+  { name: 'Intermediate rate', upTo: 31092, rate: 0.21 }, // gross threshold £43,662
+  { name: 'Higher rate', upTo: 62430, rate: 0.42 }, // gross threshold £75,000
+  { name: 'Advanced rate', upTo: 112570, rate: 0.45 }, // gross threshold £125,140
   { name: 'Top rate', upTo: Infinity, rate: 0.48 }
 ];
 
@@ -416,9 +423,9 @@ const NI_MAIN_RATE = 0.08;
 const NI_UPPER_RATE = 0.02;
 
 const STUDENT_LOAN_THRESHOLDS: Record<string, { threshold: number; rate: number }> = {
-  plan1: { threshold: 24990, rate: 0.09 },
-  plan2: { threshold: 27295, rate: 0.09 },
-  plan4: { threshold: 31395, rate: 0.09 },
+  plan1: { threshold: 26900, rate: 0.09 },
+  plan2: { threshold: 29385, rate: 0.09 },
+  plan4: { threshold: 33795, rate: 0.09 },
   postgrad: { threshold: 21000, rate: 0.06 }
 };
 
