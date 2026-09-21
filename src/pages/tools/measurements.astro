@@ -1,11 +1,35 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import Measurements from '../../components/calculators/Measurements.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free unit converter for length, weight, temperature, volume, area, speed, data and time. Convert between metric and imperial instantly.';
-const schema = toolSchema({ name: 'Unit Converter', description, path: '/tools/measurements/' });
+
+const faqs = [
+  {
+    question: 'How do I convert miles to kilometres?',
+    answer: 'Multiply miles by 1.609344 to get kilometres — 1 mile is exactly 1,609.344 metres. So 10 miles = 16.09344 km. To go the other way, divide kilometres by 1.609344, or multiply by 0.621371.'
+  },
+  {
+    question: 'How do I convert Celsius to Fahrenheit?',
+    answer: '°F = (°C × 9/5) + 32. So 20°C = (20 × 1.8) + 32 = 68°F. To convert Fahrenheit to Celsius, rearrange it: °C = (°F − 32) × 5/9.'
+  },
+  {
+    question: 'How do I convert kilograms to pounds?',
+    answer: 'Multiply kilograms by 2.20462 — 1 kg = 2.20462 lb. So 5 kg ≈ 11.02 lb. To convert pounds to kilograms, divide by 2.20462, or multiply by 0.453592.'
+  },
+  {
+    question: 'Are UK and US gallons or pints the same size?',
+    answer: 'No. A UK (imperial) gallon is about 4.546 litres, while a US gallon is about 3.785 litres — roughly 20% smaller. This converter treats them as separate units so you can convert to and from either one correctly.'
+  },
+  {
+    question: 'Why does data storage use 1,024 instead of 1,000?',
+    answer: 'This converter uses the binary convention (1 KB = 1,024 bytes, 1 MB = 1,024 KB, and so on), which is how operating systems typically report file and disk sizes — as opposed to the decimal convention (1,000-based) that storage manufacturers often use on packaging.'
+  }
+];
+
+const schema = [toolSchema({ name: 'Unit Converter', description, path: '/tools/measurements/' }), faqSchema(faqs)];
 ---
 
 <ToolLayout
@@ -21,5 +45,31 @@ const schema = toolSchema({ name: 'Unit Converter', description, path: '/tools/m
       <h3>Categories</h3>
       <p>Length, weight, temperature, volume, area, speed, data storage and time — all in one converter.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>How unit conversion works</h2>
+      <p>
+        Most conversions in this tool work by scaling through a common base unit for each category — for example,
+        every length unit converts to and from metres internally, so converting feet to yards means feet → metres →
+        yards. Temperature is the one exception, since Celsius, Fahrenheit, and Kelvin scales don't share a zero
+        point, so they need their own conversion formulas rather than a single multiplier.
+      </p>
+
+      <h2>Worked examples</h2>
+      <p>
+        10 miles converts to 16.09 km (10 × 1.609344). 5 kilograms converts to about 11.02 lb (5 × 2.20462). 20°C
+        converts to 68°F using (20 × 9/5) + 32. 2 UK gallons converts to about 9.09 litres (2 × 4.54609).
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

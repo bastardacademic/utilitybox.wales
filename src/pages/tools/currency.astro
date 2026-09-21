@@ -1,11 +1,34 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import Currency from '../../components/calculators/Currency.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free currency converter with live exchange rates for major world currencies. Instant conversions, no sign-up required.';
-const schema = toolSchema({ name: 'Currency Converter', description, path: '/tools/currency/' });
+
+const faqs = [
+  {
+    question: 'Where do these exchange rates come from?',
+    answer:
+      "Rates are the European Central Bank's daily reference rates, fetched live via the Frankfurter API. The ECB publishes them once each TARGET business day at around 16:00 CET, based on a regular daily procedure among EU central banks."
+  },
+  {
+    question: 'How often do the exchange rates update?',
+    answer:
+      "Once per business day, when the ECB publishes its new reference rates. They don't update on weekends or ECB holidays, so the rate shown on a Saturday will be Friday's."
+  },
+  {
+    question: "Will I get this exact rate at my bank or a currency exchange?",
+    answer:
+      "No. This is the ECB's wholesale reference rate, not a retail rate — banks, card providers, and currency exchanges add their own margin (a spread and/or a fee) on top, so the amount you actually receive or pay will differ, sometimes by several percent."
+  },
+  {
+    question: 'How many currencies does this converter support?',
+    answer: 'All 30 currencies the ECB publishes daily reference rates for, including GBP, USD, EUR, JPY, and other major world currencies.'
+  }
+];
+
+const schema = [toolSchema({ name: 'Currency Converter', description, path: '/tools/currency/' }), faqSchema(faqs)];
 ---
 
 <ToolLayout
@@ -21,5 +44,31 @@ const schema = toolSchema({ name: 'Currency Converter', description, path: '/too
       <h3>About the rates</h3>
       <p>Exchange rates are sourced from the European Central Bank via the Frankfurter API and update on each business day.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>How currency conversion works</h2>
+      <p>
+        Converting between currencies means multiplying your amount by an exchange rate — how many units of the
+        target currency one unit of the source currency is worth. This converter uses the European Central Bank's
+        official daily reference rates rather than an estimate, so figures reflect the real wholesale market rather
+        than a marked-up retail rate.
+      </p>
+
+      <h2>Worked example</h2>
+      <p>
+        If GBP/USD is 1.27 (one pound buys $1.27), converting £500 to US dollars is £500 × 1.27 = $635. Converting
+        the other way, $635 to GBP, is $635 ÷ 1.27 = £500 — the same rate applied in reverse.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

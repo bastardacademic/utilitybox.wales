@@ -1,11 +1,38 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import LoanCalculator from '../../components/calculators/LoanCalculator.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free loan and mortgage repayment calculator. Estimate your monthly payment, total repaid, and total interest for a fixed-rate loan.';
-const schema = toolSchema({ name: 'Loan Repayment Calculator', description, path: '/tools/loan/' });
+
+const faqs = [
+  {
+    question: 'How is a monthly loan repayment calculated?',
+    answer:
+      'Fixed-rate loans use the standard amortizing loan formula: M = P × [r(1+r)ⁿ] / [(1+r)ⁿ − 1], where P is the principal (amount borrowed), r is the monthly interest rate (annual rate ÷ 12), and n is the number of monthly payments (years × 12). This gives a constant monthly payment for the life of the loan.'
+  },
+  {
+    question: 'What is the difference between total repaid and total interest?',
+    answer:
+      'Total repaid is the monthly payment multiplied by the number of payments — everything you hand over across the life of the loan. Total interest is that total minus the original principal — the actual cost of borrowing, on top of paying back what you borrowed.'
+  },
+  {
+    question: 'Why does a longer loan term mean more total interest?',
+    answer:
+      "Spreading the same loan over more years lowers the monthly payment, but interest keeps accruing on the outstanding balance for longer, so the total interest paid over the full term goes up even though each individual payment is smaller."
+  },
+  {
+    question: 'Does this calculator account for fees or overpayments?',
+    answer:
+      "No — it models a plain fixed-rate loan with equal monthly payments and no fees, early repayment charges, or rate changes. Real mortgages and loans often include arrangement fees, and many allow overpayments that reduce the term or total interest — this tool gives a baseline estimate, not a lender's exact figures."
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'Loan Repayment Calculator', description, path: '/tools/loan/' }),
+  faqSchema(faqs)
+];
 ---
 
 <ToolLayout
@@ -21,5 +48,33 @@ const schema = toolSchema({ name: 'Loan Repayment Calculator', description, path
       <h3>Estimate only</h3>
       <p>Uses the standard fixed-rate amortization formula. Real repayments may differ due to fees, rate changes, or overpayments.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>How loan repayments are calculated</h2>
+      <p>
+        A fixed-rate loan charges interest on whatever balance remains outstanding each month, so early payments are
+        mostly interest and later payments are mostly principal — even though the payment amount itself stays the
+        same throughout. The amortizing loan formula works out the one constant monthly payment that pays off the
+        entire balance, plus all accrued interest, exactly at the end of the term.
+      </p>
+
+      <h2>Worked example</h2>
+      <p>
+        Borrowing £200,000 at a 4.5% annual rate over 25 years (300 monthly payments): the monthly interest rate is
+        4.5% ÷ 12 = 0.375%. Working through the formula gives a monthly payment of about £1,111.66. Over 300 months
+        that's a total repaid of about £333,499 — meaning about £133,499 of that is interest on top of the original
+        £200,000 borrowed.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

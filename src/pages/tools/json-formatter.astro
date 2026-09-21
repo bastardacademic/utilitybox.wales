@@ -1,11 +1,38 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import JsonFormatter from '../../components/tools/JsonFormatter.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free JSON formatter and validator. Pretty-print or minify JSON and get clear error locations for invalid input, entirely in your browser.';
-const schema = toolSchema({ name: 'JSON Formatter & Validator', description, path: '/tools/json-formatter/' });
+
+const faqs = [
+  {
+    question: 'What is the difference between formatting and minifying JSON?',
+    answer:
+      'Formatting (pretty-printing) adds line breaks and indentation so nested objects and arrays are easy to read. Minifying strips all unnecessary whitespace to produce the smallest possible output — the same data, just not meant for humans to read. Both represent identical data; only the whitespace differs.'
+  },
+  {
+    question: 'Why does it say my JSON is invalid?',
+    answer:
+      "Common causes are a trailing comma after the last item in an object or array (valid in JavaScript object literals, but not in JSON), using single quotes instead of double quotes around keys and strings, missing a closing brace or bracket, or an unquoted key. The error location shown points to roughly where the parser gave up, which is usually at or just after the actual mistake."
+  },
+  {
+    question: 'Is my JSON data sent to a server?',
+    answer:
+      "No. Formatting, minifying, and validation all run in your browser using the JavaScript JSON object built into every browser — nothing you paste here is transmitted anywhere, which makes it safe to use with sensitive data like API responses or config files."
+  },
+  {
+    question: 'Does JSON support comments or trailing commas?',
+    answer:
+      "No — the JSON specification doesn't allow comments or trailing commas, even though some JSON-like formats (JSON5, JSONC, and JavaScript object literals) do. If your input has either, this tool will report it as invalid, which is exactly what any JSON.parse() call elsewhere would also do."
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'JSON Formatter & Validator', description, path: '/tools/json-formatter/' }),
+  faqSchema(faqs)
+];
 ---
 
 <ToolLayout
@@ -21,5 +48,33 @@ const schema = toolSchema({ name: 'JSON Formatter & Validator', description, pat
       <h3>How it works</h3>
       <p>Paste any JSON and it's validated as you type. Use Format to pretty-print with your chosen indent, or Minify to collapse it to a single line.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>What this tool does</h2>
+      <p>
+        JSON (JavaScript Object Notation) is a plain-text format for structured data, widely used by APIs, config
+        files, and logs. This tool parses whatever you paste in using the browser's built-in JSON parser, so it flags
+        exactly the same problems a real application would hit when reading that data — then lets you either
+        pretty-print it with consistent indentation for readability, or minify it to strip whitespace for a smaller
+        payload.
+      </p>
+
+      <h2>Worked example</h2>
+      <p>
+        Minified input like <code>{'{"name":"Ada","active":true,"roles":["admin","editor"]}'}</code> becomes, once
+        formatted with a 2-space indent, a multi-line, indented structure with each key and nested array entry on its
+        own line — identical data, just laid out for a human to scan.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>
