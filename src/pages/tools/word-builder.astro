@@ -1,11 +1,30 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import WordBuilder from '../../components/tools/WordBuilder.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free word builder for word games. Find every valid word from your available letters, with pattern matching and point scoring.';
-const schema = toolSchema({ name: 'Word Builder', description, path: '/tools/word-builder/' });
+
+const faqs = [
+  {
+    question: 'What is the difference between Word Builder and the Word Unscrambler?',
+    answer:
+      "They search the same dictionary, but Word Builder is built around pattern matching — use it when you know roughly where letters should go (e.g. a partly-filled crossword or Scrabble board slot) — while results here are ranked by score first. The Word Unscrambler groups results by length first, which suits finding the single longest word from a full rack of letters."
+  },
+  {
+    question: 'How does the wildcard pattern work?',
+    answer:
+      'Use an underscore (_) for any position where a letter is unknown. The pattern c_t matches any 3-letter word with "c" first and "t" last, such as "cat", "cot", or "cut" — useful for filling a specific gap rather than searching blind.'
+  },
+  {
+    question: 'How is the point value of a word calculated?',
+    answer:
+      'Each letter has a Scrabble-style value based on how common it is: common letters like E, A, and O are worth 1 point, less common ones like J, Q, X, and Z are worth much more. A word\'s total score is just the sum of its letters\' values.'
+  }
+];
+
+const schema = [toolSchema({ name: 'Word Builder', description, path: '/tools/word-builder/' }), faqSchema(faqs)];
 ---
 
 <ToolLayout
@@ -21,6 +40,18 @@ const schema = toolSchema({ name: 'Word Builder', description, path: '/tools/wor
       <h3>Pattern matching</h3>
       <p>Use <code>_</code> as a wildcard in the pattern field, e.g. <code>c_t</code> matches "cat" and "cot".</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>
 

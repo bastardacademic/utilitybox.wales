@@ -1,11 +1,35 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import CaseConverter from '../../components/tools/CaseConverter.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free text case converter. Convert text to UPPERCASE, lowercase, Title Case, camelCase, PascalCase, snake_case, kebab-case, and more, all at once.';
-const schema = toolSchema({ name: 'Case Converter', description, path: '/tools/case-converter/' });
+
+const faqs = [
+  {
+    question: 'When should I use camelCase vs PascalCase?',
+    answer:
+      "Both join words with no separators and capitalize word boundaries — camelCase starts with a lowercase letter (firstName), PascalCase starts with a capital (FirstName). By convention, camelCase is typically used for variables and function names in languages like JavaScript, while PascalCase is used for class and component names."
+  },
+  {
+    question: 'What is the difference between snake_case and kebab-case?',
+    answer:
+      'snake_case joins words with underscores (first_name) and is common in Python variable names and database column names. kebab-case joins words with hyphens (first-name) and is common in URLs, CSS class names, and HTML attributes — mainly because underscores and hyphens both read as word separators, but the convention differs by ecosystem.'
+  },
+  {
+    question: 'What is CONSTANT_CASE used for?',
+    answer:
+      'CONSTANT_CASE (all uppercase, underscore-separated, e.g. MAX_RETRY_COUNT) is the near-universal convention for naming constants across most programming languages, signalling at a glance that a value is fixed and shouldn\'t be reassigned.'
+  },
+  {
+    question: 'What is the difference between Title Case and Sentence case?',
+    answer:
+      'Title Case capitalizes the first letter of every major word ("The Quick Brown Fox"), typically used for headings and titles. Sentence case only capitalizes the first letter of the whole string ("The quick brown fox"), matching normal prose punctuation rules.'
+  }
+];
+
+const schema = [toolSchema({ name: 'Case Converter', description, path: '/tools/case-converter/' }), faqSchema(faqs)];
 ---
 
 <ToolLayout
@@ -21,5 +45,17 @@ const schema = toolSchema({ name: 'Case Converter', description, path: '/tools/c
       <h3>Nine formats at once</h3>
       <p>Type once and copy whichever case you need — handy for variable names, titles, and constants.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

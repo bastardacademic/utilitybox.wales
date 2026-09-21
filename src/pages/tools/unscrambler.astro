@@ -1,11 +1,35 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import WordUnscrambler from '../../components/tools/WordUnscrambler.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free word unscrambler. Enter scrambled letters and instantly find every valid word, grouped by length and scored for word games.';
-const schema = toolSchema({ name: 'Word Unscrambler', description, path: '/tools/unscrambler/' });
+
+const faqs = [
+  {
+    question: 'How does a word unscrambler work?',
+    answer:
+      "It checks every possible combination of your letters (and every shorter sub-combination) against a dictionary, keeping only the ones that are valid words. Results are grouped by length so you can see the longest, highest-scoring options first — the ones most valuable in games like Scrabble or Words With Friends."
+  },
+  {
+    question: "Does it find shorter words too, not just ones using all my letters?",
+    answer:
+      "Yes — it searches every subset of your letters, so a 7-letter rack will also surface every valid 2, 3, 4, 5, and 6-letter word hiding within it, not just full-length anagrams."
+  },
+  {
+    question: 'What dictionary does this use?',
+    answer:
+      "A merged word list combining a curated common-word list, the Google 10,000 English words list, and the UK Advanced Cryptics Dictionary (UKACD) for broader British-English coverage — including words like \"colour\" and \"organise\" that US-only word lists often miss."
+  },
+  {
+    question: 'How is the score for each word calculated?',
+    answer:
+      'Each letter has a Scrabble-style point value based on how common it is in English — common letters like E and A are worth 1 point, rarer letters like Q and Z are worth much more. A word\'s score is the sum of its letters\' values, which is why results are sorted with higher-scoring words first within each length group.'
+  }
+];
+
+const schema = [toolSchema({ name: 'Word Unscrambler', description, path: '/tools/unscrambler/' }), faqSchema(faqs)];
 ---
 
 <ToolLayout
@@ -21,6 +45,18 @@ const schema = toolSchema({ name: 'Word Unscrambler', description, path: '/tools
       <h3>How it works</h3>
       <p>Enter your letters and we'll search a dictionary of common English words for every valid match, including sub-words shorter than your full rack.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>
 

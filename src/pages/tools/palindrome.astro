@@ -1,11 +1,29 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import PalindromeChecker from '../../components/tools/PalindromeChecker.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free palindrome checker. Find out instantly if a word or phrase reads the same forwards and backwards, ignoring case and punctuation.';
-const schema = toolSchema({ name: 'Palindrome Checker', description, path: '/tools/palindrome/' });
+
+const faqs = [
+  {
+    question: 'What is a palindrome?',
+    answer:
+      'A palindrome is a word, phrase, or sequence that reads the same forwards and backwards. Simple examples are single words like "level" or "radar"; more elaborate ones are full phrases like "A man, a plan, a canal: Panama" once you ignore spaces, punctuation, and capitalization.'
+  },
+  {
+    question: 'Why does the checker ignore spaces and punctuation?',
+    answer:
+      "Because most well-known phrase palindromes only work once you strip formatting — \"A man, a plan, a canal: Panama\" only reads the same backwards as \"amanaplanacanalpanama\", not with its spaces and punctuation intact. Checking letters only (case-insensitive) matches how palindromes are conventionally judged."
+  },
+  {
+    question: 'Are numbers checked the same way?',
+    answer: 'Yes — a numeric palindrome like 12321 works the same way: reversing its digits gives back the same sequence.'
+  }
+];
+
+const schema = [toolSchema({ name: 'Palindrome Checker', description, path: '/tools/palindrome/' }), faqSchema(faqs)];
 ---
 
 <ToolLayout
@@ -21,5 +39,17 @@ const schema = toolSchema({ name: 'Palindrome Checker', description, path: '/too
       <h3>Try a phrase</h3>
       <p>Punctuation, spaces, and capitalization are ignored, so "A man, a plan, a canal: Panama" still counts.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

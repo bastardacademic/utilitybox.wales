@@ -1,11 +1,30 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import AnagramSolver from '../../components/tools/AnagramSolver.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free anagram checker. Find out whether two words or phrases are anagrams of each other.';
-const schema = toolSchema({ name: 'Anagram Solver', description, path: '/tools/anagram/' });
+
+const faqs = [
+  {
+    question: 'What is an anagram?',
+    answer:
+      'An anagram is a word or phrase formed by rearranging all the letters of another, using each letter exactly once. "Listen" and "silent" are anagrams of each other — same six letters, different order.'
+  },
+  {
+    question: 'How do you check if two words are anagrams?',
+    answer:
+      'Strip spaces and punctuation, convert both to the same case, sort each word\'s letters alphabetically, and compare the results — if the sorted letters match exactly, the two are anagrams. "Listen" sorted is "eilnst"; "silent" sorted is also "eilnst", confirming the match.'
+  },
+  {
+    question: 'Do anagrams have to be real words?',
+    answer:
+      'Not necessarily — an anagram just needs to use the same letters the same number of times. Whether the rearrangement is itself a valid word depends on context; word games typically only count anagrams that are also real dictionary words.'
+  }
+];
+
+const schema = [toolSchema({ name: 'Anagram Solver', description, path: '/tools/anagram/' }), faqSchema(faqs)];
 ---
 
 <ToolLayout
@@ -21,5 +40,24 @@ const schema = toolSchema({ name: 'Anagram Solver', description, path: '/tools/a
       <h3>Looking for word lists instead?</h3>
       <p>To find every word hiding in a set of letters, try the <a href="/tools/unscrambler/">Word Unscrambler</a> or <a href="/tools/word-builder/">Word Builder</a>.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Worked example</h2>
+      <p>
+        "Listen" and "silent" are anagrams: sorting each word's letters alphabetically gives "eilnst" for both. "Listen"
+        and "silence" are not — "silence" has seven letters, one more than "listen", so they can't be rearrangements
+        of exactly the same letters.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

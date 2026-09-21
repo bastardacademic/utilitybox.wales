@@ -1,11 +1,35 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import WordCounter from '../../components/tools/WordCounter.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free word counter and character counter. Get live word count, character count, sentence count, and estimated reading time.';
-const schema = toolSchema({ name: 'Word Counter', description, path: '/tools/word-counter/' });
+
+const faqs = [
+  {
+    question: 'How is reading time calculated?',
+    answer:
+      'Reading time is your word count divided by 225 words per minute — the commonly cited average adult silent-reading speed for straightforward text. A 450-word piece works out to about 2 minutes.'
+  },
+  {
+    question: 'How is speaking time calculated?',
+    answer:
+      'Speaking time uses 130 words per minute, a typical pace for reading text aloud at a natural, comprehensible speed — noticeably slower than silent reading, which is why the same piece of text takes longer to say than to read.'
+  },
+  {
+    question: 'How are sentences counted?',
+    answer:
+      "Sentences are counted by splitting on sentence-ending punctuation — periods, question marks, and exclamation points. This is a simple heuristic, so it can overcount abbreviations like \"e.g.\" or \"Dr.\" that contain a period but aren't the end of a sentence."
+  },
+  {
+    question: 'What is the difference between the two character counts?',
+    answer:
+      "One count includes every character, spaces included. The other excludes whitespace, giving you just the count of visible characters — useful for platforms with character limits that only count non-space characters, or when comparing text density."
+  }
+];
+
+const schema = [toolSchema({ name: 'Word Counter', description, path: '/tools/word-counter/' }), faqSchema(faqs)];
 ---
 
 <ToolLayout
@@ -21,5 +45,24 @@ const schema = toolSchema({ name: 'Word Counter', description, path: '/tools/wor
       <h3>Updates as you type</h3>
       <p>Reading time is based on 225 words per minute; speaking time on 130 words per minute.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Worked example</h2>
+      <p>
+        A 450-word piece of text gives a reading time of 450 ÷ 225 = 2 minutes, and a speaking time of
+        450 ÷ 130 ≈ 3.5 minutes — noticeably longer, since speaking a script aloud is naturally slower than reading
+        it silently.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>
