@@ -1,11 +1,33 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import IpConverter from '../../components/tools/IpConverter.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free IPv4 address converter. Convert between dotted decimal, binary, hexadecimal, and 32-bit integer formats.';
-const schema = toolSchema({ name: 'IP Address Converter', description, path: '/tools/ip-converter/' });
+
+const faqs = [
+  {
+    question: 'How do I convert an IP address to binary?',
+    answer:
+      'Convert each of the four decimal octets to an 8-bit binary number and join them: 192.168.1.1 becomes 11000000.10101000.00000001.00000001. Each octet ranges from 0-255, which is exactly what 8 bits can represent (0 to 2⁸−1).'
+  },
+  {
+    question: 'How do I convert an IP address to a 32-bit integer?',
+    answer:
+      'Treat the four octets as the bytes of a single 32-bit number: multiply the first octet by 256³, the second by 256², the third by 256, add the fourth, and sum them. 192.168.1.1 becomes (192 × 16,777,216) + (168 × 65,536) + (1 × 256) + 1 = 3,232,235,777.'
+  },
+  {
+    question: 'Why would I need to convert an IP address to hex or an integer?',
+    answer:
+      'Some systems and APIs (firewall rules, older router configs, certain database schemas, low-level networking code) store or display IP addresses as a raw hexadecimal value or a single integer instead of dotted decimal — this tool lets you go between whichever format you\'re working with.'
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'IP Address Converter', description, path: '/tools/ip-converter/' }),
+  faqSchema(faqs)
+];
 ---
 
 <ToolLayout
@@ -21,6 +43,32 @@ const schema = toolSchema({ name: 'IP Address Converter', description, path: '/t
       <h3>Accepted formats</h3>
       <p>Paste an address as dotted decimal (<code>192.168.1.1</code>), hex (<code>0xC0A80101</code>), 32-bit binary, or a plain integer — the format is detected automatically.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>How IPv4 address formats relate to each other</h2>
+      <p>
+        However it's written, an IPv4 address is the same 32-bit number underneath. Dotted decimal
+        (<code>192.168.1.1</code>) splits those 32 bits into four 8-bit bytes shown in decimal. Binary shows the raw
+        bits. Hex packs each byte into two hex digits. The integer form treats all 32 bits as one number, which is
+        how many low-level systems store an address internally.
+      </p>
+
+      <h2>Worked example: 192.168.1.1</h2>
+      <p>
+        Binary: <code>11000000.10101000.00000001.00000001</code>. Hex: <code>0xC0A80101</code>. As a 32-bit integer:
+        (192 × 256³) + (168 × 256²) + (1 × 256) + 1 = 3,232,235,777.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>
 

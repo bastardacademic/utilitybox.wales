@@ -1,11 +1,38 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import DnsRecordReference from '../../components/tools/DnsRecordReference.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free DNS record type reference. Search A, AAAA, CNAME, MX, TXT, NS, SOA, SRV, CAA and more, with a plain-language explanation and example.';
-const schema = toolSchema({ name: 'DNS Record Reference', description, path: '/tools/dns-records/' });
+
+const faqs = [
+  {
+    question: 'What is the difference between an A record and a CNAME record?',
+    answer:
+      'An A record points a domain directly at an IPv4 address. A CNAME record points a domain at another domain name instead of an address, which then gets resolved in turn — useful for pointing a subdomain at a third-party service without knowing its underlying IP.'
+  },
+  {
+    question: 'What is an MX record for?',
+    answer:
+      "An MX (Mail Exchange) record tells other mail servers which server handles email for your domain, and in what priority order if there's more than one. Without a correctly configured MX record, email addressed to your domain has nowhere to be delivered."
+  },
+  {
+    question: 'What do SPF, DKIM, and DMARC have to do with TXT records?',
+    answer:
+      "SPF, DKIM, and DMARC are all published as TXT records, not their own record type. SPF lists which servers are allowed to send email for your domain, DKIM lets receiving servers verify a message wasn't tampered with, and DMARC tells receivers what to do if SPF or DKIM checks fail. Together they're the main defense against email spoofing."
+  },
+  {
+    question: 'What is a CAA record?',
+    answer:
+      'A CAA (Certificate Authority Authorization) record restricts which certificate authorities are allowed to issue TLS/SSL certificates for your domain — if a CA not listed in your CAA record tries to issue one, it should refuse. It\'s an extra safeguard against a certificate being issued to the wrong party.'
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'DNS Record Reference', description, path: '/tools/dns-records/' }),
+  faqSchema(faqs)
+];
 ---
 
 <ToolLayout
@@ -21,5 +48,26 @@ const schema = toolSchema({ name: 'DNS Record Reference', description, path: '/t
       <h3>Looking to run a lookup?</h3>
       <p>Use the <a href="/tools/dns-lookup/">DNS Lookup</a> tool to query live records for a domain.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Why there are so many DNS record types</h2>
+      <p>
+        DNS started out just mapping names to addresses, but it's since become the general-purpose lookup system the
+        internet uses for mail routing, ownership verification, security policy, and more — each with its own record
+        type so resolvers know how to interpret the data. Most domains only need a handful of these (A/AAAA, MX, a
+        couple of TXT records, and NS), but knowing what the less common ones do helps when you're debugging email
+        delivery or a certificate issue.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

@@ -1,11 +1,38 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import PortReference from '../../components/tools/PortReference.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free network port number reference. Search common TCP/UDP ports and the services that use them.';
-const schema = toolSchema({ name: 'Port Number Reference', description, path: '/tools/port-lookup/' });
+
+const faqs = [
+  {
+    question: 'What is a port number?',
+    answer:
+      "A port number identifies a specific service or application on a device, alongside its IP address. An IP address gets traffic to the right machine; the port number then gets it to the right process on that machine — e.g. a web server listening on port 443 and a mail server on port 25 can run on the same machine at the same IP address without conflicting."
+  },
+  {
+    question: 'What is the difference between TCP and UDP ports?',
+    answer:
+      'TCP is connection-oriented and guarantees delivery and ordering, at the cost of more overhead — used for things like web traffic (HTTP/HTTPS) and email, where a dropped or out-of-order packet would break things. UDP is connectionless with no delivery guarantee, but lower overhead and latency, so it suits things like DNS queries and video/voice streaming, where a lost packet is fine but a delay is not.'
+  },
+  {
+    question: 'What are well-known ports?',
+    answer:
+      "Ports 0-1023 are the well-known (or system) ports, reserved by convention for standard services: 80 for HTTP, 443 for HTTPS, 22 for SSH, 25 for SMTP, and so on. Ports 1024-49151 are registered ports for less universal services, and 49152-65535 are dynamic/private ports typically used as temporary client-side ports for outgoing connections."
+  },
+  {
+    question: 'Why is a specific port blocked or not responding?',
+    answer:
+      'Most often a firewall (on the device, the network, or an ISP) is blocking that port, the service listening on it isn\'t running, or nothing is configured to listen on it at all. Some ISPs also block specific ports like 25 (SMTP) by default to reduce spam from compromised devices.'
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'Port Number Reference', description, path: '/tools/port-lookup/' }),
+  faqSchema(faqs)
+];
 ---
 
 <ToolLayout
@@ -21,5 +48,17 @@ const schema = toolSchema({ name: 'Port Number Reference', description, path: '/
       <h3>Covers the essentials</h3>
       <p>The most common well-known and registered ports — web, mail, databases, and remote access — not the full IANA registry.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

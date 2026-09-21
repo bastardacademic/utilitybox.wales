@@ -1,11 +1,38 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import MacFormatter from '../../components/tools/MacFormatter.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free MAC address formatter and validator. Convert between colon, hyphen, and dot notation, and check if an address is locally administered or multicast.';
-const schema = toolSchema({ name: 'MAC Address Formatter', description, path: '/tools/mac-address/' });
+
+const faqs = [
+  {
+    question: 'What is a MAC address?',
+    answer:
+      "A MAC (Media Access Control) address is a 48-bit hardware identifier burned into (or set on) a network interface — every network card, Wi-Fi adapter, or Bluetooth radio has one. It's written as 12 hex digits, usually grouped in pairs separated by colons or hyphens, e.g. AA:BB:CC:DD:EE:FF."
+  },
+  {
+    question: 'What does "locally administered" mean for a MAC address?',
+    answer:
+      "The second-least-significant bit of the first byte marks this. If it's 0, the address is (supposedly) a factory-assigned, globally unique address from the manufacturer's registered OUI block. If it's 1, the address was set locally — either manually, or randomized by the OS (common on modern phones/laptops for privacy when scanning for Wi-Fi networks)."
+  },
+  {
+    question: 'What does "multicast" mean for a MAC address?',
+    answer:
+      "The least-significant bit of the first byte marks this. If it's 0, the address identifies a single device (unicast). If it's 1, it's a multicast address meant to be received by a group of devices at once, rather than one specific device."
+  },
+  {
+    question: 'What is the difference between colon, hyphen, and dot notation?',
+    answer:
+      'They\'re the same 12 hex digits, just grouped and separated differently: colon (AA:BB:CC:DD:EE:FF) is most common on Linux/macOS and networking equipment, hyphen (AA-BB-CC-DD-EE-FF) is the traditional Windows convention, and dot notation (aabb.ccdd.eeff, grouped in fours) is how Cisco IOS devices typically display MAC addresses.'
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'MAC Address Formatter', description, path: '/tools/mac-address/' }),
+  faqSchema(faqs)
+];
 ---
 
 <ToolLayout
@@ -21,5 +48,25 @@ const schema = toolSchema({ name: 'MAC Address Formatter', description, path: '/
       <h3>Accepts any format</h3>
       <p>Paste a MAC address with colons, hyphens, dots, or no separator at all — it's normalized automatically.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Worked example</h2>
+      <p>
+        The address <code>02:1A:2B:3C:4D:5E</code> reformats as <code>02-1A-2B-3C-4D-5E</code> (hyphen) or
+        <code>021a.2b3c.4d5e</code> (dot). Its first byte is <code>02</code> (binary <code>00000010</code>) — bit 1 is
+        set, so it's locally administered, and bit 0 is clear, so it's a unicast (single-device) address, not
+        multicast.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

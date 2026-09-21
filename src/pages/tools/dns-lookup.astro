@@ -1,11 +1,35 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import DnsLookup from '../../components/tools/DnsLookup.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free DNS lookup tool. Query live A, AAAA, CNAME, MX, TXT, NS, SOA, SRV and CAA records for any domain via DNS-over-HTTPS.';
-const schema = toolSchema({ name: 'DNS Lookup', description, path: '/tools/dns-lookup/' });
+
+const faqs = [
+  {
+    question: 'What is DNS-over-HTTPS?',
+    answer:
+      "DNS-over-HTTPS (DoH) sends DNS queries inside an encrypted HTTPS request instead of plain-text UDP, so the query can't be read or tampered with in transit. This tool queries Cloudflare's public 1.1.1.1 DoH resolver directly from your browser — the lookup never passes through UtilityBox's own servers."
+  },
+  {
+    question: 'Why does a lookup return no results for a record type?',
+    answer:
+      "A domain simply might not have that record type configured — most domains have A/AAAA records but no SRV or CAA records, for example. It can also mean DNS changes haven't propagated yet if the domain was recently updated, since resolvers cache records for their TTL (time to live)."
+  },
+  {
+    question: 'Why might this lookup show different results than another DNS tool?',
+    answer:
+      "DNS results can vary between resolvers because of caching (a resolver might be serving a slightly stale cached answer) or geographic DNS routing (some providers return different records depending on the resolver's location, for load balancing or a CDN). This tool always queries live rather than using a cached result on this end."
+  },
+  {
+    question: 'Is any of my lookup data stored or logged?',
+    answer:
+      "No — the query goes straight from your browser to Cloudflare's resolver; UtilityBox doesn't see or store which domains you look up."
+  }
+];
+
+const schema = [toolSchema({ name: 'DNS Lookup', description, path: '/tools/dns-lookup/' }), faqSchema(faqs)];
 ---
 
 <ToolLayout
@@ -21,5 +45,33 @@ const schema = toolSchema({ name: 'DNS Lookup', description, path: '/tools/dns-l
       <h3>How this works</h3>
       <p>Queries are sent to <a href="https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/" target="_blank" rel="noopener noreferrer">Cloudflare's public DNS-over-HTTPS resolver</a> directly from your browser — no lookup data passes through our server.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>What a DNS lookup shows you</h2>
+      <p>
+        DNS translates a domain name into the information other systems need to reach it — an IP address (A/AAAA), a
+        mail server (MX), a verification or configuration string (TXT), or a pointer to another name (CNAME), among
+        others. Looking up a domain's live records is useful for troubleshooting email delivery, verifying a DNS
+        change has propagated, or just checking how a domain is configured before you rely on it.
+      </p>
+
+      <h2>Common record types to check</h2>
+      <p>
+        A/AAAA point a domain at an IPv4/IPv6 address. MX lists which mail servers accept email for the domain, in
+        priority order. TXT often holds SPF/DKIM/DMARC email-authentication rules, or domain-ownership verification
+        strings. NS lists the authoritative name servers for the domain. See the full
+        <a href="/tools/dns-records/"> DNS Record Reference</a> for every type this tool can query.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

@@ -1,11 +1,38 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import HttpStatusReference from '../../components/tools/HttpStatusReference.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free HTTP status code reference. Search every common status code from 1xx to 5xx with a plain-English explanation.';
-const schema = toolSchema({ name: 'HTTP Status Code Reference', description, path: '/tools/http-status/' });
+
+const faqs = [
+  {
+    question: 'What is the difference between a 401 and a 403 status code?',
+    answer:
+      '401 Unauthorized means the request has no valid authentication credentials — you need to log in or provide a valid token. 403 Forbidden means the server understood who you are but you don\'t have permission to access that resource, regardless of authentication.'
+  },
+  {
+    question: 'What does a 502 vs a 504 error mean?',
+    answer:
+      '502 Bad Gateway means a server acting as a proxy or gateway got an invalid response from an upstream server. 504 Gateway Timeout means that upstream server simply didn\'t respond in time. Both usually point to a problem with a backend service rather than the site itself.'
+  },
+  {
+    question: 'Why do I see 301 and 302 for the same redirect?',
+    answer:
+      '301 Moved Permanently tells browsers and search engines the resource has permanently moved, so they should update bookmarks and search indexes to the new URL. 302 Found is a temporary redirect — the original URL should still be treated as the canonical one.'
+  },
+  {
+    question: 'What does 404 vs 410 mean for a missing page?',
+    answer:
+      "404 Not Found means the server can't find the requested resource, with no indication of whether it ever existed. 410 Gone is a deliberate statement that the resource used to exist but has been permanently removed — some crawlers treat it as a stronger signal to drop the page from their index sooner."
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'HTTP Status Code Reference', description, path: '/tools/http-status/' }),
+  faqSchema(faqs)
+];
 ---
 
 <ToolLayout
@@ -21,5 +48,25 @@ const schema = toolSchema({ name: 'HTTP Status Code Reference', description, pat
       <h3>Categories</h3>
       <p>1xx informational, 2xx success, 3xx redirection, 4xx client errors, 5xx server errors.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>How HTTP status codes are organized</h2>
+      <p>
+        Every HTTP response starts with a three-digit status code, and the first digit tells you the general
+        category before you even read the rest: 1xx means the request was received and processing continues, 2xx
+        means it succeeded, 3xx means further action (usually following a redirect) is needed, 4xx means the client's
+        request was somehow wrong, and 5xx means the server failed to fulfil an otherwise valid request.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

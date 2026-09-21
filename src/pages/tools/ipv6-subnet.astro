@@ -1,11 +1,38 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import Ipv6Calculator from '../../components/calculators/Ipv6Calculator.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free IPv6 address tool. Expand and compress addresses, classify them (link-local, unique local, multicast, global unicast), and calculate subnet ranges.';
-const schema = toolSchema({ name: 'IPv6 Subnet Calculator', description, path: '/tools/ipv6-subnet/' });
+
+const faqs = [
+  {
+    question: 'What does "::" mean in an IPv6 address?',
+    answer:
+      'IPv6 addresses have eight 16-bit groups written in hex, e.g. 2001:0db8:0000:0000:0000:0000:0000:0001. A double colon ("::") compresses one consecutive run of all-zero groups, so that address can be written as 2001:db8::1. Only one "::" is allowed per address, since otherwise the number of compressed groups would be ambiguous.'
+  },
+  {
+    question: 'What is the difference between link-local, unique local, and global unicast addresses?',
+    answer:
+      "Link-local addresses (fe80::/10) are only valid on a single local network segment and aren't routed anywhere else. Unique local addresses (fc00::/7) are IPv6's equivalent of private IPv4 ranges like 192.168.0.0/16 — usable within an organization but not routed on the public internet. Global unicast addresses are publicly routable, the IPv6 equivalent of a public IPv4 address."
+  },
+  {
+    question: 'How many addresses are in an IPv6 subnet?',
+    answer:
+      'A subnet with a /n prefix has 2^(128−n) addresses. A /64 — the standard size for a single LAN segment — has 2⁶⁴ addresses (about 18.4 quintillion), far more than any network could exhaust. A /32, often assigned to an entire ISP, has 2⁹⁶ addresses.'
+  },
+  {
+    question: 'Why is IPv6 written in hexadecimal instead of decimal like IPv4?',
+    answer:
+      "IPv6 addresses are 128 bits long — four times longer than IPv4's 32 bits — and writing that many bits in decimal dotted notation would be unreadably long. Hex groups pack 16 bits into 4 characters each, keeping the address to a more manageable eight groups."
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'IPv6 Subnet Calculator', description, path: '/tools/ipv6-subnet/' }),
+  faqSchema(faqs)
+];
 ---
 
 <ToolLayout
@@ -21,6 +48,35 @@ const schema = toolSchema({ name: 'IPv6 Subnet Calculator', description, path: '
       <h3>Format</h3>
       <p>Enter an address like <code>2001:db8::1</code>, or with a prefix like <code>2001:db8::/32</code> for the subnet range. <code>::</code> compresses one run of zero groups.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>How IPv6 addressing works</h2>
+      <p>
+        An IPv6 address is 128 bits, written as eight groups of four hex digits separated by colons. Because that's
+        a lot to write out, leading zeros in each group can be dropped (<code>0db8</code> becomes <code>db8</code>),
+        and one run of consecutive all-zero groups can be collapsed to <code>::</code>. A CIDR-style prefix, like
+        <code>/32</code> or <code>/64</code>, marks how many of those 128 bits are fixed as the network portion —
+        exactly the same idea as IPv4 CIDR notation, just on a much bigger address space.
+      </p>
+
+      <h2>Worked example</h2>
+      <p>
+        The address <code>2001:0db8:0000:0000:0000:0000:0000:0001</code> compresses to <code>2001:db8::1</code>. For
+        the subnet <code>2001:db8::/32</code>, the network address is <code>2001:db8::</code>, the last address in
+        the range is <code>2001:db8:ffff:ffff:ffff:ffff:ffff:ffff</code>, and the subnet contains
+        79,228,162,514,264,337,593,543,950,336 addresses in total (2⁹⁶, since 128 − 32 = 96 host bits remain).
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>
 

@@ -1,11 +1,33 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import BandwidthCalculator from '../../components/calculators/BandwidthCalculator.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free data transfer time calculator. Work out how long a download or upload will take given a file size and connection speed.';
-const schema = toolSchema({ name: 'Bandwidth / Transfer Time Calculator', description, path: '/tools/bandwidth/' });
+
+const faqs = [
+  {
+    question: 'Why is my download slower than my advertised internet speed?',
+    answer:
+      "The biggest reason is units: internet speeds are advertised in megabits per second (Mbps), but file sizes are shown in megabytes (MB) — and there are 8 bits in a byte. So a '100 Mbps' connection downloads at a theoretical maximum of 100 ÷ 8 = 12.5 MB per second, not 100 MB/s. On top of that, protocol overhead, other devices sharing the connection, Wi-Fi conditions, and the server's own upload speed all reduce real-world throughput further."
+  },
+  {
+    question: 'What is the difference between Mbps and MBps?',
+    answer:
+      "Mbps (megabits per second, lowercase 'b') is how connection speeds are normally advertised. MBps (megabytes per second, uppercase 'B') is how file sizes and download progress are normally shown. 1 MBps = 8 Mbps, so always check which one you're looking at before comparing numbers."
+  },
+  {
+    question: 'Why does this calculator use 1,024 for file size but 1,000 for speed?',
+    answer:
+      'File sizes (KB/MB/GB) follow the binary convention operating systems use for reporting file and storage sizes (1 KB = 1,024 bytes). Connection speeds (Kbps/Mbps/Gbps) follow the decimal convention networking equipment and ISPs use (1 Mbps = 1,000,000 bits per second) — mixing the two correctly is exactly what this calculator handles for you.'
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'Bandwidth / Transfer Time Calculator', description, path: '/tools/bandwidth/' }),
+  faqSchema(faqs)
+];
 ---
 
 <ToolLayout
@@ -21,5 +43,24 @@ const schema = toolSchema({ name: 'Bandwidth / Transfer Time Calculator', descri
       <h3>Why the estimate is optimistic</h3>
       <p>Real transfers run slower than the raw connection speed due to protocol overhead, other traffic sharing the link, and Wi-Fi/latency effects. Treat this as a best case.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Worked example</h2>
+      <p>
+        A 1 GB file over a 100 Mbps connection: 1 GB is 8,589,934,592 bits (1,024³ bytes × 8). At 100,000,000 bits
+        per second, that's 8,589,934,592 ÷ 100,000,000 ≈ 85.9 seconds — about 1 minute 25 seconds, assuming the full
+        connection speed is available for the whole transfer.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>
