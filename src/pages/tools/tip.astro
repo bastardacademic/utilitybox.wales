@@ -1,11 +1,29 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import TipCalculator from '../../components/calculators/TipCalculator.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free tip calculator. Work out the tip amount and split the total bill between any number of people.';
-const schema = toolSchema({ name: 'Tip Calculator', description, path: '/tools/tip/' });
+
+const faqs = [
+  {
+    question: 'How do I calculate a tip?',
+    answer: 'Multiply the bill by the tip percentage divided by 100. A £50 bill with a 12% tip: 50 × (12 ÷ 100) = £6 tip, for a total of £56.'
+  },
+  {
+    question: 'How is a split bill divided between people?',
+    answer:
+      'The tip amount and the grand total are each divided evenly by the number of people. For a £50 bill with a 12% tip split 4 ways: £6 total tip ÷ 4 = £1.50 tip per person, and £56 total ÷ 4 = £14 per person.'
+  },
+  {
+    question: 'What is a typical tip percentage?',
+    answer:
+      'This varies a lot by country and context — commonly 10-15% at UK restaurants (and often already included as a discretionary "service charge" on the bill, worth checking before adding another tip on top), and historically 15-20% in the US. There\'s no universal rule; use whatever is customary where you are.'
+  }
+];
+
+const schema = [toolSchema({ name: 'Tip Calculator', description, path: '/tools/tip/' }), faqSchema(faqs)];
 ---
 
 <ToolLayout
@@ -21,5 +39,17 @@ const schema = toolSchema({ name: 'Tip Calculator', description, path: '/tools/t
       <h3>Splitting the bill</h3>
       <p>Enter the number of people to see the tip and total per person, alongside the overall totals.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

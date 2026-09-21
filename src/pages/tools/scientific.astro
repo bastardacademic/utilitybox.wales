@@ -1,11 +1,30 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import Scientific from '../../components/calculators/Scientific.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free scientific calculator with trigonometry, logarithms, powers, roots and constants. Runs entirely in your browser — no sign-up, no tracking.';
-const schema = toolSchema({ name: 'Scientific Calculator', description, path: '/tools/scientific/' });
+
+const faqs = [
+  {
+    question: 'Should I use degrees or radians for trig functions?',
+    answer:
+      'Use degrees for everyday angle measurements (a right angle is 90°) and radians for most mathematics and physics contexts, where a full circle is 2π radians rather than 360°. Mixing them up is a common source of wrong answers — sin(30) evaluates completely differently depending on which mode is active, so check the mode toggle before trusting a trig result.'
+  },
+  {
+    question: 'What order of operations does this calculator follow?',
+    answer:
+      'Standard mathematical precedence: parentheses first, then exponents (^), then multiplication and division (left to right), then addition and subtraction (left to right) — the same PEMDAS/BODMAS rules taught in school.'
+  },
+  {
+    question: 'How do I calculate a power or a root?',
+    answer:
+      'Use ^ for powers, e.g. 2^10 for 2 to the power of 10. For an nth root, raise to the fractional power 1/n — for example, a cube root is ^(1/3).'
+  }
+];
+
+const schema = [toolSchema({ name: 'Scientific Calculator', description, path: '/tools/scientific/' }), faqSchema(faqs)];
 ---
 
 <ToolLayout
@@ -26,6 +45,25 @@ const schema = toolSchema({ name: 'Scientific Calculator', description, path: '/
         <li>Press Enter to evaluate.</li>
       </ul>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Worked example</h2>
+      <p>
+        <code>2^10</code> evaluates to 1024. In degree mode, <code>sin(30)</code> evaluates to 0.5, since 30° is a
+        standard reference angle; the same expression in radian mode would treat 30 as 30 radians and give a
+        completely different result.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>
 

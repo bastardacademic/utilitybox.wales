@@ -1,11 +1,36 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import PercentageCalculator from '../../components/calculators/PercentageCalculator.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free percentage calculator. Find X% of Y, work out what percentage one number is of another, and calculate percentage change.';
-const schema = toolSchema({ name: 'Percentage Calculator', description, path: '/tools/percentage/' });
+
+const faqs = [
+  {
+    question: 'How do I calculate X% of Y?',
+    answer: 'Multiply Y by X, then divide by 100 — or equivalently, multiply Y by X/100. 20% of 50 is 50 × (20 ÷ 100) = 10.'
+  },
+  {
+    question: 'How do I work out what percentage one number is of another?',
+    answer: 'Divide the part by the whole, then multiply by 100. 10 is what percentage of 50? (10 ÷ 50) × 100 = 20%.'
+  },
+  {
+    question: 'How is percentage change calculated?',
+    answer:
+      'Subtract the original value from the new value to get the difference, divide that by the original value, then multiply by 100. Going from 50 to 65: difference is 15, so (15 ÷ 50) × 100 = 30% — a 30% increase. A negative result means a decrease.'
+  },
+  {
+    question: 'Why can percentage change give a different result going backwards?',
+    answer:
+      "Because percentage change is always relative to the starting value. Going from 50 to 65 is a 30% increase, but going from 65 back down to 50 is only about a 23.1% decrease — the same 15-point difference is a bigger fraction of the smaller starting number."
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'Percentage Calculator', description, path: '/tools/percentage/' }),
+  faqSchema(faqs)
+];
 ---
 
 <ToolLayout
@@ -21,5 +46,17 @@ const schema = toolSchema({ name: 'Percentage Calculator', description, path: '/
       <h3>Three calculators in one</h3>
       <p>Find a percentage of a number, work out what percentage one value is of another, or calculate the percentage change between two values.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>
