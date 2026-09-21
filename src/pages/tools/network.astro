@@ -1,11 +1,43 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import NetworkCalc from '../../components/calculators/NetworkCalc.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free network calculator for CIDR notation and subnet masks. Calculate network and broadcast addresses, host ranges, and split subnets.';
-const schema = toolSchema({ name: 'Network / CIDR Calculator', description, path: '/tools/network/' });
+
+const faqs = [
+  {
+    question: 'What does CIDR notation mean?',
+    answer:
+      'CIDR (Classless Inter-Domain Routing) notation writes an IP address together with a prefix length, e.g. 192.168.1.0/24. The number after the slash is how many leading bits of the 32-bit address are fixed as the network portion — the remaining bits identify hosts within that network. A /24 fixes 24 bits, leaving 8 bits (256 addresses) for hosts.'
+  },
+  {
+    question: 'How do I calculate the subnet mask from a CIDR prefix?',
+    answer:
+      "The subnet mask has as many leading 1 bits as the CIDR prefix number, with the rest set to 0. A /24 prefix is 11111111.11111111.11111111.00000000 in binary, which is 255.255.255.0. A /16 prefix is 255.255.0.0, and a /8 prefix is 255.0.0.0."
+  },
+  {
+    question: 'What are the network address and broadcast address?',
+    answer:
+      'The network address is the first address in a subnet, with all host bits set to 0 — it identifies the subnet itself and can\'t be assigned to a device. The broadcast address is the last address, with all host bits set to 1, used to send a message to every device on that subnet. Neither is normally usable as a host address.'
+  },
+  {
+    question: 'How many usable host addresses does a subnet have?',
+    answer:
+      'A subnet with n host bits has 2ⁿ total addresses, minus 2 for the network and broadcast addresses, giving 2ⁿ − 2 usable host addresses. A /24 has 8 host bits: 2⁸ = 256 total, so 254 usable. A /30 has 2 host bits: 4 total, so 2 usable — the smallest practical point-to-point subnet.'
+  },
+  {
+    question: 'What is the difference between a network address and a broadcast address?',
+    answer:
+      'The network address identifies the subnet as a whole (all host bits 0); the broadcast address reaches every host on it at once (all host bits 1). Everything strictly between them is an assignable host address.'
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'Network / CIDR Calculator', description, path: '/tools/network/' }),
+  faqSchema(faqs)
+];
 ---
 
 <ToolLayout
@@ -21,6 +53,33 @@ const schema = toolSchema({ name: 'Network / CIDR Calculator', description, path
       <h3>Format</h3>
       <p>Enter an address with a CIDR prefix, e.g. <code>10.0.0.0/8</code> or <code>192.168.1.0/24</code>.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>How CIDR and subnet masks work</h2>
+      <p>
+        An IPv4 address is 32 bits, normally written as four decimal octets (e.g. 192.168.1.10). A CIDR prefix like
+        /24 splits those 32 bits into a fixed network portion and a variable host portion — the prefix number is how
+        many bits (from the left) belong to the network. Everything after the network bits identifies an individual
+        host within that subnet.
+      </p>
+
+      <h2>Worked example: 192.168.1.0/24</h2>
+      <p>
+        A /24 prefix fixes the first 24 bits, leaving 8 bits for hosts — that's 2⁸ = 256 total addresses. The subnet
+        mask is 255.255.255.0. The network address (all host bits 0) is 192.168.1.0, and the broadcast address (all
+        host bits 1) is 192.168.1.255. That leaves 254 usable host addresses, from 192.168.1.1 to 192.168.1.254.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>
 

@@ -5,11 +5,12 @@ interface Props {
   title: string;
   description: string;
   category: string;
-  /** Optional JSON-LD object (e.g. a schema.org WebApplication record) rendered as structured data. */
-  schema?: Record<string, unknown>;
+  /** Optional JSON-LD object(s) (e.g. a schema.org WebApplication or FAQPage record) rendered as structured data. */
+  schema?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const { title, description, category, schema } = Astro.props;
+const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
 
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
@@ -22,9 +23,9 @@ const breadcrumbSchema = {
 ---
 
 <Layout title={title} description={description}>
-  {schema && (
-    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
-  )}
+  {schemas.map((entry) => (
+    <script type="application/ld+json" set:html={JSON.stringify(entry)} />
+  ))}
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   <div class="container tool-page">
     <nav class="breadcrumb" aria-label="Breadcrumb">
@@ -52,6 +53,8 @@ const breadcrumbSchema = {
         </slot>
       </aside>
     </div>
+
+    <slot name="content" />
   </div>
 </Layout>
 
@@ -107,5 +110,35 @@ const breadcrumbSchema = {
     .tool-side {
       position: static;
     }
+  }
+</style>
+
+<style is:global>
+  .tool-content {
+    max-width: 720px;
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .tool-content h2 {
+    margin-top: var(--space-6);
+  }
+
+  .tool-content h2:first-child {
+    margin-top: 0;
+  }
+
+  .tool-content .faq-item {
+    margin-bottom: var(--space-4);
+  }
+
+  .tool-content .faq-item h3 {
+    margin-bottom: var(--space-1);
+  }
+
+  .tool-content .faq-item p {
+    margin-bottom: 0;
+    color: var(--color-text-muted);
   }
 </style>

@@ -1,11 +1,43 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import UKSalary from '../../components/calculators/UKSalary.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
-  'Free UK salary calculator for the 2024/25 tax year. Work out your take-home pay after income tax, National Insurance and student loan.';
-const schema = toolSchema({ name: 'UK Salary Calculator', description, path: '/tools/uk-salary/' });
+  'Free UK salary calculator for the 2026/27 tax year. Work out your take-home pay after income tax, National Insurance and student loan.';
+
+const faqs = [
+  {
+    question: 'How is UK take-home pay calculated?',
+    answer:
+      'Take-home pay is your gross salary minus income tax, Class 1 National Insurance, any student loan repayments, and any pension contribution. Income tax is worked out in bands: the first £12,570 (your personal allowance) is tax-free, then each band above it is taxed at a higher rate. National Insurance and student loan repayments are calculated separately on their own thresholds.'
+  },
+  {
+    question: 'What is the personal allowance for 2026/27?',
+    answer:
+      'The standard personal allowance is £12,570 — the amount you can earn before paying any income tax. It tapers away by £1 for every £2 earned over £100,000, and reaches £0 once income hits £125,140.'
+  },
+  {
+    question: 'What are the 2026/27 income tax bands?',
+    answer:
+      'In England, Wales and Northern Ireland: 20% basic rate up to £50,270, 40% higher rate up to £125,140, and 45% additional rate above that. Scotland uses six bands instead of three: 19% starter rate up to £16,537, 20% basic rate up to £29,526, 21% intermediate rate up to £43,662, 42% higher rate up to £75,000, 45% advanced rate up to £125,140, and 48% top rate above that.'
+  },
+  {
+    question: 'How much National Insurance will I pay?',
+    answer:
+      'For 2026/27, employee Class 1 National Insurance is 8% on earnings between £12,570 and £50,270 a year, and 2% on anything above £50,270. Nothing is due below the £12,570 threshold.'
+  },
+  {
+    question: 'How are student loan repayments worked out?',
+    answer:
+      'Student loan repayments are 9% of income above your plan\'s threshold (Plan 1: £26,900, Plan 2: £29,385, Plan 4: £33,795), or 6% above £21,000 for the Postgraduate Loan plan. They\'re calculated independently of income tax and National Insurance.'
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'UK Salary Calculator', description, path: '/tools/uk-salary/' }),
+  faqSchema(faqs)
+];
 ---
 
 <ToolLayout
@@ -18,8 +50,37 @@ const schema = toolSchema({ name: 'UK Salary Calculator', description, path: '/t
 
   <Fragment slot="sidebar">
     <div class="card side-card">
-      <h3>2024/25 tax year</h3>
+      <h3>2026/27 tax year</h3>
       <p>Uses the current personal allowance, income tax bands (including Scottish rates) and Class 1 National Insurance thresholds.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>How UK take-home pay is calculated</h2>
+      <p>
+        Your take-home pay is what's left of your gross salary after four things are taken off: income tax, Class 1
+        National Insurance, any student loan repayment, and any pension contribution. Income tax works in bands — you
+        don't pay a single flat rate on your whole salary. Instead, each slice of income above the previous band's
+        threshold is taxed at that band's rate, and the first £12,570 (your personal allowance) is tax-free for most
+        people.
+      </p>
+
+      <h2>Worked example</h2>
+      <p>
+        Take a gross salary of £35,000 in England, with no student loan and no pension contribution. The first
+        £12,570 is tax-free. The remaining £22,430 falls in the 20% basic rate band, giving income tax of £4,486.
+        National Insurance is 8% on earnings between £12,570 and £50,270, so 8% of £22,430 = £1,794.40. Take-home pay
+        works out to roughly £28,719.60 a year, or about £2,393 a month.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>

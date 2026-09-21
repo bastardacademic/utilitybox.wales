@@ -15,3 +15,19 @@ export function toolSchema(options: { name: string; description: string; path: s
     }
   };
 }
+
+/** Builds a schema.org FAQPage JSON-LD record from a list of question/answer pairs. */
+export function faqSchema(faqs: { question: string; answer: string }[]): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer
+      }
+    }))
+  };
+}

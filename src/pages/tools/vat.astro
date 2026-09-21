@@ -1,11 +1,35 @@
 ---
 import ToolLayout from '../../components/ToolLayout.astro';
 import VatCalculator from '../../components/calculators/VatCalculator.astro';
-import { toolSchema } from '../../utils/seo';
+import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
   'Free UK VAT calculator. Add or remove VAT at any rate and see the net, VAT, and gross amounts.';
-const schema = toolSchema({ name: 'VAT Calculator', description, path: '/tools/vat/' });
+
+const faqs = [
+  {
+    question: 'How do I calculate VAT on a price?',
+    answer:
+      'To add VAT to a net (pre-VAT) price, multiply it by the VAT rate and add that to the original amount — e.g. £100 net at 20% VAT is £100 + (£100 × 0.20) = £120 gross. To remove VAT from a gross (VAT-inclusive) price, divide it by 1 plus the VAT rate — e.g. £120 gross at 20% VAT is £120 ÷ 1.20 = £100 net.'
+  },
+  {
+    question: 'What is the current UK VAT rate?',
+    answer:
+      'The UK standard VAT rate is 20%. A reduced rate of 5% applies to some goods and services (e.g. domestic energy), and certain items are zero-rated (0%) or exempt entirely. This calculator defaults to 20% but accepts any rate.'
+  },
+  {
+    question: 'What is the difference between net, VAT, and gross?',
+    answer:
+      'Net is the price before VAT is applied. VAT is the tax amount itself. Gross is the final price a customer pays, which is net plus VAT (net × (1 + rate)).'
+  },
+  {
+    question: 'How do I work out how much VAT is included in a price I already have?',
+    answer:
+      'Switch to "Remove VAT" mode and enter the VAT-inclusive (gross) price. The calculator divides it by 1 plus the VAT rate to find the net amount, then shows the VAT portion as the difference between the two.'
+  }
+];
+
+const schema = [toolSchema({ name: 'VAT Calculator', description, path: '/tools/vat/' }), faqSchema(faqs)];
 ---
 
 <ToolLayout
@@ -21,5 +45,32 @@ const schema = toolSchema({ name: 'VAT Calculator', description, path: '/tools/v
       <h3>Default rate</h3>
       <p>Defaults to the UK standard rate of 20% — change it for the reduced (5%) or any other rate.</p>
     </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>How to calculate VAT</h2>
+      <p>
+        Adding VAT means multiplying the net price by the VAT rate and adding the result to the original amount:
+        gross = net × (1 + rate). Removing VAT from a price that already includes it works the other way round: divide
+        the gross price by (1 + rate) to get back to the net amount — you can't just subtract the rate as a percentage
+        of the gross figure, since that percentage was calculated on the smaller net amount, not the gross one.
+      </p>
+
+      <h2>Worked example</h2>
+      <p>
+        A net price of £250 at the standard 20% rate: VAT = £250 × 0.20 = £50, so the gross price is £300. Going the
+        other way, a gross price of £300 at 20% VAT: net = £300 ÷ 1.20 = £250, and the VAT portion is £300 − £250 =
+        £50 — the same figures, worked in reverse.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
   </Fragment>
 </ToolLayout>
