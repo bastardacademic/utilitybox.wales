@@ -32,15 +32,13 @@ const schema = [toolSchema({ name: 'Anagram Solver', description, path: '/tools/
   description={description}
   category="Word Games"
   schema={schema}
+  relatedTools={[
+    { href: '/tools/unscrambler/', label: 'Word Unscrambler' },
+    { href: '/tools/word-builder/', label: 'Word Builder' },
+    { href: '/tools/palindrome/', label: 'Palindrome Checker' }
+  ]}
 >
   <AnagramSolver />
-
-  <Fragment slot="sidebar">
-    <div class="card side-card">
-      <h3>Looking for word lists instead?</h3>
-      <p>To find every word hiding in a set of letters, try the <a href="/tools/unscrambler/">Word Unscrambler</a> or <a href="/tools/word-builder/">Word Builder</a>.</p>
-    </div>
-  </Fragment>
 
   <Fragment slot="content">
     <section class="tool-content">

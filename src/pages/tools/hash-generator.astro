@@ -37,6 +37,10 @@ const schema = [toolSchema({ name: 'Hash Generator', description, path: '/tools/
   description={description}
   category="Developer Tools"
   schema={schema}
+  relatedTools={[
+    { href: '/tools/base64/', label: 'Base64 Encoder / Decoder' },
+    { href: '/tools/random-string/', label: 'Random String Generator' }
+  ]}
 >
   <HashGenerator />
 

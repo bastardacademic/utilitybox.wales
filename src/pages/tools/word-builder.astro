@@ -32,6 +32,10 @@ const schema = [toolSchema({ name: 'Word Builder', description, path: '/tools/wo
   description={description}
   category="Word Games"
   schema={schema}
+  relatedTools={[
+    { href: '/tools/unscrambler/', label: 'Word Unscrambler' },
+    { href: '/tools/anagram/', label: 'Anagram Solver' }
+  ]}
 >
   <WordBuilder />
 

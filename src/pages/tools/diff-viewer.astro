@@ -32,6 +32,10 @@ const schema = [toolSchema({ name: 'Diff Viewer', description, path: '/tools/dif
   description={description}
   category="Developer Tools"
   schema={schema}
+  relatedTools={[
+    { href: '/tools/json-formatter/', label: 'JSON Formatter & Validator' },
+    { href: '/tools/regex-tester/', label: 'Regex Tester' }
+  ]}
 >
   <DiffViewer />
 

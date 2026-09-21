@@ -32,6 +32,10 @@ const schema = [toolSchema({ name: 'Lorem Ipsum Generator', description, path: '
   description={description}
   category="Generators"
   schema={schema}
+  relatedTools={[
+    { href: '/tools/word-counter/', label: 'Word Counter' },
+    { href: '/tools/placeholder-image/', label: 'Placeholder Image Generator' }
+  ]}
 >
   <LoremIpsum />
 

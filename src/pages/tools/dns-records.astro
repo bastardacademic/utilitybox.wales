@@ -40,15 +40,9 @@ const schema = [
   description={description}
   category="Networking"
   schema={schema}
+  relatedTools={[{ href: '/tools/dns-lookup/', label: 'DNS Lookup' }]}
 >
   <DnsRecordReference />
-
-  <Fragment slot="sidebar">
-    <div class="card side-card">
-      <h3>Looking to run a lookup?</h3>
-      <p>Use the <a href="/tools/dns-lookup/">DNS Lookup</a> tool to query live records for a domain.</p>
-    </div>
-  </Fragment>
 
   <Fragment slot="content">
     <section class="tool-content">

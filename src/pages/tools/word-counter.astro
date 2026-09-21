@@ -37,6 +37,7 @@ const schema = [toolSchema({ name: 'Word Counter', description, path: '/tools/wo
   description={description}
   category="Word Games"
   schema={schema}
+  relatedTools={[{ href: '/tools/case-converter/', label: 'Case Converter' }]}
 >
   <WordCounter />
 

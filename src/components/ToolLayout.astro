@@ -7,9 +7,11 @@ interface Props {
   category: string;
   /** Optional JSON-LD object(s) (e.g. a schema.org WebApplication or FAQPage record) rendered as structured data. */
   schema?: Record<string, unknown> | Record<string, unknown>[];
+  /** Optional links to related tool pages, rendered as a "Related tools" sidebar card. */
+  relatedTools?: { href: string; label: string }[];
 }
 
-const { title, description, category, schema } = Astro.props;
+const { title, description, category, schema, relatedTools } = Astro.props;
 const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
 
 const breadcrumbSchema = {
@@ -51,6 +53,17 @@ const breadcrumbSchema = {
             <p>{description}</p>
           </div>
         </slot>
+
+        {relatedTools && relatedTools.length > 0 && (
+          <div class="card side-card">
+            <h3>Related tools</h3>
+            <ul class="related-tools-list">
+              {relatedTools.map((tool) => (
+                <li><a href={tool.href}>{tool.label}</a></li>
+              ))}
+            </ul>
+          </div>
+        )}
       </aside>
     </div>
 
@@ -110,6 +123,15 @@ const breadcrumbSchema = {
     .tool-side {
       position: static;
     }
+  }
+
+  .related-tools-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
   }
 </style>
 

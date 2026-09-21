@@ -37,6 +37,7 @@ const schema = [toolSchema({ name: 'DNS Lookup', description, path: '/tools/dns-
   description={description}
   category="Networking"
   schema={schema}
+  relatedTools={[{ href: '/tools/dns-records/', label: 'DNS Record Reference' }]}
 >
   <DnsLookup />
 

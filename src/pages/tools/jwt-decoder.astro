@@ -37,6 +37,10 @@ const schema = [toolSchema({ name: 'JWT Decoder', description, path: '/tools/jwt
   description={description}
   category="Developer Tools"
   schema={schema}
+  relatedTools={[
+    { href: '/tools/base64/', label: 'Base64 Encoder / Decoder' },
+    { href: '/tools/hash-generator/', label: 'Hash Generator' }
+  ]}
 >
   <JwtDecoder />
 

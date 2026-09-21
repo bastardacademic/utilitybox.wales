@@ -32,6 +32,10 @@ const schema = [toolSchema({ name: 'Scientific Calculator', description, path: '
   description={description}
   category="Calculators"
   schema={schema}
+  relatedTools={[
+    { href: '/tools/percentage/', label: 'Percentage Calculator' },
+    { href: '/tools/measurements/', label: 'Unit Converter' }
+  ]}
 >
   <Scientific />
 

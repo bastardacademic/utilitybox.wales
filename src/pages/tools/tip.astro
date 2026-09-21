@@ -31,6 +31,10 @@ const schema = [toolSchema({ name: 'Tip Calculator', description, path: '/tools/
   description={description}
   category="Calculators"
   schema={schema}
+  relatedTools={[
+    { href: '/tools/percentage/', label: 'Percentage Calculator' },
+    { href: '/tools/vat/', label: 'VAT Calculator' }
+  ]}
 >
   <TipCalculator />
 
