@@ -1,0 +1,68 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import CheatSheet from '../../components/tools/CheatSheet.astro';
+import { toolSchema, faqSchema } from '../../utils/seo';
+import { REGEX_CHEATSHEET } from '../../utils/regexCheatsheet';
+
+const description =
+  'Free regex cheatsheet. Searchable reference for regular expression syntax — anchors, character classes, quantifiers, groups, lookaround, and flags.';
+
+const faqs = [
+  {
+    question: 'What is the difference between * and +?',
+    answer: '* matches zero or more of the preceding element, so it still matches if the element isn\'t present at all. + requires at least one occurrence.'
+  },
+  {
+    question: 'What is the difference between a capturing and non-capturing group?',
+    answer:
+      'A capturing group (abc) remembers the text it matches, so you can refer back to it (as a backreference, or in replacement text). A non-capturing group (?:abc) groups a sequence — for applying a quantifier to the whole thing, for example — without the overhead of remembering what it matched.'
+  },
+  {
+    question: 'What is lookahead/lookbehind, and when would I use it?',
+    answer:
+      'Lookaround asserts that something comes before or after a position, without including it in the match itself. It\'s useful when you need to match something only in a certain context — e.g. (?<=\\$)\\d+ matches digits only when preceded by a dollar sign, without the dollar sign itself becoming part of the match.'
+  },
+  {
+    question: 'Why is my pattern matching more than I expect?',
+    answer:
+      'Quantifiers are greedy by default — .* grabs as much as it possibly can while still letting the rest of the pattern match, which often matches far more than intended across multiple expected "stopping points" in a string. Add a ? after the quantifier (.*?) to make it lazy, matching as little as possible instead.'
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'Regex Cheatsheet', description, path: '/tools/regex-cheatsheet/' }),
+  faqSchema(faqs)
+];
+---
+
+<ToolLayout
+  title="Regex Cheatsheet"
+  description={description}
+  category="Developer Tools"
+  schema={schema}
+  relatedTools={[
+    { href: '/tools/regex-tester/', label: 'Regex Tester' },
+    { href: '/tools/git-cheatsheet/', label: 'Git Cheatsheet' }
+  ]}
+>
+  <CheatSheet entries={REGEX_CHEATSHEET} placeholder="e.g. lookahead, quantifier, group, flag" />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Want to test a pattern?</h3>
+      <p>Use the <a href="/tools/regex-tester/">Regex Tester</a> to try a pattern against your own text with live match highlighting.</p>
+    </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
+  </Fragment>
+</ToolLayout>

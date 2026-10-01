@@ -1,0 +1,68 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import CheatSheet from '../../components/tools/CheatSheet.astro';
+import { toolSchema, faqSchema } from '../../utils/seo';
+import { EXCEL_CHEATSHEET } from '../../utils/excelCheatsheet';
+
+const description =
+  'Free Excel cheatsheet. Searchable reference for common Excel formulas and keyboard shortcuts — lookups, math, logic, text, dates, and more.';
+
+const faqs = [
+  {
+    question: 'Should I use VLOOKUP or XLOOKUP?',
+    answer:
+      'XLOOKUP, where available (Excel 365 / Excel 2021 and later), is generally the better choice — it can look in any direction (VLOOKUP only looks rightward), doesn\'t break if columns are inserted or deleted, and defaults to an exact match instead of VLOOKUP\'s error-prone default of an approximate match. VLOOKUP remains more widely compatible with older files and other spreadsheet software.'
+  },
+  {
+    question: 'What is the difference between COUNTIF and SUMIF?',
+    answer: 'COUNTIF counts how many cells meet a condition. SUMIF adds up the values in a corresponding range for the cells that meet a condition. COUNTIFS and SUMIFS are the same, but support multiple conditions at once.'
+  },
+  {
+    question: 'Why does my formula return a #REF!, #N/A, or #VALUE! error?',
+    answer:
+      '#REF! means a formula refers to a cell that no longer exists (often because a row/column was deleted). #N/A usually comes from a lookup (VLOOKUP, MATCH) that couldn\'t find a matching value. #VALUE! usually means a formula received the wrong type of input, like text where a number was expected. Wrapping a formula in IFERROR() lets you show a friendlier fallback instead of the raw error.'
+  },
+  {
+    question: 'What does the $ mean in a cell reference like $A$1?',
+    answer:
+      'The dollar sign locks (makes absolute) the row and/or column so it doesn\'t change when the formula is copied to other cells. $A$1 locks both; A$1 locks only the row; $A1 locks only the column. Pressing F4 while editing a reference cycles through all four combinations.'
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'Excel Cheatsheet', description, path: '/tools/excel-cheatsheet/' }),
+  faqSchema(faqs)
+];
+---
+
+<ToolLayout
+  title="Excel Cheatsheet"
+  description={description}
+  category="Developer Tools"
+  schema={schema}
+  relatedTools={[
+    { href: '/tools/percentage/', label: 'Percentage Calculator' },
+    { href: '/tools/git-cheatsheet/', label: 'Git Cheatsheet' }
+  ]}
+>
+  <CheatSheet entries={EXCEL_CHEATSHEET} placeholder="e.g. vlookup, sumif, concatenate, shortcut" />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Covers the essentials</h3>
+      <p>The formulas and shortcuts you'll actually use day to day — not the full function reference.</p>
+    </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
+  </Fragment>
+</ToolLayout>

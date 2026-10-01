@@ -1,0 +1,69 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import CheatSheet from '../../components/tools/CheatSheet.astro';
+import { toolSchema, faqSchema } from '../../utils/seo';
+import { GIT_CHEATSHEET } from '../../utils/gitCheatsheet';
+
+const description =
+  'Free Git cheatsheet. Searchable reference for common Git commands — branching, merging, undoing changes, remotes, and more.';
+
+const faqs = [
+  {
+    question: 'What is the difference between git fetch and git pull?',
+    answer:
+      'git fetch downloads commits and branches from a remote but leaves your current branch untouched — it just updates your view of the remote. git pull does a fetch and then immediately merges (or rebases, if configured) the fetched changes into your current branch. fetch is the safer, inspect-first option.'
+  },
+  {
+    question: 'What is the difference between git merge and git rebase?',
+    answer:
+      'Merge combines two branches by creating a new merge commit that has both histories as parents, preserving exactly what happened. Rebase replays your branch\'s commits one by one on top of another branch, producing a linear history with no merge commit — cleaner to read, but it rewrites commit history, so it\'s best avoided on commits that have already been pushed and shared with others.'
+  },
+  {
+    question: 'How do I undo a commit that I\'ve already pushed?',
+    answer:
+      'Use git revert <commit>, which creates a new commit that undoes the changes — safe to push, since it doesn\'t rewrite history others may have already pulled. Avoid git reset --hard followed by a force push on shared branches, since that rewrites history and can cause problems for anyone else who already has the old commits.'
+  },
+  {
+    question: 'What does git stash do?',
+    answer:
+      'It temporarily shelves your uncommitted changes (both staged and unstaged) so you get a clean working directory — useful when you need to switch branches without committing half-finished work. git stash pop brings those changes back later.'
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'Git Cheatsheet', description, path: '/tools/git-cheatsheet/' }),
+  faqSchema(faqs)
+];
+---
+
+<ToolLayout
+  title="Git Cheatsheet"
+  description={description}
+  category="Developer Tools"
+  schema={schema}
+  relatedTools={[
+    { href: '/tools/bash-cheatsheet/', label: 'Bash Cheatsheet' },
+    { href: '/tools/regex-cheatsheet/', label: 'Regex Cheatsheet' }
+  ]}
+>
+  <CheatSheet entries={GIT_CHEATSHEET} placeholder="e.g. rebase, undo, stash, branch" />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Covers the essentials</h3>
+      <p>The commands you'll actually use day to day — not the full Git manual.</p>
+    </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
+  </Fragment>
+</ToolLayout>

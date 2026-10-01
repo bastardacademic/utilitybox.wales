@@ -45,7 +45,11 @@ const PAGES: { path: string; priority: string; changefreq: string }[] = [
   { path: '/tools/rsa-key-generator/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/url-encoder/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/timestamp/', priority: '0.7', changefreq: 'monthly' },
-  { path: '/tools/html-entities/', priority: '0.6', changefreq: 'monthly' }
+  { path: '/tools/html-entities/', priority: '0.6', changefreq: 'monthly' },
+  { path: '/tools/git-cheatsheet/', priority: '0.7', changefreq: 'monthly' },
+  { path: '/tools/bash-cheatsheet/', priority: '0.7', changefreq: 'monthly' },
+  { path: '/tools/regex-cheatsheet/', priority: '0.7', changefreq: 'monthly' },
+  { path: '/tools/excel-cheatsheet/', priority: '0.7', changefreq: 'monthly' }
 ];
 
 export const GET: APIRoute = () => {

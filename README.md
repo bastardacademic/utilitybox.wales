@@ -53,6 +53,10 @@ Free online calculators and everyday utility tools, built with [Astro](https://a
 - URL encoder/decoder (component and full-URI modes)
 - Unix timestamp converter (seconds/milliseconds ⇄ date)
 - HTML entity encoder/decoder
+- Git cheatsheet (searchable reference)
+- Bash cheatsheet (searchable reference)
+- Regex cheatsheet (searchable reference)
+- Excel cheatsheet (searchable reference)
 
 ## Project structure
 
@@ -66,7 +70,8 @@ src/
                        HttpStatusReference, PortReference, MacFormatter, IpConverter, DnsLookup, DnsRecordReference,
                        WordCounter, CaseConverter, PalindromeChecker, AnagramSolver,
                        ColorConverter, SlugGenerator, PlaceholderImageGenerator,
-                       HashGenerator, RsaKeyGenerator, UrlEncoder, TimestampConverter, HtmlEntityEncoder
+                       HashGenerator, RsaKeyGenerator, UrlEncoder, TimestampConverter, HtmlEntityEncoder,
+                       CheatSheet (shared by the Git/Bash/Regex/Excel cheatsheet pages)
     ToolLayout.astro Two-column layout shared by every tool page
   layouts/
     Layout.astro     Base HTML shell: header, nav, dark mode toggle, footer
@@ -101,6 +106,11 @@ src/
     placeholderImage.ts                  SVG placeholder image generation
     hash.ts                                SHA hashing via native Web Crypto
     rsa.ts                                  RSA key pair generation (PEM export) via native Web Crypto
+    cheatsheet.ts                            Shared type for the Git/Bash/Regex/Excel cheatsheet data
+    gitCheatsheet.ts                          Git cheatsheet reference data
+    bashCheatsheet.ts                          Bash cheatsheet reference data
+    regexCheatsheet.ts                          Regex syntax cheatsheet reference data
+    excelCheatsheet.ts                           Excel formula/shortcut cheatsheet reference data
     urlEncoding.ts                          URL component/full-URI encoding
     timestamp.ts                             Unix timestamp conversion
     htmlEntities.ts                           HTML entity encode/decode

@@ -1,0 +1,68 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import CheatSheet from '../../components/tools/CheatSheet.astro';
+import { toolSchema, faqSchema } from '../../utils/seo';
+import { BASH_CHEATSHEET } from '../../utils/bashCheatsheet';
+
+const description =
+  'Free Bash cheatsheet. Searchable reference for common Bash commands — file operations, text processing, pipes, processes, and scripting basics.';
+
+const faqs = [
+  {
+    question: 'What is the difference between > and >> for redirection?',
+    answer: '> redirects output to a file, overwriting whatever was there. >> redirects output to a file, appending to the end instead of overwriting it.'
+  },
+  {
+    question: 'What does 2>&1 mean?',
+    answer:
+      'In Bash, file descriptor 1 is standard output (stdout) and 2 is standard error (stderr). 2>&1 redirects stderr into wherever stdout is currently pointing, so both end up combined in the same place — commonly used as command > file 2>&1 to capture everything a command prints into one file.'
+  },
+  {
+    question: 'What is a pipe, and how is it different from redirection?',
+    answer:
+      "A pipe (|) connects one command's output directly to another command's input, letting you chain tools together (e.g. cat file | grep error | wc -l). Redirection (>, <) connects a command's input or output to a file instead of another command."
+  },
+  {
+    question: 'How do I run a command in the background?',
+    answer:
+      'Add & to the end of a command to run it in the background and get your terminal prompt back immediately. Use jobs to see background jobs in the current session, or nohup command & if you need it to keep running after you close the terminal.'
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'Bash Cheatsheet', description, path: '/tools/bash-cheatsheet/' }),
+  faqSchema(faqs)
+];
+---
+
+<ToolLayout
+  title="Bash Cheatsheet"
+  description={description}
+  category="Developer Tools"
+  schema={schema}
+  relatedTools={[
+    { href: '/tools/git-cheatsheet/', label: 'Git Cheatsheet' },
+    { href: '/tools/regex-cheatsheet/', label: 'Regex Cheatsheet' }
+  ]}
+>
+  <CheatSheet entries={BASH_CHEATSHEET} placeholder="e.g. grep, pipe, chmod, background" />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Covers the essentials</h3>
+      <p>The commands and patterns you'll actually use day to day — not the full manual pages.</p>
+    </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
+  </Fragment>
+</ToolLayout>

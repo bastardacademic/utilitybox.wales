@@ -1,0 +1,133 @@
+---
+import type { CheatSheetEntry } from '../../utils/cheatsheet';
+
+interface Props {
+  entries: CheatSheetEntry[];
+  placeholder?: string;
+}
+
+const { entries, placeholder = 'Search by term, category, or description' } = Astro.props;
+---
+
+<div class="cheat-tool">
+  <div class="field">
+    <label class="label" for="cheat-search">Search</label>
+    <input id="cheat-search" class="input" type="text" spellcheck="false" placeholder={placeholder} />
+  </div>
+  <div class="cheat-list" id="cheat-list"></div>
+</div>
+
+<script define:vars={{ entries }}>
+  const searchInput = document.getElementById('cheat-search');
+  const listEl = document.getElementById('cheat-list');
+
+  function escapeHtml(text) {
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function search(query) {
+    const q = query.trim().toLowerCase();
+    if (!q) return entries;
+    return entries.filter(
+      (e) =>
+        e.term.toLowerCase().includes(q) ||
+        e.category.toLowerCase().includes(q) ||
+        e.description.toLowerCase().includes(q) ||
+        (e.example && e.example.toLowerCase().includes(q))
+    );
+  }
+
+  function render(results) {
+    if (results.length === 0) {
+      listEl.innerHTML = '<p class="cheat-empty">No matching entries.</p>';
+      return;
+    }
+
+    let lastCategory = null;
+    let html = '';
+    for (const e of results) {
+      if (e.category !== lastCategory) {
+        html += `<h3 class="cheat-category">${escapeHtml(e.category)}</h3>`;
+        lastCategory = e.category;
+      }
+      html += `
+        <div class="cheat-item">
+          <code class="cheat-term">${escapeHtml(e.term)}</code>
+          <p class="cheat-desc">${escapeHtml(e.description)}</p>
+          ${e.example ? `<code class="cheat-example">${escapeHtml(e.example)}</code>` : ''}
+        </div>`;
+    }
+    listEl.innerHTML = html;
+  }
+
+  searchInput.addEventListener('input', () => render(search(searchInput.value)));
+  render(entries);
+</script>
+
+<style>
+  .cheat-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .cheat-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-height: 640px;
+    overflow-y: auto;
+  }
+
+  .cheat-category {
+    margin: var(--space-3) 0 0;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+  }
+  .cheat-category:first-child {
+    margin-top: 0;
+  }
+
+  .cheat-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+  }
+
+  .cheat-term {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.95rem;
+    word-break: break-word;
+  }
+
+  .cheat-desc {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+
+  .cheat-example {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: var(--space-1) var(--space-2);
+    width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .cheat-empty {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+</style>
