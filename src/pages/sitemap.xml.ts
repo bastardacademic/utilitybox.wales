@@ -22,6 +22,7 @@ const PAGES: { path: string; priority: string; changefreq: string }[] = [
   { path: '/tools/uuid-generator/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/lorem/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/json-formatter/', priority: '0.8', changefreq: 'monthly' },
+  { path: '/tools/data-converter/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/regex-tester/', priority: '0.8', changefreq: 'monthly' },
   { path: '/tools/diff-viewer/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/base64/', priority: '0.8', changefreq: 'monthly' },

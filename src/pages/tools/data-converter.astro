@@ -1,0 +1,68 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import DataConverter from '../../components/tools/DataConverter.astro';
+import { toolSchema, faqSchema } from '../../utils/seo';
+
+const description =
+  'Free JSON, YAML, XML, and CSV converter. Convert between any two formats instantly, entirely in your browser.';
+
+const faqs = [
+  {
+    question: 'How does the JSON/XML conversion handle attributes?',
+    answer:
+      'XML attributes become object keys prefixed with @ (e.g. <item id="1"> becomes {"@id": "1"}), and any direct text content becomes a "#text" key. This is a common convention for representing XML as JSON, though not a universal standard — XML and JSON don\'t map perfectly onto each other, since XML has attributes and mixed content that JSON has no equivalent for.'
+  },
+  {
+    question: 'Why does CSV conversion only accept a flat array of objects?',
+    answer:
+      "CSV is inherently tabular — rows and columns — so it can only sensibly represent a list of flat records, like [{\"name\":\"Ada\",\"age\":30}, ...]. Deeply nested JSON (objects inside objects, arrays of arrays) has no natural CSV representation, so converting nested JSON to CSV will show an error asking for a flatter structure instead of silently producing something misleading."
+  },
+  {
+    question: 'What YAML features aren\'t supported?',
+    answer:
+      "This converter handles the YAML most people actually write by hand: nested mappings and sequences, plain and quoted scalars, comments. It doesn't support flow-style collections ({a: 1} or [1, 2]), anchors/aliases (&ref / *ref), multi-document files (separated by ---), or block scalars (| and > for literal/folded multi-line strings) — these are less common in simple config files but do appear in more advanced YAML."
+  },
+  {
+    question: 'Is my data sent anywhere during conversion?',
+    answer:
+      'No — every format is parsed and converted entirely in your browser (XML parsing uses the browser\'s own built-in DOMParser; JSON, YAML, and CSV are parsed by this site\'s own code). Nothing you paste in is transmitted anywhere.'
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'JSON / YAML / XML / CSV Converter', description, path: '/tools/data-converter/' }),
+  faqSchema(faqs)
+];
+---
+
+<ToolLayout
+  title="JSON / YAML / XML / CSV Converter"
+  description={description}
+  category="Developer Tools"
+  schema={schema}
+  relatedTools={[
+    { href: '/tools/json-formatter/', label: 'JSON Formatter & Validator' },
+    { href: '/tools/regex-tester/', label: 'Regex Tester' }
+  ]}
+>
+  <DataConverter />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>How it works</h3>
+      <p>Pick the input and output formats, paste your data, and the converted result updates live. Click "Load example" to see a sample.</p>
+    </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
+  </Fragment>
+</ToolLayout>

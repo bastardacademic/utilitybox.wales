@@ -43,6 +43,7 @@ Free online calculators and everyday utility tools, built with [Astro](https://a
 
 **Developer Tools**
 - JSON formatter/validator (pretty-print, minify, error line/column)
+- JSON / YAML / XML / CSV converter (convert between any two formats)
 - Regex tester with live match highlighting
 - Diff viewer (line-level LCS diff)
 - Base64 encoder/decoder (UTF-8 safe, optional URL-safe alphabet)
@@ -91,6 +92,10 @@ src/
     uuid.ts              UUID v1/v4/v7/nil/max generation and validation
     words.ts             Unscramble / word-building / word-game scoring
     json.ts               JSON format/minify/validate with error position
+    yaml.ts                Hand-rolled YAML subset parser/serializer
+    xmlConvert.ts            JSON <-> XML conversion (parses via native DOMParser)
+    csvConvert.ts             CSV <-> JSON (flat array of objects) conversion
+    dataConvert.ts             Unifies JSON/YAML/XML/CSV parsing and serialization
     regexTool.ts           Regex matching + HTML-safe match highlighting
     diff.ts                 Line-level LCS diff algorithm
     encoding.ts              UTF-8 safe Base64 / Base64URL
