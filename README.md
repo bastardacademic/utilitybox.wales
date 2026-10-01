@@ -50,6 +50,7 @@ Free online calculators and everyday utility tools, built with [Astro](https://a
 - Cron expression parser (plain-language summary + next run times)
 - Hash generator (SHA-1/256/384/512 via native Web Crypto)
 - RSA key pair generator (2048/3072/4096-bit, signing or encryption, PEM output, via native Web Crypto)
+- Bcrypt hash generator / verifier (adjustable salt rounds, via `bcryptjs`)
 - URL encoder/decoder (component and full-URI modes)
 - Unix timestamp converter (seconds/milliseconds ⇄ date)
 - HTML entity encoder/decoder
@@ -70,7 +71,7 @@ src/
                        HttpStatusReference, PortReference, MacFormatter, IpConverter, DnsLookup, DnsRecordReference,
                        WordCounter, CaseConverter, PalindromeChecker, AnagramSolver,
                        ColorConverter, SlugGenerator, PlaceholderImageGenerator,
-                       HashGenerator, RsaKeyGenerator, UrlEncoder, TimestampConverter, HtmlEntityEncoder,
+                       HashGenerator, RsaKeyGenerator, BcryptTool, UrlEncoder, TimestampConverter, HtmlEntityEncoder,
                        CheatSheet (shared by the Git/Bash/Regex/Excel cheatsheet pages)
     ToolLayout.astro Two-column layout shared by every tool page
   layouts/
@@ -106,6 +107,7 @@ src/
     placeholderImage.ts                  SVG placeholder image generation
     hash.ts                                SHA hashing via native Web Crypto
     rsa.ts                                  RSA key pair generation (PEM export) via native Web Crypto
+    bcryptTool.ts                            Bcrypt hashing/verification wrapper around bcryptjs
     cheatsheet.ts                            Shared type for the Git/Bash/Regex/Excel cheatsheet data
     gitCheatsheet.ts                          Git cheatsheet reference data
     bashCheatsheet.ts                          Bash cheatsheet reference data
@@ -160,6 +162,7 @@ Hosted via [IONOS Deploy Now](https://www.ionos.com/hosting/deploy-now), which b
 ## Notes
 
 - All interactive tools run entirely client-side — no user data is sent to a server, except the currency converter (fetches exchange rates from the public Frankfurter API) and the DNS Lookup tool (queries Cloudflare's public DNS-over-HTTPS resolver).
+- `bcryptjs` (used by the Bcrypt tool) is the project's first runtime dependency beyond Astro itself — every other tool is hand-rolled vanilla TypeScript, deliberately, to keep the client bundle small. Bcrypt specifically needs a JS implementation since there's no native Web Crypto equivalent; adding a dependency for it was a deliberate, one-off exception rather than a change in general policy.
 - The word dictionary in `public/data/dictionary.json` (182,720 words, ~2.1MB) merges the original curated list, the [Google 10,000 English words](https://github.com/first20hours/google-10000-english) list (MIT-licensed, swear-filtered variant), and the [UK Advanced Cryptics Dictionary](https://github.com/rdeits/cryptics/blob/master/raw_data/UKACD.txt) (UKACD, © J Ross Beresford 1993–2009, BSD-style license — attribution required, credited at the bottom of `/tools/unscrambler` and `/tools/word-builder`). UKACD adds proper dictionary-grade coverage (British spellings like "colour"/"organise", genuinely valid short words) and doubles as ground truth: short words (≤3 letters) from the frequency-based Google list are only kept if UKACD or the original list also confirms them as real words, since frequency corpora are noisy at short lengths (raw web-text tokens like "cl", "pdf", "usa" would otherwise show up as if they were playable words). Checked against a standard profanity blocklist throughout. Client-side search over the full 182k-word list completes in well under 200ms.
 - The currency converter offers all 30 currencies Frankfurter/the ECB publish reference rates for (see `CURRENCIES` in `Currency.astro`).
 - Tax and NI figures in the UK salary calculator reflect the 2026/27 tax year and are for guidance only.

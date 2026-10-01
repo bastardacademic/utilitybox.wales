@@ -1,0 +1,70 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import BcryptTool from '../../components/tools/BcryptTool.astro';
+import { toolSchema, faqSchema } from '../../utils/seo';
+
+const description =
+  'Free bcrypt hash generator and verifier. Hash a password with a chosen salt round count, or check a password against an existing bcrypt hash — entirely in your browser.';
+
+const faqs = [
+  {
+    question: 'How is bcrypt different from a hash like SHA-256?',
+    answer:
+      "SHA-256 is designed to be fast, which is exactly wrong for password storage — fast hashing means an attacker with a stolen hash database can try billions of password guesses per second. Bcrypt is deliberately slow and tunable (via the salt rounds / cost factor), and automatically generates and stores a random salt with every hash, so two users with the same password get completely different hashes. This combination makes brute-forcing bcrypt hashes dramatically more expensive."
+  },
+  {
+    question: 'What are salt rounds (the cost factor)?',
+    answer:
+      "Salt rounds control how many times bcrypt's internal algorithm iterates — each increment roughly doubles the time it takes to compute a hash. A higher value makes brute-force attacks slower, at the cost of also making legitimate logins slower. 10-12 is a common default for interactive applications; going much higher (14+) can take several seconds per hash, even longer in pure-JavaScript implementations like this one than in a native library."
+  },
+  {
+    question: 'Why does a bcrypt hash start with $2a$, $2b$, or $2y$?',
+    answer:
+      'That prefix identifies the bcrypt variant/format version, followed by the cost factor and then the salt and hash themselves, e.g. $2a$10$N9qo8uLOickgx2ZMRZoMy.... The differences between $2a$, $2b$, and $2y$ are historical implementation-detail fixes for edge cases with certain input bytes — in practice, modern bcrypt libraries interoperate between them.'
+  },
+  {
+    question: 'Why does bcrypt only use the first 72 bytes of my password?',
+    answer:
+      "It's a limitation baked into the original bcrypt algorithm design — anything beyond 72 bytes is silently truncated and ignored, so a 100-character password and the same password cut to its first 72 bytes produce the same hash. This tool warns you when your input exceeds that limit."
+  },
+  {
+    question: 'Is it safe to hash a real password in this tool?',
+    answer:
+      "Hashing happens entirely in your browser via the bcryptjs library — nothing is sent anywhere. That said, as general good practice, it's safer to test with a throwaway example password rather than an actual account password whenever you're trying out a tool."
+  }
+];
+
+const schema = [toolSchema({ name: 'Bcrypt Hash Generator', description, path: '/tools/bcrypt/' }), faqSchema(faqs)];
+---
+
+<ToolLayout
+  title="Bcrypt Hash Generator"
+  description={description}
+  category="Developer Tools"
+  schema={schema}
+  relatedTools={[
+    { href: '/tools/hash-generator/', label: 'Hash Generator' },
+    { href: '/tools/random-string/', label: 'Random String Generator' }
+  ]}
+>
+  <BcryptTool />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Runs entirely in your browser</h3>
+      <p>Uses the <a href="https://github.com/dcodeIO/bcrypt.js" target="_blank" rel="noopener noreferrer">bcryptjs</a> library — nothing is sent to a server.</p>
+    </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
+  </Fragment>
+</ToolLayout>
