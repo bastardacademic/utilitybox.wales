@@ -1,0 +1,140 @@
+---
+const EC_LEVELS = [
+  { id: 'L', label: 'Low (~7% recovery)' },
+  { id: 'M', label: 'Medium (~15% recovery)' },
+  { id: 'Q', label: 'Quartile (~25% recovery)' },
+  { id: 'H', label: 'High (~30% recovery)' }
+];
+---
+
+<div class="qr-tool">
+  <div class="field">
+    <label class="label" for="qr-text">Text or URL</label>
+    <textarea id="qr-text" class="input" rows="3" spellcheck="false" placeholder="https://example.com">https://utilitybox.wales</textarea>
+  </div>
+
+  <div class="field">
+    <label class="label" for="qr-ec">Error correction level</label>
+    <select id="qr-ec" class="input">
+      {EC_LEVELS.map((l) => <option value={l.id} selected={l.id === 'M'}>{l.label}</option>)}
+    </select>
+  </div>
+
+  <div id="qr-error" class="qr-error" hidden></div>
+
+  <div class="field">
+    <span class="label">Preview</span>
+    <div class="qr-preview" id="qr-preview"></div>
+    <p class="qr-meta" id="qr-meta"></p>
+  </div>
+
+  <div class="qr-actions">
+    <a id="qr-download" class="btn" download="qrcode.svg" href="#">Download SVG</a>
+    <button type="button" id="qr-copy-svg" class="btn btn-secondary">Copy SVG code</button>
+  </div>
+</div>
+
+<script>
+  import { generateQrCode, qrCodeToSvg, type ErrorCorrectionLevel } from '../../utils/qrcode';
+
+  const textInput = document.getElementById('qr-text') as HTMLTextAreaElement;
+  const ecSelect = document.getElementById('qr-ec') as HTMLSelectElement;
+  const errorBox = document.getElementById('qr-error') as HTMLElement;
+  const preview = document.getElementById('qr-preview') as HTMLElement;
+  const meta = document.getElementById('qr-meta') as HTMLElement;
+  const downloadLink = document.getElementById('qr-download') as HTMLAnchorElement;
+  const copySvgBtn = document.getElementById('qr-copy-svg') as HTMLButtonElement;
+
+  let currentSvg = '';
+  let currentObjectUrl: string | null = null;
+
+  function update() {
+    const text = textInput.value;
+    if (!text) {
+      preview.innerHTML = '';
+      meta.textContent = '';
+      errorBox.hidden = true;
+      return;
+    }
+    try {
+      const ec = ecSelect.value as ErrorCorrectionLevel;
+      const result = generateQrCode(text, ec);
+      currentSvg = qrCodeToSvg(result);
+      errorBox.hidden = true;
+
+      preview.innerHTML = currentSvg;
+      const svgEl = preview.querySelector('svg');
+      if (svgEl) {
+        svgEl.removeAttribute('width');
+        svgEl.removeAttribute('height');
+        svgEl.style.maxWidth = '280px';
+        svgEl.style.width = '100%';
+        svgEl.style.height = 'auto';
+      }
+      meta.textContent = `Version ${result.version} (${result.size}×${result.size} modules), error correction ${ec}`;
+
+      if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
+      const blob = new Blob([currentSvg], { type: 'image/svg+xml' });
+      currentObjectUrl = URL.createObjectURL(blob);
+      downloadLink.href = currentObjectUrl;
+    } catch (err) {
+      errorBox.textContent = err instanceof Error ? err.message : 'Could not generate a QR code.';
+      errorBox.hidden = false;
+      preview.innerHTML = '';
+      meta.textContent = '';
+    }
+  }
+
+  textInput.addEventListener('input', update);
+  ecSelect.addEventListener('change', update);
+
+  copySvgBtn.addEventListener('click', async () => {
+    if (!currentSvg) return;
+    try {
+      await navigator.clipboard.writeText(currentSvg);
+      const original = copySvgBtn.textContent;
+      copySvgBtn.textContent = 'Copied!';
+      setTimeout(() => { copySvgBtn.textContent = original; }, 1500);
+    } catch {
+      // Clipboard API unavailable — silently ignore.
+    }
+  });
+
+  update();
+</script>
+
+<style>
+  .qr-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .qr-error {
+    color: var(--color-danger);
+    font-size: 0.85rem;
+  }
+
+  .qr-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    min-height: 160px;
+  }
+
+  .qr-meta {
+    margin: var(--space-2) 0 0;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+
+  .qr-actions {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+</style>

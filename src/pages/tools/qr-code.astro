@@ -1,0 +1,64 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import QrCodeGenerator from '../../components/tools/QrCodeGenerator.astro';
+import { toolSchema, faqSchema } from '../../utils/seo';
+
+const description =
+  'Free QR code generator. Turn any text or URL into a scannable QR code, downloadable as SVG — generated entirely in your browser, from a hand-written encoder.';
+
+const faqs = [
+  {
+    question: 'What is the error correction level, and which should I choose?',
+    answer:
+      "QR codes embed extra error-correction data so they still scan even if part of the code is dirty, damaged, or obscured. Low recovers from about 7% damage, Medium about 15%, Quartile about 25%, and High about 30% — higher levels make the code more robust but also larger/denser, since more of its capacity goes to error correction instead of your actual data. Medium is a reasonable default for most uses; use High if the code might get printed small, scratched, or partially covered (e.g. with a logo)."
+  },
+  {
+    question: 'Is there a limit to how much text I can encode?',
+    answer:
+      "Yes — this generator supports QR versions 1 through 10 (not the full range up to 40), which comfortably covers URLs and short-to-medium text: up to roughly 271 bytes at the lowest error correction level, less at higher levels. That's plenty for virtually any URL and most short messages; very long text will show an error asking you to shorten it or lower the error correction level."
+  },
+  {
+    question: 'How was this QR encoder built?',
+    answer:
+      "From scratch, following the ISO/IEC 18004 QR code specification directly — Reed-Solomon error correction, the standard data-placement zigzag, all 8 masking patterns scored to pick the best one, and format/version information — rather than using a third-party library. It was verified with an independently-written decoder that reconstructs the original text from the generated code across many versions, error correction levels, and inputs (including emoji and multi-byte text), confirming the output is genuinely scannable, not just QR-shaped."
+  },
+  {
+    question: 'Is my data sent anywhere?',
+    answer: 'No — the QR code is generated entirely in your browser. Nothing you type is transmitted anywhere.'
+  }
+];
+
+const schema = [toolSchema({ name: 'QR Code Generator', description, path: '/tools/qr-code/' }), faqSchema(faqs)];
+---
+
+<ToolLayout
+  title="QR Code Generator"
+  description={description}
+  category="Generators"
+  schema={schema}
+  relatedTools={[
+    { href: '/tools/url-encoder/', label: 'URL Encoder / Decoder' },
+    { href: '/tools/placeholder-image/', label: 'Placeholder Image Generator' }
+  ]}
+>
+  <QrCodeGenerator />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Entirely client-side</h3>
+      <p>Encoding and rendering both happen in your browser — nothing you type is sent anywhere.</p>
+    </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
+  </Fragment>
+</ToolLayout>

@@ -40,6 +40,7 @@ Free online calculators and everyday utility tools, built with [Astro](https://a
 - Color converter (HEX/RGB/HSL + palette generator)
 - Slug generator (URL-safe kebab-case/snake_case)
 - Placeholder image generator (SVG, no image library needed)
+- QR code generator (SVG, hand-written encoder — versions 1-10, byte mode, all 4 error correction levels)
 
 **Developer Tools**
 - JSON formatter/validator (pretty-print, minify, error line/column)
@@ -110,6 +111,7 @@ src/
     color.ts                           HEX/RGB/HSL conversion and palette generation
     slug.ts                             URL-safe slug generation
     placeholderImage.ts                  SVG placeholder image generation
+    qrcode.ts                             Hand-written QR code encoder (ISO 18004), versions 1-10, byte mode
     hash.ts                                SHA hashing via native Web Crypto
     rsa.ts                                  RSA key pair generation (PEM export) via native Web Crypto
     bcryptTool.ts                            Bcrypt hashing/verification wrapper around bcryptjs

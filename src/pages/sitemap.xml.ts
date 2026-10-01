@@ -42,6 +42,7 @@ const PAGES: { path: string; priority: string; changefreq: string }[] = [
   { path: '/tools/color-converter/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/slug/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/placeholder-image/', priority: '0.6', changefreq: 'monthly' },
+  { path: '/tools/qr-code/', priority: '0.8', changefreq: 'monthly' },
   { path: '/tools/hash-generator/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/rsa-key-generator/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/bcrypt/', priority: '0.7', changefreq: 'monthly' },
