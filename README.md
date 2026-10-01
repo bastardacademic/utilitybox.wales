@@ -49,6 +49,7 @@ Free online calculators and everyday utility tools, built with [Astro](https://a
 - JWT decoder (decodes header/payload only — does not verify the signature)
 - Cron expression parser (plain-language summary + next run times)
 - Hash generator (SHA-1/256/384/512 via native Web Crypto)
+- RSA key pair generator (2048/3072/4096-bit, signing or encryption, PEM output, via native Web Crypto)
 - URL encoder/decoder (component and full-URI modes)
 - Unix timestamp converter (seconds/milliseconds ⇄ date)
 - HTML entity encoder/decoder
@@ -65,7 +66,7 @@ src/
                        HttpStatusReference, PortReference, MacFormatter, IpConverter, DnsLookup, DnsRecordReference,
                        WordCounter, CaseConverter, PalindromeChecker, AnagramSolver,
                        ColorConverter, SlugGenerator, PlaceholderImageGenerator,
-                       HashGenerator, UrlEncoder, TimestampConverter, HtmlEntityEncoder
+                       HashGenerator, RsaKeyGenerator, UrlEncoder, TimestampConverter, HtmlEntityEncoder
     ToolLayout.astro Two-column layout shared by every tool page
   layouts/
     Layout.astro     Base HTML shell: header, nav, dark mode toggle, footer
@@ -99,6 +100,7 @@ src/
     slug.ts                             URL-safe slug generation
     placeholderImage.ts                  SVG placeholder image generation
     hash.ts                                SHA hashing via native Web Crypto
+    rsa.ts                                  RSA key pair generation (PEM export) via native Web Crypto
     urlEncoding.ts                          URL component/full-URI encoding
     timestamp.ts                             Unix timestamp conversion
     htmlEntities.ts                           HTML entity encode/decode
@@ -157,5 +159,5 @@ Hosted via [IONOS Deploy Now](https://www.ionos.com/hosting/deploy-now), which b
 - The favicon/icon set (`favicon.ico`, `favicon-32.png`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`) was generated with a small pure-Python script (stdlib only, no installs) rather than a design tool — regenerate or replace with real brand assets whenever you have them.
 - `/privacy` describes what the site actually does today (no accounts, no cookies, no analytics). Update it before turning on ads or analytics — see the "Advertising and analytics" section, which is written to require that.
 - `privacy@utilitybox.wales` in the privacy policy is a placeholder — point it at a real inbox before launch.
-- The Hash Generator uses `crypto.subtle`, which browsers only expose in a secure context (HTTPS or `localhost`). It'll work in dev and in production once the site is served over HTTPS, but not over plain HTTP.
+- The Hash Generator and RSA Key Pair Generator both use `crypto.subtle`, which browsers only expose in a secure context (HTTPS or `localhost`). They'll work in dev and in production once the site is served over HTTPS, but not over plain HTTP.
 - The homepage nav is a grouped dropdown (`<details>`/`<summary>`, no extra JS library) matching the five tool categories on the homepage — see the `navGroups` array in `Layout.astro`.

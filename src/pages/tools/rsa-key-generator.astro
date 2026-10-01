@@ -1,0 +1,81 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import RsaKeyGenerator from '../../components/tools/RsaKeyGenerator.astro';
+import { toolSchema, faqSchema } from '../../utils/seo';
+
+const description =
+  'Free RSA key pair generator. Create a 2048, 3072, or 4096-bit RSA key pair for signing or encryption, exported as PEM — generated entirely in your browser.';
+
+const faqs = [
+  {
+    question: 'Is it safe to generate an RSA key pair in a web page?',
+    answer:
+      "Key generation and export both run through the browser's native Web Crypto API (crypto.subtle) — the same cryptographic engine the browser itself relies on for HTTPS, not a hand-written implementation. Nothing is sent to any server: the private key is generated, displayed, and discarded entirely on your device. Still, for keys protecting something important in production, many teams prefer generating them with established tooling (e.g. OpenSSL) in an offline or controlled environment rather than a browser tab."
+  },
+  {
+    question: 'What is the difference between a signing key and an encryption key?',
+    answer:
+      "A signing key pair (RSASSA-PKCS1-v1_5) is used to prove authenticity — the private key signs data, and anyone with the public key can verify that signature came from the holder of the private key, without being able to forge one. An encryption key pair (RSA-OAEP) is used for confidentiality — anyone with the public key can encrypt a message that only the private key holder can decrypt. The two use different padding schemes and aren't interchangeable."
+  },
+  {
+    question: 'What modulus length should I use?',
+    answer:
+      '2048 bits is the current widely-accepted minimum for RSA and is still standard for most TLS certificates. 3072 bits roughly matches 128-bit symmetric security and is recommended for longer-term use. 4096 bits offers more margin but is noticeably slower to generate and to use — diminishing returns for most purposes, since 3072 is already considered strong for the foreseeable future.'
+  },
+  {
+    question: 'What is PEM format?',
+    answer:
+      'PEM (Privacy-Enhanced Mail) is a text format for encoding cryptographic keys and certificates: base64-encoded binary data wrapped with "-----BEGIN ...-----" and "-----END ...-----" header/footer lines. It\'s the format most tools (OpenSSL, SSH, TLS libraries) expect when you paste in or load a key file.'
+  },
+  {
+    question: 'What formats are the exported keys in?',
+    answer:
+      'The public key is exported as SPKI (SubjectPublicKeyInfo) and the private key as PKCS#8 — both standard, widely-supported encodings, wrapped as PEM text. These are the same formats produced by modern OpenSSL commands like openssl genpkey.'
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'RSA Key Pair Generator', description, path: '/tools/rsa-key-generator/' }),
+  faqSchema(faqs)
+];
+---
+
+<ToolLayout
+  title="RSA Key Pair Generator"
+  description={description}
+  category="Developer Tools"
+  schema={schema}
+  relatedTools={[
+    { href: '/tools/hash-generator/', label: 'Hash Generator' },
+    { href: '/tools/jwt-decoder/', label: 'JWT Decoder' }
+  ]}
+>
+  <RsaKeyGenerator />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Native Web Crypto</h3>
+      <p>Uses the browser's built-in <code>crypto.subtle.generateKey</code> API — nothing is sent to a server, and the private key never leaves your device.</p>
+    </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
+  </Fragment>
+</ToolLayout>
+
+<style>
+  .side-card code {
+    background: var(--color-surface-alt);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+</style>

@@ -1,0 +1,135 @@
+---
+---
+
+<div class="rsa-tool">
+  <div class="rsa-row">
+    <div class="field">
+      <label class="label" for="rsa-purpose">Key use</label>
+      <select id="rsa-purpose" class="input">
+        <option value="sign">Signing (RSASSA-PKCS1-v1_5)</option>
+        <option value="encrypt">Encryption (RSA-OAEP)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="label" for="rsa-length">Modulus length</label>
+      <select id="rsa-length" class="input">
+        <option value="2048">2048 bits</option>
+        <option value="3072">3072 bits</option>
+        <option value="4096">4096 bits</option>
+      </select>
+    </div>
+  </div>
+
+  <button type="button" id="rsa-generate" class="btn">Generate key pair</button>
+  <p class="rsa-note" id="rsa-status" role="status" aria-live="polite"></p>
+
+  <div class="field">
+    <div class="field-header">
+      <span class="label">Public key (SPKI, PEM)</span>
+      <button type="button" class="copy-btn" id="rsa-copy-public">Copy</button>
+    </div>
+    <textarea id="rsa-public" class="input mono-textarea" rows="8" readonly spellcheck="false"></textarea>
+  </div>
+
+  <div class="field">
+    <div class="field-header">
+      <span class="label">Private key (PKCS#8, PEM)</span>
+      <button type="button" class="copy-btn" id="rsa-copy-private">Copy</button>
+    </div>
+    <textarea id="rsa-private" class="input mono-textarea" rows="10" readonly spellcheck="false"></textarea>
+  </div>
+</div>
+
+<script>
+  import { generateRsaKeyPair, type RsaKeyPurpose, type RsaModulusLength } from '../../utils/rsa';
+
+  const purposeSelect = document.getElementById('rsa-purpose') as HTMLSelectElement;
+  const lengthSelect = document.getElementById('rsa-length') as HTMLSelectElement;
+  const generateBtn = document.getElementById('rsa-generate') as HTMLButtonElement;
+  const status = document.getElementById('rsa-status') as HTMLElement;
+  const publicOutput = document.getElementById('rsa-public') as HTMLTextAreaElement;
+  const privateOutput = document.getElementById('rsa-private') as HTMLTextAreaElement;
+  const copyPublicBtn = document.getElementById('rsa-copy-public') as HTMLButtonElement;
+  const copyPrivateBtn = document.getElementById('rsa-copy-private') as HTMLButtonElement;
+
+  async function generate() {
+    const purpose = purposeSelect.value as RsaKeyPurpose;
+    const modulusLength = parseInt(lengthSelect.value, 10) as RsaModulusLength;
+
+    generateBtn.disabled = true;
+    status.textContent = modulusLength >= 4096 ? 'Generating — 4096-bit keys can take a few seconds…' : 'Generating…';
+    publicOutput.value = '';
+    privateOutput.value = '';
+
+    try {
+      const { publicKeyPem, privateKeyPem } = await generateRsaKeyPair(purpose, modulusLength);
+      publicOutput.value = publicKeyPem;
+      privateOutput.value = privateKeyPem;
+      status.textContent = 'Done — generated entirely in your browser, never sent anywhere.';
+    } catch (err) {
+      status.textContent = err instanceof Error ? err.message : 'Could not generate a key pair.';
+    } finally {
+      generateBtn.disabled = false;
+    }
+  }
+
+  function wireCopyButton(button: HTMLButtonElement, textarea: HTMLTextAreaElement) {
+    button.addEventListener('click', async () => {
+      if (!textarea.value) return;
+      try {
+        await navigator.clipboard.writeText(textarea.value);
+        const original = button.textContent;
+        button.textContent = 'Copied!';
+        setTimeout(() => { button.textContent = original; }, 1500);
+      } catch {
+        // Clipboard API unavailable — silently ignore.
+      }
+    });
+  }
+
+  generateBtn.addEventListener('click', generate);
+  wireCopyButton(copyPublicBtn, publicOutput);
+  wireCopyButton(copyPrivateBtn, privateOutput);
+
+  generate();
+</script>
+
+<style>
+  .rsa-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .rsa-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+  }
+
+  .rsa-note {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    min-height: 1.2rem;
+  }
+
+  .field-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-1);
+  }
+
+  .mono-textarea {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    resize: vertical;
+  }
+
+  @media (max-width: 480px) {
+    .rsa-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
