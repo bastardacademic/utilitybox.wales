@@ -58,3 +58,20 @@ export function toKebabCase(text: string): string {
 export function toConstantCase(text: string): string {
   return toWords(text).join('_').toUpperCase();
 }
+
+export function toPathCase(text: string): string {
+  return toWords(text).join('/');
+}
+
+/** Alternating uPPeR/LoWeR case per letter ("mocking SpongeBob" meme case). Non-letters don't flip the alternation. */
+export function toMockingCase(text: string): string {
+  let upper = false;
+  return Array.from(text)
+    .map((char) => {
+      if (!/[a-zA-Z]/.test(char)) return char;
+      const result = upper ? char.toUpperCase() : char.toLowerCase();
+      upper = !upper;
+      return result;
+    })
+    .join('');
+}

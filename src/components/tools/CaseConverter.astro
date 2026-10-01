@@ -8,7 +8,9 @@ const CASES = [
   { id: 'pascal', label: 'PascalCase' },
   { id: 'snake', label: 'snake_case' },
   { id: 'kebab', label: 'kebab-case' },
-  { id: 'constant', label: 'CONSTANT_CASE' }
+  { id: 'constant', label: 'CONSTANT_CASE' },
+  { id: 'path', label: 'path/case' },
+  { id: 'mocking', label: 'MoCkInG CaSe' }
 ];
 ---
 
@@ -34,7 +36,8 @@ const CASES = [
 <script>
   import {
     toUpperCase, toLowerCase, toTitleCase, toSentenceCase,
-    toCamelCase, toPascalCase, toSnakeCase, toKebabCase, toConstantCase
+    toCamelCase, toPascalCase, toSnakeCase, toKebabCase, toConstantCase,
+    toPathCase, toMockingCase
   } from '../../utils/textCase';
 
   const input = document.getElementById('case-input') as HTMLTextAreaElement;
@@ -48,7 +51,9 @@ const CASES = [
     pascal: toPascalCase,
     snake: toSnakeCase,
     kebab: toKebabCase,
-    constant: toConstantCase
+    constant: toConstantCase,
+    path: toPathCase,
+    mocking: toMockingCase
   };
 
   function update() {

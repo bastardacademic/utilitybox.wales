@@ -29,7 +29,7 @@ Free online calculators and everyday utility tools, built with [Astro](https://a
 - Word unscrambler
 - Word builder (with pattern matching and word-game scoring)
 - Word/character counter (with reading and speaking time estimates)
-- Case converter (UPPER/lower/Title/Sentence/camelCase/PascalCase/snake_case/kebab-case/CONSTANT_CASE)
+- Case converter (UPPER/lower/Title/Sentence/camelCase/PascalCase/snake_case/kebab-case/CONSTANT_CASE/path/case/MoCkInG CaSe)
 - Palindrome checker
 - Anagram solver
 

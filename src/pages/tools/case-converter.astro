@@ -4,7 +4,7 @@ import CaseConverter from '../../components/tools/CaseConverter.astro';
 import { toolSchema, faqSchema } from '../../utils/seo';
 
 const description =
-  'Free text case converter. Convert text to UPPERCASE, lowercase, Title Case, camelCase, PascalCase, snake_case, kebab-case, and more, all at once.';
+  'Free text case converter. Convert text to UPPERCASE, lowercase, Title Case, camelCase, PascalCase, snake_case, kebab-case, path/case, mOcKiNg CaSe, and more, all at once.';
 
 const faqs = [
   {
@@ -26,6 +26,15 @@ const faqs = [
     question: 'What is the difference between Title Case and Sentence case?',
     answer:
       'Title Case capitalizes the first letter of every major word ("The Quick Brown Fox"), typically used for headings and titles. Sentence case only capitalizes the first letter of the whole string ("The quick brown fox"), matching normal prose punctuation rules.'
+  },
+  {
+    question: 'What is path/case used for?',
+    answer: 'path/case joins words with forward slashes (first/name) — used far less often than the others here, but occasionally seen in file paths or route segments built up from separate words.'
+  },
+  {
+    question: 'What is "mocking SpongeBob case"?',
+    answer:
+      'MoCkInG CaSe (aka SpOnGeBoB cAsE) alternates between upper and lower case on every letter, used online to convey a sarcastic or mocking tone — it comes from a SpongeBob SquarePants meme image. It has no real technical use; it\'s here for fun.'
   }
 ];
 
@@ -46,7 +55,7 @@ const schema = [toolSchema({ name: 'Case Converter', description, path: '/tools/
 
   <Fragment slot="sidebar">
     <div class="card side-card">
-      <h3>Nine formats at once</h3>
+      <h3>Eleven formats at once</h3>
       <p>Type once and copy whichever case you need — handy for variable names, titles, and constants.</p>
     </div>
   </Fragment>
