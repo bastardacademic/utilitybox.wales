@@ -35,6 +35,7 @@ Free online calculators and everyday utility tools, built with [Astro](https://a
 
 **Generators**
 - Random string generator (passwords, tokens, UUID v4 — uses `crypto.getRandomValues`)
+- UUID generator (v1, v4, v7, nil, max — one or many at once, plus a UUID validator)
 - Lorem Ipsum generator
 - Color converter (HEX/RGB/HSL + palette generator)
 - Slug generator (URL-safe kebab-case/snake_case)
@@ -59,7 +60,7 @@ src/
   components/
     calculators/    Scientific, Currency, Measurements, UKSalary, NetworkCalc, Ipv6Calculator, BandwidthCalculator,
                        PercentageCalculator, VatCalculator, TipCalculator, LoanCalculator
-    tools/           WordUnscrambler, WordBuilder, RandomString, LoremIpsum,
+    tools/           WordUnscrambler, WordBuilder, RandomString, UuidGenerator, LoremIpsum,
                        JsonFormatter, RegexTester, DiffViewer, Base64Tool, JwtDecoder, CronParser,
                        HttpStatusReference, PortReference, MacFormatter, IpConverter, DnsLookup, DnsRecordReference,
                        WordCounter, CaseConverter, PalindromeChecker, AnagramSolver,
@@ -80,6 +81,7 @@ src/
     dns.ts              DNS record type reference data + DNS-over-HTTPS lookup helper
     bandwidth.ts        Data transfer time calculation
     generators.ts       Random string + Lorem Ipsum generation
+    uuid.ts              UUID v1/v4/v7/nil/max generation and validation
     words.ts             Unscramble / word-building / word-game scoring
     json.ts               JSON format/minify/validate with error position
     regexTool.ts           Regex matching + HTML-safe match highlighting

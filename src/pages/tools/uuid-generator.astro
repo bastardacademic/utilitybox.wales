@@ -1,0 +1,80 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import UuidGenerator from '../../components/tools/UuidGenerator.astro';
+import { toolSchema, faqSchema } from '../../utils/seo';
+
+const description =
+  'Free UUID generator. Create version 1, 4, or 7 UUIDs (one or many at a time), plus the nil and max UUIDs, using cryptographically secure randomness.';
+
+const faqs = [
+  {
+    question: 'What is a UUID?',
+    answer:
+      'A UUID (Universally Unique Identifier) is a 128-bit value, almost always written as 32 hex digits in five hyphen-separated groups (e.g. 123e4567-e89b-12d3-a456-426614174000). It\'s designed so that independently generated UUIDs are, for all practical purposes, guaranteed not to collide — even across different systems that never communicate with each other.'
+  },
+  {
+    question: 'What is the difference between UUID v1, v4, and v7?',
+    answer:
+      'Version 4 is almost entirely random — the most common choice, with no information about when or where it was created. Version 1 encodes a timestamp plus a (randomized, in a browser) node identifier, making it time-based but not sortable as plain text. Version 7 is the newest type: it also encodes a timestamp, but places it at the front of the value, so v7 UUIDs sort chronologically as plain strings or bytes — useful as database primary keys, where sortable IDs keep indexes efficient.'
+  },
+  {
+    question: 'Is this tool\'s randomness actually secure?',
+    answer:
+      'Yes — UUID v4 and the random portions of v1/v7 all come from the Web Crypto API\'s crypto.getRandomValues() (the browser\'s cryptographically secure random number generator), not Math.random(), which is not suitable for anything that needs real unpredictability.'
+  },
+  {
+    question: 'What are the nil and max UUIDs?',
+    answer:
+      'The nil UUID (all zeros: 00000000-0000-0000-0000-000000000000) is a special reserved value meaning "no UUID" or an unset/placeholder value. The max UUID (all ones: ffffffff-ffff-ffff-ffff-ffffffffffff), added more recently in RFC 9562, is the highest possible UUID value — occasionally useful as an explicit upper-bound sentinel.'
+  },
+  {
+    question: 'Can I generate multiple UUIDs at once?',
+    answer: 'Yes — set "How many" to generate up to 100 at a time, one per line, ready to copy straight into a spreadsheet, test fixture, or seed script.'
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'UUID Generator', description, path: '/tools/uuid-generator/' }),
+  faqSchema(faqs)
+];
+---
+
+<ToolLayout
+  title="UUID Generator"
+  description={description}
+  category="Generators"
+  schema={schema}
+  relatedTools={[
+    { href: '/tools/random-string/', label: 'Random String Generator' },
+    { href: '/tools/hash-generator/', label: 'Hash Generator' }
+  ]}
+>
+  <UuidGenerator />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Secure randomness</h3>
+      <p>Every UUID is generated using the browser's <code>crypto.getRandomValues()</code> API — nothing is sent to a server.</p>
+    </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
+  </Fragment>
+</ToolLayout>
+
+<style>
+  .side-card code {
+    background: var(--color-surface-alt);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+</style>

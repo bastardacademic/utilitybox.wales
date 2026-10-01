@@ -19,6 +19,7 @@ const PAGES: { path: string; priority: string; changefreq: string }[] = [
   { path: '/tools/unscrambler/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/word-builder/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/random-string/', priority: '0.7', changefreq: 'monthly' },
+  { path: '/tools/uuid-generator/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/lorem/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/json-formatter/', priority: '0.8', changefreq: 'monthly' },
   { path: '/tools/regex-tester/', priority: '0.8', changefreq: 'monthly' },

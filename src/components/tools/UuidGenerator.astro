@@ -1,0 +1,177 @@
+---
+const VERSIONS = [
+  { id: 'v4', label: 'Version 4 (random)' },
+  { id: 'v7', label: 'Version 7 (time-ordered)' },
+  { id: 'v1', label: 'Version 1 (time-based)' },
+  { id: 'nil', label: 'Nil UUID (all zeros)' },
+  { id: 'max', label: 'Max UUID (all ones)' }
+];
+---
+
+<div class="uuid-tool">
+  <div class="uuid-row">
+    <div class="field">
+      <label class="label" for="uuid-version">Version</label>
+      <select id="uuid-version" class="input">
+        {VERSIONS.map((v) => <option value={v.id}>{v.label}</option>)}
+      </select>
+    </div>
+    <div class="field">
+      <label class="label" for="uuid-count">How many</label>
+      <input id="uuid-count" class="input" type="number" min="1" max="100" value="1" />
+    </div>
+  </div>
+
+  <div class="uuid-options">
+    <label class="checkbox-field"><input type="checkbox" id="uuid-uppercase" /> Uppercase</label>
+    <label class="checkbox-field"><input type="checkbox" id="uuid-no-hyphens" /> Remove hyphens</label>
+  </div>
+
+  <div class="uuid-actions">
+    <button type="button" id="uuid-generate" class="btn">Generate</button>
+    <button type="button" id="uuid-copy" class="btn btn-secondary">Copy all</button>
+  </div>
+
+  <div class="field">
+    <span class="label">Result</span>
+    <textarea id="uuid-output" class="input mono-textarea" rows="6" readonly spellcheck="false"></textarea>
+  </div>
+
+  <hr class="uuid-divider" />
+
+  <div class="field">
+    <label class="label" for="uuid-validate">Validate a UUID</label>
+    <input id="uuid-validate" class="input mono-input" type="text" spellcheck="false" placeholder="e.g. 123e4567-e89b-12d3-a456-426614174000" />
+  </div>
+  <div class="result-box" id="uuid-validate-result"></div>
+</div>
+
+<script>
+  import { generateMultiple, isValidUuid, getUuidVersion, type UuidVersion } from '../../utils/uuid';
+
+  const versionSelect = document.getElementById('uuid-version') as HTMLSelectElement;
+  const countInput = document.getElementById('uuid-count') as HTMLInputElement;
+  const uppercaseCheckbox = document.getElementById('uuid-uppercase') as HTMLInputElement;
+  const noHyphensCheckbox = document.getElementById('uuid-no-hyphens') as HTMLInputElement;
+  const generateBtn = document.getElementById('uuid-generate') as HTMLButtonElement;
+  const copyBtn = document.getElementById('uuid-copy') as HTMLButtonElement;
+  const output = document.getElementById('uuid-output') as HTMLTextAreaElement;
+  const validateInput = document.getElementById('uuid-validate') as HTMLInputElement;
+  const validateResult = document.getElementById('uuid-validate-result') as HTMLElement;
+
+  function format(uuid: string): string {
+    let result = uppercaseCheckbox.checked ? uuid.toUpperCase() : uuid;
+    if (noHyphensCheckbox.checked) result = result.replace(/-/g, '');
+    return result;
+  }
+
+  function generate() {
+    const version = versionSelect.value as UuidVersion;
+    const count = Math.min(100, Math.max(1, parseInt(countInput.value, 10) || 1));
+    const uuids = generateMultiple(version, count).map(format);
+    output.value = uuids.join('\n');
+  }
+
+  generateBtn.addEventListener('click', generate);
+  [versionSelect, countInput, uppercaseCheckbox, noHyphensCheckbox].forEach((el) =>
+    el.addEventListener('change', generate)
+  );
+
+  copyBtn.addEventListener('click', async () => {
+    if (!output.value) return;
+    try {
+      await navigator.clipboard.writeText(output.value);
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => { copyBtn.textContent = original; }, 1500);
+    } catch {
+      // Clipboard API unavailable — silently ignore.
+    }
+  });
+
+  function validate() {
+    const value = validateInput.value.trim();
+    if (!value) {
+      validateResult.textContent = '';
+      validateResult.classList.remove('error');
+      return;
+    }
+    if (!isValidUuid(value)) {
+      validateResult.textContent = '✕ Not a valid UUID';
+      validateResult.classList.add('error');
+      return;
+    }
+    const version = getUuidVersion(value);
+    validateResult.textContent = version
+      ? `✓ Valid UUID — version ${version}`
+      : '✓ Valid UUID format (unrecognized version)';
+    validateResult.classList.remove('error');
+  }
+
+  validateInput.addEventListener('input', validate);
+
+  generate();
+</script>
+
+<style>
+  .uuid-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .uuid-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--space-3);
+  }
+
+  .uuid-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  .uuid-actions {
+    display: flex;
+    gap: var(--space-3);
+  }
+
+  .mono-textarea {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    resize: vertical;
+  }
+
+  .mono-input {
+    font-family: var(--font-mono);
+  }
+
+  .uuid-divider {
+    border: none;
+    border-top: 1px solid var(--color-border);
+    margin: 0;
+  }
+
+  #uuid-validate-result {
+    min-height: 1.2rem;
+  }
+  #uuid-validate-result.error {
+    color: var(--color-danger);
+  }
+
+  @media (max-width: 480px) {
+    .uuid-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
