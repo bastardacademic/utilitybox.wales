@@ -1,0 +1,134 @@
+---
+import FaqPage from '../../components/FaqPage.astro';
+import type { FaqGroup } from '../../utils/faq';
+
+const groups: FaqGroup[] = [
+  {
+    title: 'Pay and tax',
+    items: [
+      {
+        question: 'What is the difference between gross and net pay?',
+        answer:
+          'Gross pay is what you earn before anything is taken off. Net (take-home) pay is what reaches your bank account after income tax, National Insurance, any student loan repayments, and pension contributions.',
+        links: [{ href: '/tools/uk-salary/', label: 'UK Salary Calculator' }]
+      },
+      {
+        question: 'What is the personal allowance for 2026/27?',
+        answer:
+          'The standard personal allowance is £12,570 — income up to that level is free of income tax. It reduces by £1 for every £2 of income above £100,000 and is lost entirely at £125,140.',
+        links: [{ href: '/tools/uk-salary/', label: 'UK Salary Calculator' }]
+      },
+      {
+        question: 'What are the 2026/27 income tax rates?',
+        answer:
+          'In England, Wales, and Northern Ireland: 20% on income up to £50,270, 40% up to £125,140, and 45% above that (all counting the personal allowance as part of the first band). Scotland has six bands: 19% to £16,537, 20% to £29,526, 21% to £43,662, 42% to £75,000, 45% to £125,140, and 48% above.',
+        links: [{ href: '/tools/uk-salary/', label: 'UK Salary Calculator' }]
+      },
+      {
+        question: 'How much National Insurance do employees pay?',
+        answer:
+          'For 2026/27, employee Class 1 National Insurance is 8% on earnings between £12,570 and £50,270 a year, and 2% on anything above £50,270.'
+      },
+      {
+        question: 'How much of my salary goes on student loan repayments?',
+        answer:
+          'Plans 1, 2, 4, and 5 repay 9% of income above the plan threshold (£26,900, £29,385, £33,795, and £25,000 respectively for 2026/27). The Postgraduate Loan repays 6% above £21,000. Repayments are calculated separately from tax and National Insurance. The calculator covers all of these plans.',
+        links: [{ href: '/tools/uk-salary/', label: 'UK Salary Calculator' }]
+      },
+      {
+        question: 'Can a pay rise ever leave me with less take-home pay?',
+        answer:
+          'Not through the tax bands themselves: only the slice of income above a threshold is taxed at the higher rate, never your whole salary. A few thresholds do create unusually steep steps, though — most famously between £100,000 and £125,140, where the personal allowance is withdrawn and the effective marginal rate reaches 60%.'
+      },
+      {
+        question: 'Why is my payslip different from the calculator?',
+        answer:
+          'Common reasons: a non-standard tax code, benefits in kind (such as a company car), how your employer handles pension contributions, and pay periods that don\'t align with the tax year. Treat calculator results as a close estimate, not a replacement for your payslip.'
+      }
+    ]
+  },
+  {
+    title: 'VAT and percentages',
+    items: [
+      {
+        question: 'What are the UK VAT rates?',
+        answer:
+          'The standard rate is 20%. A reduced rate of 5% applies to some goods and services such as domestic energy, and some items are zero-rated (0%) or exempt. The VAT Calculator lets you enter any rate.',
+        links: [{ href: '/tools/vat/', label: 'VAT Calculator' }]
+      },
+      {
+        question: 'How do I take VAT off a price that already includes it?',
+        answer:
+          'Divide by 1.2 for the standard rate — not "take off 20%". A £120 VAT-inclusive price is £100 plus £20 VAT, because the 20% was calculated on the smaller £100 figure.',
+        links: [{ href: '/tools/vat/', label: 'VAT Calculator' }]
+      },
+      {
+        question: 'How do I work out a percentage change?',
+        answer:
+          'Subtract the old value from the new one, divide by the old value, and multiply by 100. Going from 50 to 65 is a 30% increase; going back from 65 to 50 is only a 23.1% decrease, because the starting point differs.',
+        links: [{ href: '/tools/percentage/', label: 'Percentage Calculator' }]
+      }
+    ]
+  },
+  {
+    title: 'Borrowing and budgeting',
+    items: [
+      {
+        question: 'How is a monthly loan or mortgage payment calculated?',
+        answer:
+          'For a fixed-rate repayment loan, a standard formula works out the single monthly payment that clears both the borrowed amount and the interest by the end of the term. Early payments are mostly interest; later ones are mostly the amount borrowed.',
+        links: [{ href: '/tools/loan/', label: 'Loan Repayment Calculator' }]
+      },
+      {
+        question: 'Does a longer term cost more overall?',
+        answer:
+          'Usually, yes. A longer term lowers each monthly payment but means interest is charged on the outstanding balance for longer, so total interest is higher. Trying different terms in the loan calculator shows the trade-off.',
+        links: [{ href: '/tools/loan/', label: 'Loan Repayment Calculator' }]
+      },
+      {
+        question: 'What is the 50/30/20 budgeting rule?',
+        answer:
+          'A guideline that splits take-home pay into roughly 50% needs, 30% wants, and 20% savings. It is a starting point rather than a rule — in high-cost areas needs can take much more than half.',
+        links: [{ href: '/tools/budget/', label: 'Budget Calculator' }]
+      },
+      {
+        question: 'How big should an emergency fund be?',
+        answer:
+          'A commonly quoted guideline is three to six months of essential spending, but the right amount depends on how stable your income is and who depends on you. A smaller cushion is still far better than none, and many people build it in stages.',
+        links: [{ href: '/tools/budget/', label: 'Budget Calculator' }]
+      },
+      {
+        question: 'How much should I save each month?',
+        answer:
+          'There is no single right figure. The 50/30/20 guideline suggests 20% of take-home pay, but if that isn\'t realistic yet, starting with whatever you can sustain and raising it over time works better than a target you abandon. The Budget Calculator shows your current savings rate.',
+        links: [{ href: '/tools/budget/', label: 'Budget Calculator' }]
+      }
+    ]
+  },
+  {
+    title: 'Exchange rates',
+    items: [
+      {
+        question: 'Why is the rate I get different from the converter\'s?',
+        answer:
+          'The converter shows the European Central Bank\'s daily reference rate. Banks, cards, and exchange bureaux add their own margin or fee on top, so the amount you actually receive is usually lower — sometimes by several percent.',
+        links: [{ href: '/tools/currency/', label: 'Currency Converter' }]
+      },
+      {
+        question: 'How often are exchange rates updated?',
+        answer:
+          'Once per working day, when the ECB publishes its new reference rates. They do not change over weekends or ECB holidays.',
+        links: [{ href: '/tools/currency/', label: 'Currency Converter' }]
+      }
+    ]
+  }
+];
+---
+
+<FaqPage
+  title="UK Money and Budgeting FAQ"
+  description="Plain-English answers on UK take-home pay, income tax and National Insurance for 2026/27, VAT, loans, budgeting, and exchange rates — with the calculators to work out your own numbers."
+  intro="Common questions about UK pay, tax, VAT, borrowing, and budgeting, with links to the calculators that work out your own figures. General information only, not financial advice."
+  path="/faq/money/"
+  groups={groups}
+/>

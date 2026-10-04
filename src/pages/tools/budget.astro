@@ -1,0 +1,90 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import BudgetCalculator from '../../components/calculators/BudgetCalculator.astro';
+import { toolSchema, faqSchema } from '../../utils/seo';
+
+const description =
+  'Free monthly budget calculator. Enter your take-home pay and spending to see what is left over and how it compares with the 50/30/20 rule for needs, wants, and savings.';
+
+const faqs = [
+  {
+    question: 'What is the 50/30/20 rule?',
+    answer:
+      'A simple budgeting guideline that splits your take-home pay three ways: about 50% on needs (housing, bills, groceries, transport, minimum debt payments), 30% on wants (eating out, subscriptions, shopping, holidays), and 20% on savings and extra debt repayment. It was popularised by Elizabeth Warren and Amelia Warren Tyagi in their 2005 book "All Your Worth". It is a starting point, not a rule — in expensive areas needs often take well over half of income.'
+  },
+  {
+    question: 'Should I use my gross or take-home income?',
+    answer:
+      'Take-home (net) income — what actually lands in your account after income tax, National Insurance, student loan, and pension deductions. If you only know your salary before tax, the UK Salary Calculator will work out your take-home pay for the 2026/27 tax year.'
+  },
+  {
+    question: 'What counts as a need and what counts as a want?',
+    answer:
+      "Needs are costs you'd struggle to avoid: somewhere to live, council tax, energy, groceries, getting to work, insurance, minimum debt repayments, and childcare. Wants are things you could reduce without serious consequences: takeaways, streaming services, new clothes, holidays. Some items sit in a grey area (a phone contract, a car you need for work) — put them wherever honestly reflects how much flexibility you have."
+  },
+  {
+    question: 'How do I budget for bills that are not monthly?',
+    answer:
+      'Divide the annual or quarterly amount by 12 (or by the number of months it covers) and enter that as a monthly figure. For example, a £480 annual insurance premium is £40 a month. Setting that amount aside every month means the bill never comes as a surprise.'
+  },
+  {
+    question: 'What if my budget spends more than I earn?',
+    answer:
+      'The calculator shows the shortfall in red. Compare each group with its guideline in the table to see where the gap is largest — wants are usually the quickest to adjust, while needs such as rent take longer to change. If needs alone exceed your income, it may be worth speaking to a free debt or money advice service.'
+  },
+  {
+    question: 'Is my budget saved or sent anywhere?',
+    answer:
+      'No. Everything is calculated in your browser and nothing is stored or transmitted. Use the Share button to copy a link containing your figures if you want to come back to the same budget later or send it to someone — the figures live in the link itself.'
+  }
+];
+
+const schema = [toolSchema({ name: 'Budget Calculator', description, path: '/tools/budget/' }), faqSchema(faqs)];
+---
+
+<ToolLayout
+  title="Budget Calculator"
+  description={description}
+  category="Calculators"
+  schema={schema}
+  relatedTools={[
+    { href: '/tools/uk-salary/', label: 'UK Salary Calculator' },
+    { href: '/tools/loan/', label: 'Loan Repayment Calculator' },
+    { href: '/tools/percentage/', label: 'Percentage Calculator' }
+  ]}
+>
+  <BudgetCalculator />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>The 50/30/20 guideline</h3>
+      <p>About 50% of take-home pay on needs, 30% on wants, and 20% on savings. The table compares your figures with that split.</p>
+    </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>How the calculator works</h2>
+      <p>
+        Enter your monthly take-home income, then the amount you spend or set aside each month in each category.
+        The calculator adds up each group, works out what is left over, your savings rate, and how each group
+        compares with 50%, 30%, and 20% of your income.
+      </p>
+
+      <h2>Worked example</h2>
+      <p>
+        With the default figures — £2,500 take-home — needs total £1,650 (66% of income, £400 over the £1,250
+        guideline), wants total £380 (15.2%, £370 under the £750 guideline), and savings are £300 (12%, £200 under the
+        £500 guideline). That leaves £170 a month unallocated, or £2,040 a year.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
+  </Fragment>
+</ToolLayout>

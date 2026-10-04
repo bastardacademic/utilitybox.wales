@@ -4,6 +4,9 @@ const SITE = 'https://utilitybox.wales';
 
 const PAGES: { path: string; priority: string; changefreq: string }[] = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
+  { path: '/faq/', priority: '0.6', changefreq: 'monthly' },
+  { path: '/faq/money/', priority: '0.6', changefreq: 'monthly' },
+  { path: '/faq/developer/', priority: '0.6', changefreq: 'monthly' },
   { path: '/privacy/', priority: '0.3', changefreq: 'yearly' },
   { path: '/terms/', priority: '0.3', changefreq: 'yearly' },
   { path: '/tools/scientific/', priority: '0.8', changefreq: 'monthly' },
@@ -32,6 +35,7 @@ const PAGES: { path: string; priority: string; changefreq: string }[] = [
   { path: '/tools/vat/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/tip/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/loan/', priority: '0.7', changefreq: 'monthly' },
+  { path: '/tools/budget/', priority: '0.8', changefreq: 'monthly' },
   { path: '/tools/http-status/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/port-lookup/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/mac-address/', priority: '0.7', changefreq: 'monthly' },

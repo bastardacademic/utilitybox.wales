@@ -13,6 +13,7 @@ Free online calculators and everyday utility tools, built with [Astro](https://a
 - VAT calculator (add/remove UK VAT at any rate)
 - Tip calculator (tip amount, total, per-person split)
 - Loan/mortgage repayment calculator (monthly payment, total interest)
+- Budget calculator (monthly income vs spending, compared with the 50/30/20 guideline)
 
 **Networking**
 - CIDR / subnet calculator (network & broadcast address, host ranges, subnet splitting)
@@ -67,7 +68,7 @@ Free online calculators and everyday utility tools, built with [Astro](https://a
 src/
   components/
     calculators/    Scientific, Currency, Measurements, UKSalary, NetworkCalc, Ipv6Calculator, BandwidthCalculator,
-                       PercentageCalculator, VatCalculator, TipCalculator, LoanCalculator
+                       PercentageCalculator, VatCalculator, TipCalculator, LoanCalculator, BudgetCalculator
     tools/           WordUnscrambler, WordBuilder, RandomString, UuidGenerator, LoremIpsum,
                        JsonFormatter, RegexTester, DiffViewer, Base64Tool, JwtDecoder, CronParser,
                        HttpStatusReference, PortReference, MacFormatter, IpConverter, DnsLookup, DnsRecordReference,
@@ -76,6 +77,7 @@ src/
                        HashGenerator, RsaKeyGenerator, BcryptTool, UrlEncoder, TimestampConverter, HtmlEntityEncoder,
                        CheatSheet (shared by the Git/Bash/Regex/Excel cheatsheet pages)
     ToolLayout.astro Two-column layout shared by every tool page
+    FaqPage.astro    Layout shared by the standalone FAQ pages (FAQPage + breadcrumb JSON-LD)
   layouts/
     Layout.astro     Base HTML shell: header, nav, dark mode toggle, footer
   pages/
@@ -103,6 +105,7 @@ src/
     jwt.ts                    JWT decode (no signature verification)
     cron.ts                    Cron parsing, next-run calc, plain-language summary
     finance.ts                  Percentage, VAT, tip, and loan repayment math
+    budget.ts                    Monthly budget maths + 50/30/20 comparison
     httpStatus.ts                 HTTP status code reference data
     ports.ts                       Common port number reference data
     mac.ts                          MAC address validation/formatting
@@ -124,9 +127,11 @@ src/
     timestamp.ts                             Unix timestamp conversion
     htmlEntities.ts                           HTML entity encode/decode
     seo.ts               JSON-LD structured-data helper for tool pages
+    faq.ts                Shared types and cross-links for the standalone FAQ pages
     shareLink.ts          Read/write tool state as URL query params
   pages/
     404.astro          Custom not-found page
+    faq/*.astro        Standalone FAQ pages: site-wide, UK money & budgeting, developer & networking
     privacy.astro     Privacy policy
     terms.astro        Terms of Use
     sitemap.xml.ts     Hand-rolled sitemap endpoint (no extra dependency)

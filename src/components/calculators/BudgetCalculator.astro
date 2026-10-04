@@ -1,0 +1,342 @@
+---
+import { BUDGET_CATEGORIES, type BudgetBucket } from '../../utils/budget';
+
+const GROUPS: { bucket: BudgetBucket; title: string; hint: string }[] = [
+  { bucket: 'needs', title: 'Needs', hint: 'Things you have to pay for' },
+  { bucket: 'wants', title: 'Wants', hint: 'Nice-to-haves you could cut back' },
+  { bucket: 'savings', title: 'Savings', hint: 'Money you set aside each month' }
+];
+---
+
+<div class="budget-tool">
+  <div class="field">
+    <label class="label" for="budget-income">Monthly take-home income (£, after tax)</label>
+    <input id="budget-income" class="input" type="number" min="0" step="any" value="2500" />
+  </div>
+
+  {GROUPS.map((group) => (
+    <fieldset class="budget-group">
+      <legend>{group.title} <span class="budget-hint">— {group.hint}</span></legend>
+      <div class="budget-grid">
+        {BUDGET_CATEGORIES.filter((c) => c.bucket === group.bucket).map((c) => (
+          <div class="field">
+            <label class="label" for={`budget-${c.id}`}>{c.label} (£)</label>
+            <input
+              id={`budget-${c.id}`}
+              class="input budget-input"
+              data-id={c.id}
+              type="number"
+              min="0"
+              step="any"
+              value={c.defaultAmount}
+            />
+          </div>
+        ))}
+      </div>
+    </fieldset>
+  ))}
+
+  <p class="budget-error" id="budget-error" role="alert" hidden></p>
+
+  <div id="budget-results">
+    <div class="budget-header">
+      <h3>Your budget</h3>
+      <div class="budget-actions">
+        <button type="button" class="copy-btn" id="budget-share">🔗 Share</button>
+        <button type="button" class="copy-btn" id="budget-copy">Copy summary</button>
+      </div>
+    </div>
+
+    <div class="budget-summary">
+      <div class="summary-item"><span class="label">Left over each month</span><strong id="budget-leftover"></strong></div>
+      <div class="summary-item"><span class="label">Savings rate</span><strong id="budget-savings-rate"></strong></div>
+      <div class="summary-item"><span class="label">Total budgeted</span><strong id="budget-total"></strong></div>
+    </div>
+
+    <div class="budget-bar" id="budget-bar" role="img"></div>
+    <ul class="budget-legend">
+      <li><span class="swatch swatch-needs"></span>Needs</li>
+      <li><span class="swatch swatch-wants"></span>Wants</li>
+      <li><span class="swatch swatch-savings"></span>Savings</li>
+      <li><span class="swatch swatch-left"></span>Left over</li>
+    </ul>
+
+    <p class="budget-message" id="budget-message"></p>
+
+    <table class="budget-table">
+      <thead>
+        <tr><th>Group</th><th>Your budget</th><th>% of income</th><th>50/30/20 guideline</th><th>Difference</th></tr>
+      </thead>
+      <tbody id="budget-table-body"></tbody>
+    </table>
+  </div>
+
+  <p class="budget-disclaimer">
+    A planning aid based on the common 50/30/20 guideline, not financial advice. Enter amounts as monthly figures
+    (divide annual bills by 12).
+  </p>
+</div>
+
+<script>
+  import { BUDGET_CATEGORIES, calculateBudget, type BudgetBucket } from '../../utils/budget';
+  import { getShareParams, copyShareLink } from '../../utils/shareLink';
+
+  const incomeInput = document.getElementById('budget-income') as HTMLInputElement;
+  const categoryInputs = Array.from(document.querySelectorAll<HTMLInputElement>('.budget-input'));
+  const errorBox = document.getElementById('budget-error') as HTMLElement;
+  const resultsBox = document.getElementById('budget-results') as HTMLElement;
+  const bar = document.getElementById('budget-bar') as HTMLElement;
+  const message = document.getElementById('budget-message') as HTMLElement;
+  const tableBody = document.getElementById('budget-table-body') as HTMLElement;
+  const shareBtn = document.getElementById('budget-share') as HTMLButtonElement;
+  const copyBtn = document.getElementById('budget-copy') as HTMLButtonElement;
+
+  const gbp = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' });
+  const pct = (n: number) => `${n.toFixed(1)}%`;
+  const BUCKET_LABELS: Record<BudgetBucket, string> = { needs: 'Needs', wants: 'Wants', savings: 'Savings' };
+
+  let lastSummary = '';
+
+  function readAmounts(): Record<string, number> {
+    const amounts: Record<string, number> = {};
+    for (const input of categoryInputs) {
+      amounts[input.dataset.id as string] = input.value === '' ? 0 : parseFloat(input.value);
+    }
+    return amounts;
+  }
+
+  function setText(id: string, text: string) {
+    (document.getElementById(id) as HTMLElement).textContent = text;
+  }
+
+  function update() {
+    let result;
+    try {
+      result = calculateBudget(parseFloat(incomeInput.value), readAmounts());
+    } catch (err) {
+      errorBox.textContent = err instanceof Error ? err.message : 'Could not calculate';
+      errorBox.hidden = false;
+      resultsBox.hidden = true;
+      lastSummary = '';
+      return;
+    }
+    errorBox.hidden = true;
+    resultsBox.hidden = false;
+
+    setText('budget-leftover', gbp.format(result.leftOver));
+    setText('budget-savings-rate', pct(result.savingsRate));
+    setText('budget-total', gbp.format(result.totalOut));
+    (document.getElementById('budget-leftover') as HTMLElement).classList.toggle('negative', result.leftOver < 0);
+
+    // Stacked bar: scale to whichever is larger, income or total budgeted, so overspending stays visible.
+    const scale = Math.max(result.income, result.totalOut);
+    const segments: [string, number][] = [
+      ['needs', result.buckets.needs.spent],
+      ['wants', result.buckets.wants.spent],
+      ['savings', result.buckets.savings.spent],
+      ['left', Math.max(result.leftOver, 0)]
+    ];
+    bar.innerHTML = segments
+      .map(([key, value]) => `<span class="bar-${key}" style="width:${((value / scale) * 100).toFixed(2)}%"></span>`)
+      .join('');
+    bar.setAttribute(
+      'aria-label',
+      `Needs ${pct(result.buckets.needs.percentOfIncome)}, wants ${pct(result.buckets.wants.percentOfIncome)}, savings ${pct(result.buckets.savings.percentOfIncome)} of income`
+    );
+
+    message.textContent =
+      result.leftOver < 0
+        ? `This budget spends ${gbp.format(-result.leftOver)} more than your monthly income.`
+        : `${gbp.format(result.leftOver)} (${pct(result.leftOverPercent)} of income) is left unallocated each month — ${gbp.format(result.leftOver * 12)} a year.`;
+
+    tableBody.innerHTML = (Object.keys(result.buckets) as BudgetBucket[])
+      .map((key) => {
+        const b = result.buckets[key];
+        const diff =
+          Math.abs(b.difference) < 0.005
+            ? 'On target'
+            : `${gbp.format(Math.abs(b.difference))} ${b.difference > 0 ? 'over' : 'under'}`;
+        return `<tr><td>${BUCKET_LABELS[key]}</td><td>${gbp.format(b.spent)}</td><td>${pct(b.percentOfIncome)}</td><td>${gbp.format(b.guidelineAmount)}</td><td>${diff}</td></tr>`;
+      })
+      .join('');
+
+    lastSummary = [
+      `Monthly take-home income: ${gbp.format(result.income)}`,
+      ...(Object.keys(result.buckets) as BudgetBucket[]).map((key) => {
+        const b = result.buckets[key];
+        return `${BUCKET_LABELS[key]}: ${gbp.format(b.spent)} (${pct(b.percentOfIncome)} of income; 50/30/20 guideline ${gbp.format(b.guidelineAmount)})`;
+      }),
+      `Left over: ${gbp.format(result.leftOver)} per month`,
+      `Savings rate: ${pct(result.savingsRate)}`
+    ].join('\n');
+  }
+
+  [incomeInput, ...categoryInputs].forEach((el) => el.addEventListener('input', update));
+
+  copyBtn.addEventListener('click', async () => {
+    if (!lastSummary) return;
+    try {
+      await navigator.clipboard.writeText(lastSummary);
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => { copyBtn.textContent = original; }, 1500);
+    } catch {
+      // Clipboard API unavailable — silently ignore.
+    }
+  });
+
+  shareBtn.addEventListener('click', () => {
+    const params: Record<string, string> = { income: incomeInput.value };
+    for (const input of categoryInputs) params[input.dataset.id as string] = input.value;
+    copyShareLink(params, shareBtn);
+  });
+
+  // Pre-fill from a shared link, e.g. ?income=3000&rent=1000&groceries=350
+  (function restoreFromShareLink() {
+    const params = getShareParams();
+    const income = params.get('income');
+    if (income !== null && !Number.isNaN(parseFloat(income))) incomeInput.value = income;
+    for (const category of BUDGET_CATEGORIES) {
+      const value = params.get(category.id);
+      if (value !== null && !Number.isNaN(parseFloat(value))) {
+        (document.getElementById(`budget-${category.id}`) as HTMLInputElement).value = value;
+      }
+    }
+  })();
+
+  update();
+</script>
+
+<style>
+  .budget-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .budget-group {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    margin: 0;
+  }
+  .budget-group legend {
+    font-weight: 700;
+    padding-inline: var(--space-2);
+  }
+  .budget-hint {
+    font-weight: 400;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+  }
+
+  .budget-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3) var(--space-4);
+  }
+
+  .budget-error {
+    color: var(--color-danger);
+    margin: 0;
+  }
+
+  .budget-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+  .budget-header h3 { margin: 0; }
+  .budget-actions { display: flex; gap: var(--space-2); }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    border-radius: var(--radius-sm);
+    padding: 2px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .copy-btn:hover {
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+  }
+
+  .budget-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+  .summary-item {
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .summary-item strong { font-size: 1.3rem; }
+  .summary-item strong.negative { color: var(--color-danger); }
+
+  .budget-bar {
+    display: flex;
+    height: 18px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+  }
+  .budget-bar span { display: block; height: 100%; }
+  .bar-needs { background: var(--color-primary); }
+  .bar-wants { background: var(--color-warning); }
+  .bar-savings { background: var(--color-success); }
+  .bar-left { background: var(--color-border); }
+
+  .budget-legend {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    padding: 0;
+    margin: var(--space-2) 0 var(--space-3);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+  .budget-legend li { display: flex; align-items: center; gap: var(--space-2); }
+  .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .swatch-needs { background: var(--color-primary); }
+  .swatch-wants { background: var(--color-warning); }
+  .swatch-savings { background: var(--color-success); }
+  .swatch-left { background: var(--color-border); }
+
+  .budget-message { margin: 0 0 var(--space-3); }
+
+  .budget-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .budget-table th,
+  .budget-table td {
+    padding: var(--space-2) var(--space-2);
+    border-bottom: 1px solid var(--color-border);
+    text-align: left;
+  }
+  .budget-table th:not(:first-child),
+  .budget-table td:not(:first-child) { text-align: right; }
+  .budget-table td:not(:first-child) { font-family: var(--font-mono); }
+
+  .budget-disclaimer {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  @media (max-width: 640px) {
+    .budget-grid { grid-template-columns: 1fr; }
+    .budget-summary { grid-template-columns: 1fr; }
+    .budget-table { display: block; overflow-x: auto; }
+  }
+</style>

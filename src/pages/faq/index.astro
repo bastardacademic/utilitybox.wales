@@ -1,0 +1,127 @@
+---
+import FaqPage from '../../components/FaqPage.astro';
+import type { FaqGroup } from '../../utils/faq';
+
+const groups: FaqGroup[] = [
+  {
+    title: 'About the site',
+    items: [
+      {
+        question: 'Is UtilityBox really free?',
+        answer:
+          'Yes. Every tool is free to use, with no account, sign-up, or usage limit. The site is supported by advertising (Google AdSense) and optional donations through Ko-fi.'
+      },
+      {
+        question: 'Do I need to create an account?',
+        answer: 'No. There are no accounts or logins anywhere on the site — open a tool and use it.'
+      },
+      {
+        question: 'What kinds of tools are there?',
+        answer:
+          'Five categories: calculators (salary, VAT, budget, loans, conversions), networking tools (subnets, DNS, ports), word games and text tools, generators (passwords, UUIDs, QR codes), and developer tools (JSON, regex, hashing, encoders, cheatsheets).',
+        links: [{ href: '/', label: 'Browse all tools' }]
+      },
+      {
+        question: 'Can I suggest a tool or report a problem?',
+        answer: 'Yes — the contact details are at the bottom of the Privacy Policy page.',
+        links: [{ href: '/privacy/', label: 'Privacy Policy' }]
+      }
+    ]
+  },
+  {
+    title: 'Privacy and your data',
+    items: [
+      {
+        question: 'Is anything I type sent to a server?',
+        answer:
+          'No — calculations run in your browser. There are two exceptions where a tool has to ask an outside service: the Currency Converter fetches exchange rates from the Frankfurter API (European Central Bank data), and DNS Lookup sends the domain you enter to Cloudflare\'s public DNS-over-HTTPS resolver. The word tools download a static word list from this site, sending nothing back.',
+        links: [
+          { href: '/tools/currency/', label: 'Currency Converter' },
+          { href: '/tools/dns-lookup/', label: 'DNS Lookup' }
+        ]
+      },
+      {
+        question: 'Does the site use cookies or tracking?',
+        answer:
+          'UtilityBox sets no cookies of its own and runs no analytics. It does show Google AdSense ads, and Google\'s ad script sets cookies of its own — visitors in the UK, EEA, and Switzerland see a consent prompt first. Your light/dark theme choice is remembered in your browser\'s local storage, not a cookie.',
+        links: [{ href: '/privacy/', label: 'Privacy Policy' }]
+      },
+      {
+        question: 'Is it safe to paste passwords, keys, or tokens into the tools?',
+        answer:
+          'The password, UUID, hash, bcrypt, RSA, Base64, and JWT tools all run locally and send nothing anywhere. Even so, as a general habit, use throwaway or test values rather than real production secrets in any website, and never paste a private key you actually rely on.',
+        links: [
+          { href: '/tools/random-string/', label: 'Random String Generator' },
+          { href: '/tools/bcrypt/', label: 'Bcrypt' },
+          { href: '/tools/jwt-decoder/', label: 'JWT Decoder' }
+        ]
+      },
+      {
+        question: 'What does the Share button do?',
+        answer:
+          'It copies a link with your current inputs stored in the web address (for example ?income=2500), so you can bookmark a calculation or send it to someone. The figures live in the link itself, not on our server — anyone with the link can read them, so avoid sharing links containing figures you want to keep private.'
+      }
+    ]
+  },
+  {
+    title: 'Accuracy and reliability',
+    items: [
+      {
+        question: 'How accurate are the calculators?',
+        answer:
+          'They use standard formulas and are checked against hand-worked examples, but results are estimates for guidance — not financial, tax, legal, or professional advice. Real-world figures can differ because of fees, individual circumstances, and rules that change.',
+        links: [{ href: '/terms/', label: 'Terms of Use' }]
+      },
+      {
+        question: 'Which tax year does the UK Salary Calculator use?',
+        answer:
+          '2026/27 (6 April 2026 to 5 April 2027). It covers income tax (including Scottish rates), employee National Insurance, student loans (Plans 1, 2, 4, 5, and Postgraduate), and a percentage pension contribution. It does not cover every situation — for example, non-standard tax codes or benefits in kind — so your payslip may differ.',
+        links: [{ href: '/tools/uk-salary/', label: 'UK Salary Calculator' }]
+      },
+      {
+        question: 'Where do the currency exchange rates come from?',
+        answer:
+          'They are the European Central Bank\'s daily reference rates, published once each working day, so they are not live market prices. Banks, cards, and exchange services add their own margin, so what you actually get will differ.',
+        links: [{ href: '/tools/currency/', label: 'Currency Converter' }]
+      },
+      {
+        question: 'Which dictionary do the word tools use?',
+        answer:
+          'A merged word list of 180,000+ words combining a curated list, common-word frequency data, and the UK Advanced Cryptics Dictionary, which brings broad British-English coverage. The dictionary credit appears at the bottom of the Word Unscrambler and Word Builder pages.',
+        links: [
+          { href: '/tools/unscrambler/', label: 'Word Unscrambler' },
+          { href: '/tools/word-builder/', label: 'Word Builder' }
+        ]
+      }
+    ]
+  },
+  {
+    title: 'Using the site',
+    items: [
+      {
+        question: 'Does it work on my phone?',
+        answer:
+          'Yes — the layout adapts to small screens, and the navigation collapses into a menu.'
+      },
+      {
+        question: 'How do I switch to dark mode?',
+        answer:
+          'Use the moon/sun button in the header. Without a saved choice, the site follows your device\'s light/dark setting.'
+      },
+      {
+        question: 'Does it work offline?',
+        answer:
+          'Not as a dedicated offline app. Once a tool page has loaded, most tools keep working without a connection because they run in your browser — but loading other pages, the Currency Converter, and DNS Lookup need a connection.'
+      }
+    ]
+  }
+];
+---
+
+<FaqPage
+  title="UtilityBox FAQ"
+  description="Answers to common questions about UtilityBox: whether it is free, how your data is handled, how accurate the calculators are, and how the tools work."
+  intro="Quick answers about how UtilityBox works, what happens to your data, and how far to trust the results. For anything specific to a tool, check the questions at the bottom of that tool's page."
+  path="/faq/"
+  groups={groups}
+/>

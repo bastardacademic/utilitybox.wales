@@ -372,7 +372,7 @@ export function convertUnit(value: number, category: UnitCategory, from: string,
 export interface SalaryInput {
   grossAnnual: number;
   taxCode?: string;
-  studentLoanPlan?: 'none' | 'plan1' | 'plan2' | 'plan4' | 'postgrad';
+  studentLoanPlan?: 'none' | 'plan1' | 'plan2' | 'plan4' | 'plan5' | 'postgrad';
   pensionPercent?: number;
   isScottish?: boolean;
 }
@@ -426,6 +426,7 @@ const STUDENT_LOAN_THRESHOLDS: Record<string, { threshold: number; rate: number 
   plan1: { threshold: 26900, rate: 0.09 },
   plan2: { threshold: 29385, rate: 0.09 },
   plan4: { threshold: 33795, rate: 0.09 },
+  plan5: { threshold: 25000, rate: 0.09 },
   postgrad: { threshold: 21000, rate: 0.06 }
 };
 

@@ -1,0 +1,151 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { faqSchema } from '../utils/seo';
+import { toSlug } from '../utils/slug';
+import { FAQ_PAGES, type FaqGroup } from '../utils/faq';
+
+interface Props {
+  title: string;
+  description: string;
+  intro: string;
+  path: string;
+  groups: FaqGroup[];
+}
+
+const { title, description, intro, path, groups } = Astro.props;
+
+const schema = faqSchema(groups.flatMap((g) => g.items).map(({ question, answer }) => ({ question, answer })));
+
+const breadcrumbItems = [
+  { name: 'Home', href: '/' },
+  ...(path === '/faq/' ? [] : [{ name: 'FAQ', href: '/faq/' }]),
+  { name: title, href: path }
+];
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: breadcrumbItems.map((item, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: item.name,
+    item: `https://utilitybox.wales${item.href}`
+  }))
+};
+
+const groupId = (index: number, groupTitle: string) => `${toSlug(groupTitle)}-${index + 1}`;
+const otherPages = FAQ_PAGES.filter((p) => p.href !== path);
+---
+
+<Layout title={title} description={description}>
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
+  <div class="container faq-page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      <span aria-hidden="true">/</span>
+      {path !== '/faq/' && (<><a href="/faq/">FAQ</a><span aria-hidden="true">/</span></>)}
+      <span class="tag">{title}</span>
+    </nav>
+
+    <h1>{title}</h1>
+    <p class="faq-intro">{intro}</p>
+
+    <nav class="faq-toc" aria-label="Sections on this page">
+      <strong>Jump to</strong>
+      <ul>
+        {groups.map((g, gi) => <li><a href={`#${groupId(gi, g.title)}`}>{g.title}</a></li>)}
+      </ul>
+    </nav>
+
+    {groups.map((group, gi) => (
+      <section id={groupId(gi, group.title)}>
+        <h2>{group.title}</h2>
+        {group.items.map((item) => (
+          <div class="faq-item">
+            <h3>{item.question}</h3>
+            <p>{item.answer}</p>
+            {item.links && item.links.length > 0 && (
+              <p class="faq-links">
+                {item.links.map((link, li) => (
+                  <><a href={link.href}>{link.label}</a>{li < item.links!.length - 1 ? ' · ' : ''}</>
+                ))}
+              </p>
+            )}
+          </div>
+        ))}
+      </section>
+    ))}
+
+    <aside class="faq-more card">
+      <h2>More questions</h2>
+      <ul>
+        {otherPages.map((p) => <li><a href={p.href}>{p.label} FAQ</a></li>)}
+        <li><a href="/">Browse all tools</a></li>
+      </ul>
+    </aside>
+  </div>
+</Layout>
+
+<style>
+  .faq-page {
+    max-width: 760px;
+    padding-block: var(--space-6) var(--space-8);
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-5);
+    font-size: 0.85rem;
+  }
+  .breadcrumb a { color: var(--color-text-muted); }
+  .breadcrumb span[aria-hidden] { color: var(--color-text-muted); }
+
+  .faq-intro {
+    color: var(--color-text-muted);
+    font-size: 1.05rem;
+  }
+
+  .faq-toc {
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4);
+    margin-block: var(--space-5);
+  }
+  .faq-toc ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    margin: var(--space-2) 0 0;
+    padding: 0;
+  }
+
+  section {
+    margin-bottom: var(--space-6);
+    scroll-margin-top: calc(var(--space-6) + 60px);
+  }
+  section h2 { margin-bottom: var(--space-3); }
+
+  .faq-item { margin-bottom: var(--space-4); }
+  .faq-item h3 { margin-bottom: var(--space-1); }
+  .faq-item p {
+    margin-bottom: var(--space-1);
+    color: var(--color-text-muted);
+  }
+  .faq-item .faq-links { font-size: 0.9rem; }
+
+  .faq-more { padding: var(--space-4); }
+  .faq-more h2 { font-size: 1.1rem; }
+  .faq-more ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+</style>

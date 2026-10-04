@@ -1,0 +1,146 @@
+---
+import FaqPage from '../../components/FaqPage.astro';
+import type { FaqGroup } from '../../utils/faq';
+
+const groups: FaqGroup[] = [
+  {
+    title: 'Encoding, hashing, and encryption',
+    items: [
+      {
+        question: 'What is the difference between encoding, hashing, and encryption?',
+        answer:
+          'Encoding (Base64, URL encoding) reshapes data so it survives a particular format — anyone can reverse it, no key involved. Hashing produces a fixed-length fingerprint that cannot be reversed, used to check integrity or store passwords. Encryption scrambles data so only someone with the right key can read it. Mixing them up is a classic source of security mistakes.',
+        links: [
+          { href: '/tools/base64/', label: 'Base64' },
+          { href: '/tools/hash-generator/', label: 'Hash Generator' },
+          { href: '/tools/rsa-key-generator/', label: 'RSA Key Generator' }
+        ]
+      },
+      {
+        question: 'Is Base64 a way to hide data?',
+        answer:
+          'No. Base64 is trivially reversible and offers no confidentiality at all — it only turns binary data into plain text that is safe to embed in JSON, email, or URLs.',
+        links: [{ href: '/tools/base64/', label: 'Base64 Encoder / Decoder' }]
+      },
+      {
+        question: 'Which hash algorithm should I use?',
+        answer:
+          'SHA-256 or stronger for checking file or data integrity. SHA-1 is considered broken for security purposes and survives mainly for compatibility. For storing passwords, don\'t use a plain fast hash at all — use a deliberately slow algorithm such as bcrypt.',
+        links: [
+          { href: '/tools/hash-generator/', label: 'Hash Generator' },
+          { href: '/tools/bcrypt/', label: 'Bcrypt' }
+        ]
+      },
+      {
+        question: 'Can I trust a JWT once I have decoded it?',
+        answer:
+          'No. Decoding only reads the header and payload, which anyone can do. Trusting a token requires verifying its signature with the issuer\'s key — something a decoder tool cannot do for you.',
+        links: [{ href: '/tools/jwt-decoder/', label: 'JWT Decoder' }]
+      },
+      {
+        question: 'What is the difference between an RSA signing key and an encryption key?',
+        answer:
+          'A signing key pair proves authenticity: the private key signs data and anyone with the public key can verify it. An encryption key pair provides confidentiality: anyone can encrypt to the public key, and only the private key can decrypt. They use different padding schemes and shouldn\'t be mixed up. 2048-bit is the common minimum; 3072-bit is a sensible choice for longer-lived keys.',
+        links: [{ href: '/tools/rsa-key-generator/', label: 'RSA Key Pair Generator' }]
+      },
+      {
+        question: 'Which UUID version should I use?',
+        answer:
+          'Version 4 (random) is the default choice. Version 7 starts with a timestamp, so values sort by creation time — handy for database primary keys. Version 1 also embeds a timestamp but sorts poorly and can reveal when an ID was created.',
+        links: [{ href: '/tools/uuid-generator/', label: 'UUID Generator' }]
+      }
+    ]
+  },
+  {
+    title: 'Data formats',
+    items: [
+      {
+        question: 'When should I use JSON, YAML, XML, or CSV?',
+        answer:
+          'JSON is the default for APIs and web apps. YAML is popular for human-edited configuration because it is compact and allows comments. XML suits document-style data and older enterprise systems. CSV is best for flat tables you want to open in a spreadsheet — it cannot represent nested data.',
+        links: [{ href: '/tools/data-converter/', label: 'JSON / YAML / XML / CSV Converter' }]
+      },
+      {
+        question: 'Why does my JSON fail to parse when it works in JavaScript?',
+        answer:
+          'JavaScript object literals are more forgiving than JSON. JSON requires double-quoted keys and strings, and does not allow comments, trailing commas, or single quotes. The formatter reports the line and column of the first problem.',
+        links: [{ href: '/tools/json-formatter/', label: 'JSON Formatter & Validator' }]
+      }
+    ]
+  },
+  {
+    title: 'Networking',
+    items: [
+      {
+        question: 'What does /24 mean in an address like 192.168.1.0/24?',
+        answer:
+          'It is CIDR notation: the first 24 of the address\'s 32 bits identify the network, leaving 8 bits for hosts — 256 addresses, of which 254 are usable (the first is the network address and the last is the broadcast address).',
+        links: [{ href: '/tools/network/', label: 'Network / CIDR Calculator' }]
+      },
+      {
+        question: 'What are the private IPv4 address ranges?',
+        answer:
+          '10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16. These are reserved for internal networks and are not routed on the public internet. IPv6 has an equivalent: unique local addresses in fc00::/7.',
+        links: [
+          { href: '/tools/network/', label: 'Network / CIDR Calculator' },
+          { href: '/tools/ipv6-subnet/', label: 'IPv6 Subnet Calculator' }
+        ]
+      },
+      {
+        question: 'Why hasn\'t my DNS change taken effect?',
+        answer:
+          'DNS answers are cached by resolvers for the record\'s TTL (time to live), so a change can take anywhere from minutes to a day or more to be seen everywhere. Looking the record up directly shows what a resolver currently returns.',
+        links: [
+          { href: '/tools/dns-lookup/', label: 'DNS Lookup' },
+          { href: '/tools/dns-records/', label: 'DNS Record Reference' }
+        ]
+      },
+      {
+        question: 'What do the HTTP status code ranges mean?',
+        answer:
+          '1xx: informational. 2xx: success. 3xx: redirection. 4xx: the client\'s request was wrong (404 not found, 403 forbidden). 5xx: the server failed on a valid request (500 internal error, 502/504 gateway problems).',
+        links: [{ href: '/tools/http-status/', label: 'HTTP Status Code Reference' }]
+      },
+      {
+        question: 'Which ports should I know?',
+        answer: '80 (HTTP), 443 (HTTPS), 22 (SSH), 25 (SMTP mail), and 53 (DNS) cover most day-to-day situations.',
+        links: [{ href: '/tools/port-lookup/', label: 'Port Number Reference' }]
+      }
+    ]
+  },
+  {
+    title: 'Text, time, and scheduling',
+    items: [
+      {
+        question: 'How do I read a cron expression?',
+        answer:
+          'Five fields in order: minute, hour, day of month, month, and day of week. An asterisk means "every". For example, 0 9 * * 1-5 runs at 9:00 on weekdays. When both day-of-month and day-of-week are set, standard cron runs the job when either matches.',
+        links: [{ href: '/tools/cron-parser/', label: 'Cron Expression Parser' }]
+      },
+      {
+        question: 'What is a Unix timestamp?',
+        answer:
+          'The number of seconds (or milliseconds, in many systems) since 00:00:00 UTC on 1 January 1970. It identifies a single instant independent of time zone — the time zone only matters when you display it as a calendar date.',
+        links: [{ href: '/tools/timestamp/', label: 'Unix Timestamp Converter' }]
+      },
+      {
+        question: 'Why does my regex match too much?',
+        answer:
+          'Quantifiers such as * and + are greedy by default and grab as much text as possible. Adding a ? after them (like .*?) makes them lazy so they match as little as possible. Anchors (^ and $) also help stop a pattern matching a substring you didn\'t intend.',
+        links: [
+          { href: '/tools/regex-tester/', label: 'Regex Tester' },
+          { href: '/tools/regex-cheatsheet/', label: 'Regex Cheatsheet' }
+        ]
+      }
+    ]
+  }
+];
+---
+
+<FaqPage
+  title="Developer and Networking FAQ"
+  description="Answers to common developer and networking questions: encoding vs hashing vs encryption, JSON vs YAML, CIDR subnets, DNS caching, HTTP status codes, cron, and regex."
+  intro="Short answers to questions that come up constantly when working with data, security, and networks, with links to the tools that let you try things for yourself."
+  path="/faq/developer/"
+  groups={groups}
+/>
