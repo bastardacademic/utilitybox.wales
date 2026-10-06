@@ -59,15 +59,23 @@
       </div>
     </div>
 
+    <h3>Where your pay goes</h3>
+    <div class="table-scroll">
+      <table id="salary-periods">
+        <thead>
+          <tr><th>Per</th><th>Yearly</th><th>Monthly</th><th>Weekly</th></tr>
+        </thead>
+        <tbody id="salary-periods-body"></tbody>
+      </table>
+    </div>
+    <p class="salary-note">Monthly is the yearly figure ÷ 12 and weekly is ÷ 52.</p>
+
+    <h3>Tax workings (yearly)</h3>
     <table>
       <tbody>
         <tr><td>Personal allowance</td><td id="row-allowance" class="num"></td></tr>
         <tr><td>Taxable income</td><td id="row-taxable" class="num"></td></tr>
-        <tr><td>Income tax</td><td id="row-tax" class="num"></td></tr>
-        <tr><td>National Insurance</td><td id="row-ni" class="num"></td></tr>
-        <tr><td>Student loan repayment</td><td id="row-loan" class="num"></td></tr>
-        <tr><td>Pension contribution</td><td id="row-pension" class="num"></td></tr>
-        <tr><td><strong>Effective tax rate (tax + NI)</strong></td><td id="row-rate" class="num"></td></tr>
+        <tr><td>Effective tax rate (tax + NI)</td><td id="row-rate" class="num"></td></tr>
       </tbody>
     </table>
 
@@ -86,7 +94,7 @@
 </div>
 
 <script>
-  import { calculateUKSalary } from '../../utils/calculators';
+  import { calculateUKSalary, salaryPeriodRows } from '../../utils/calculators';
   import { getShareParams, copyShareLink } from '../../utils/shareLink';
 
   const grossInput = document.getElementById('salary-gross') as HTMLInputElement;
@@ -117,10 +125,21 @@
 
     (document.getElementById('row-allowance') as HTMLElement).textContent = gbp.format(result.personalAllowance);
     (document.getElementById('row-taxable') as HTMLElement).textContent = gbp.format(result.taxableIncome);
-    (document.getElementById('row-tax') as HTMLElement).textContent = gbp.format(result.incomeTax);
-    (document.getElementById('row-ni') as HTMLElement).textContent = gbp.format(result.nationalInsurance);
-    (document.getElementById('row-loan') as HTMLElement).textContent = gbp.format(result.studentLoan);
-    (document.getElementById('row-pension') as HTMLElement).textContent = gbp.format(result.pensionContribution);
+
+    const periodRows = salaryPeriodRows(result);
+    const periodsBody = document.getElementById('salary-periods-body') as HTMLElement;
+    periodsBody.replaceChildren(
+      ...periodRows.map((r) => {
+        const tr = document.createElement('tr');
+        if (r.total) tr.className = 'total-row';
+        [r.label, gbp.format(r.yearly), gbp.format(r.monthly), gbp.format(r.weekly)].forEach((text) => {
+          const td = document.createElement('td');
+          td.textContent = text;
+          tr.append(td);
+        });
+        return tr;
+      })
+    );
     (document.getElementById('row-rate') as HTMLElement).textContent = `${(result.effectiveTaxRate * 100).toFixed(1)}%`;
 
     const breakdownBody = document.getElementById('salary-breakdown-body') as HTMLElement;
@@ -132,14 +151,10 @@
       .join('');
 
     lastSummary = [
-      `Gross annual salary: ${gbp.format(grossAnnual)}`,
-      `Take-home pay (annual): ${gbp.format(result.netAnnual)}`,
-      `Take-home pay (monthly): ${gbp.format(result.netMonthly)}`,
-      `Take-home pay (weekly): ${gbp.format(result.netWeekly)}`,
-      `Income tax: ${gbp.format(result.incomeTax)}`,
-      `National Insurance: ${gbp.format(result.nationalInsurance)}`,
-      `Student loan repayment: ${gbp.format(result.studentLoan)}`,
-      `Pension contribution: ${gbp.format(result.pensionContribution)}`,
+      'Yearly / Monthly / Weekly',
+      ...periodRows.map(
+        (r) => `${r.label}: ${gbp.format(r.yearly)} / ${gbp.format(r.monthly)} / ${gbp.format(r.weekly)}`
+      ),
       `Effective tax rate: ${(result.effectiveTaxRate * 100).toFixed(1)}%`
     ].join('\n');
 
@@ -261,6 +276,11 @@
 
   td.num { text-align: right; font-family: var(--font-mono); }
   th:not(:first-child) { text-align: right; }
+  .table-scroll { overflow-x: auto; }
+  #salary-periods :global(td:not(:first-child)) { text-align: right; font-family: var(--font-mono); white-space: nowrap; }
+  /* Rows are created by script, so they don't carry Astro's scope attribute. */
+  #salary-periods :global(.total-row td) { font-weight: 700; border-top: 2px solid var(--color-border); }
+  .salary-note { font-size: 0.8rem; color: var(--color-text-muted); margin: calc(var(--space-3) * -1) 0 0; }
   #salary-breakdown td:not(:first-child) { text-align: right; font-family: var(--font-mono); }
 
   .salary-disclaimer {
@@ -272,5 +292,11 @@
   @media (max-width: 640px) {
     .salary-grid { grid-template-columns: 1fr; }
     .salary-summary { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 480px) {
+    #salary-periods :global(th),
+    #salary-periods :global(td) { padding: 8px 3px; font-size: 0.74rem; }
+    #salary-periods :global(td:first-child) { min-width: 3.5rem; }
   }
 </style>

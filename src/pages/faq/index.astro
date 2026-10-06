@@ -18,7 +18,7 @@ const groups: FaqGroup[] = [
       {
         question: 'What kinds of tools are there?',
         answer:
-          'Five categories: calculators (salary, VAT, budget, loans, conversions), networking tools (subnets, DNS, ports), word games and text tools, generators (passwords, UUIDs, QR codes), and developer tools (JSON, regex, hashing, encoders, cheatsheets).',
+          'Six categories: calculators (salary, VAT, budget, loans, conversions), networking tools (subnets, DNS, ports), word games and text tools, generators (passwords, UUIDs, QR codes), developer tools (JSON, regex, hashing, encoders), and searchable cheatsheets (Git, Bash, Regex, Excel).',
         links: [{ href: '/', label: 'Browse all tools' }]
       },
       {
@@ -34,10 +34,11 @@ const groups: FaqGroup[] = [
       {
         question: 'Is anything I type sent to a server?',
         answer:
-          'No — calculations run in your browser. There are two exceptions where a tool has to ask an outside service: the Currency Converter fetches exchange rates from the Frankfurter API (European Central Bank data), and DNS Lookup sends the domain you enter to Cloudflare\'s public DNS-over-HTTPS resolver. The word tools download a static word list from this site, sending nothing back.',
+          'No — calculations run in your browser. There are three exceptions where a tool has to ask an outside service: the Currency Converter fetches exchange rates from the Frankfurter API (European Central Bank data), DNS Lookup sends the domain you enter to Cloudflare\'s public DNS-over-HTTPS resolver, and the Is It Down? tool reads a service\'s public status page, or connects to a website address, only when you ask it to check. The word tools download a static word list from this site, sending nothing back.',
         links: [
           { href: '/tools/currency/', label: 'Currency Converter' },
-          { href: '/tools/dns-lookup/', label: 'DNS Lookup' }
+          { href: '/tools/dns-lookup/', label: 'DNS Lookup' },
+          { href: '/tools/is-it-down/', label: 'Is It Down?' }
         ]
       },
       {
@@ -111,7 +112,7 @@ const groups: FaqGroup[] = [
       {
         question: 'Does it work offline?',
         answer:
-          'Not as a dedicated offline app. Once a tool page has loaded, most tools keep working without a connection because they run in your browser — but loading other pages, the Currency Converter, and DNS Lookup need a connection.'
+          'Not as a dedicated offline app. Once a tool page has loaded, most tools keep working without a connection because they run in your browser — but loading other pages, the Currency Converter, DNS Lookup, and Is It Down? need a connection.'
       }
     ]
   }

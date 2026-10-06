@@ -18,6 +18,7 @@ const PAGES: { path: string; priority: string; changefreq: string }[] = [
   { path: '/tools/ip-converter/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/dns-lookup/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/dns-records/', priority: '0.7', changefreq: 'monthly' },
+  { path: '/tools/is-it-down/', priority: '0.8', changefreq: 'daily' },
   { path: '/tools/bandwidth/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/unscrambler/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/word-builder/', priority: '0.7', changefreq: 'monthly' },

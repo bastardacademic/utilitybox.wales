@@ -504,3 +504,32 @@ export function calculateUKSalary(input: SalaryInput): SalaryResult {
     breakdown
   };
 }
+
+export interface SalaryPeriodRow {
+  label: string;
+  yearly: number;
+  monthly: number;
+  weekly: number;
+  /** True for the take-home total, so the UI can emphasise it. */
+  total?: boolean;
+}
+
+/** Splits each annual figure of a salary result into yearly / monthly (÷12) / weekly (÷52) amounts. */
+export function salaryPeriodRows(result: SalaryResult): SalaryPeriodRow[] {
+  const row = (label: string, yearly: number, total = false): SalaryPeriodRow => ({
+    label,
+    yearly,
+    monthly: yearly / 12,
+    weekly: yearly / 52,
+    ...(total ? { total } : {})
+  });
+
+  return [
+    row('Gross pay', result.grossAnnual),
+    row('Income tax', result.incomeTax),
+    row('National Insurance', result.nationalInsurance),
+    row('Student loan repayment', result.studentLoan),
+    row('Pension contribution', result.pensionContribution),
+    row('Take-home pay', result.netAnnual, true)
+  ];
+}

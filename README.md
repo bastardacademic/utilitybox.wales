@@ -25,6 +25,7 @@ Free online calculators and everyday utility tools, built with [Astro](https://a
 - Port number reference (searchable common TCP/UDP ports)
 - MAC address formatter/validator (colon/hyphen/dot notation, locally-administered/multicast detection)
 - Bandwidth / transfer time calculator
+- Is It Down? status checker (browser-side reachability test for any site, plus a live board of ~30 popular services read from their public Statuspage feeds, fetched only on click — never on page load, for privacy)
 
 **Word Games**
 - Word unscrambler
@@ -57,6 +58,8 @@ Free online calculators and everyday utility tools, built with [Astro](https://a
 - URL encoder/decoder (component and full-URI modes)
 - Unix timestamp converter (seconds/milliseconds ⇄ date)
 - HTML entity encoder/decoder
+
+**Cheatsheets**
 - Git cheatsheet (searchable reference)
 - Bash cheatsheet (searchable reference)
 - Regex cheatsheet (searchable reference)
@@ -71,7 +74,7 @@ src/
                        PercentageCalculator, VatCalculator, TipCalculator, LoanCalculator, BudgetCalculator
     tools/           WordUnscrambler, WordBuilder, RandomString, UuidGenerator, LoremIpsum,
                        JsonFormatter, RegexTester, DiffViewer, Base64Tool, JwtDecoder, CronParser,
-                       HttpStatusReference, PortReference, MacFormatter, IpConverter, DnsLookup, DnsRecordReference,
+                       HttpStatusReference, PortReference, MacFormatter, IpConverter, DnsLookup, DnsRecordReference, StatusChecker,
                        WordCounter, CaseConverter, PalindromeChecker, AnagramSolver,
                        ColorConverter, SlugGenerator, PlaceholderImageGenerator,
                        HashGenerator, RsaKeyGenerator, BcryptTool, UrlEncoder, TimestampConverter, HtmlEntityEncoder,
@@ -90,6 +93,8 @@ src/
     network.ts         IPv4 / CIDR math, multi-format IP address parsing
     ipv6.ts             IPv6 parsing, expand/compress, classification, CIDR ranges
     dns.ts              DNS record type reference data + DNS-over-HTTPS lookup helper
+    serviceStatus.ts    Service list + Statuspage summary.json parsing for the Is It Down? board
+    reachability.ts     Target parsing + no-cors reachability / DNS check for the Is It Down? tool
     bandwidth.ts        Data transfer time calculation
     generators.ts       Random string + Lorem Ipsum generation
     uuid.ts              UUID v1/v4/v7/nil/max generation and validation
@@ -173,7 +178,7 @@ Hosted via [IONOS Deploy Now](https://www.ionos.com/hosting/deploy-now), which b
 
 ## Notes
 
-- All interactive tools run entirely client-side — no user data is sent to a server, except the currency converter (fetches exchange rates from the public Frankfurter API) and the DNS Lookup tool (queries Cloudflare's public DNS-over-HTTPS resolver).
+- All interactive tools run entirely client-side — no user data is sent to a server, except the currency converter (fetches exchange rates from the public Frankfurter API), the DNS Lookup tool (queries Cloudflare's public DNS-over-HTTPS resolver), and the Is It Down? tool (reads each listed provider's public status feed and connects to any address the visitor enters). Only status pages that send `access-control-allow-origin: *` can be listed — verify with curl before adding a service.
 - `bcryptjs` (used by the Bcrypt tool) is the project's first runtime dependency beyond Astro itself — every other tool is hand-rolled vanilla TypeScript, deliberately, to keep the client bundle small. Bcrypt specifically needs a JS implementation since there's no native Web Crypto equivalent; adding a dependency for it was a deliberate, one-off exception rather than a change in general policy.
 - The word dictionary in `public/data/dictionary.json` (182,720 words, ~2.1MB) merges the original curated list, the [Google 10,000 English words](https://github.com/first20hours/google-10000-english) list (MIT-licensed, swear-filtered variant), and the [UK Advanced Cryptics Dictionary](https://github.com/rdeits/cryptics/blob/master/raw_data/UKACD.txt) (UKACD, © J Ross Beresford 1993–2009, BSD-style license — attribution required, credited at the bottom of `/tools/unscrambler` and `/tools/word-builder`). UKACD adds proper dictionary-grade coverage (British spellings like "colour"/"organise", genuinely valid short words) and doubles as ground truth: short words (≤3 letters) from the frequency-based Google list are only kept if UKACD or the original list also confirms them as real words, since frequency corpora are noisy at short lengths (raw web-text tokens like "cl", "pdf", "usa" would otherwise show up as if they were playable words). Checked against a standard profanity blocklist throughout. Client-side search over the full 182k-word list completes in well under 200ms.
 - The currency converter offers all 30 currencies Frankfurter/the ECB publish reference rates for (see `CURRENCIES` in `Currency.astro`).

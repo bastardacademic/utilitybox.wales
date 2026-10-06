@@ -1,0 +1,513 @@
+---
+import { SERVICE_GROUPS, STATUS_SERVICES, statusPageUrl } from '../../utils/serviceStatus';
+
+const groups = SERVICE_GROUPS.map((group) => ({
+  group,
+  services: STATUS_SERVICES.filter((s) => s.group === group)
+}));
+---
+
+<div class="status-tool">
+  <section class="status-check">
+    <h2 class="status-heading">Check any website</h2>
+    <div class="status-check-row">
+      <div class="field status-check-field">
+        <label class="label" for="site-input">Website address</label>
+        <input
+          id="site-input"
+          class="input"
+          type="text"
+          inputmode="url"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          placeholder="e.g. example.com"
+        />
+      </div>
+      <button type="button" id="site-btn" class="btn">Check</button>
+    </div>
+    <div class="status-check-actions">
+      <button type="button" id="site-share" class="copy-btn">🔗 Share</button>
+    </div>
+    <p id="site-result" class="site-result" role="status" aria-live="polite"></p>
+    <p class="status-note">
+      This test runs from <strong>your own browser and connection</strong>, so it shows whether <em>you</em> can reach the
+      site. A site that is up but blocks browser requests can look unreachable, and a problem with your own internet can
+      look like an outage — check a second site to rule that out.
+    </p>
+  </section>
+
+  <section class="status-board">
+    <div class="status-board-head">
+      <h2 class="status-heading">Popular services</h2>
+      <div class="status-board-controls">
+        <label class="sr-only" for="service-filter">Filter services</label>
+        <input id="service-filter" class="input" type="search" placeholder="Filter services…" autocomplete="off" />
+        <button type="button" id="refresh-btn" class="btn">Check all services</button>
+      </div>
+    </div>
+
+    <p id="board-summary" class="board-summary" role="status" aria-live="polite">Nothing has been checked yet. Services are only contacted when you ask — check them all, or just one.</p>
+    <p id="board-empty" class="status-note" hidden>No services match that filter.</p>
+
+    {groups.map(({ group, services }) => (
+      <div class="status-group" data-group>
+        <h3>{group}</h3>
+        <div class="status-grid">
+          {services.map((s) => (
+            <article class="status-card" data-service={s.id} data-name={s.name.toLowerCase()} data-state="idle">
+              <header class="status-card-head">
+                <span class="status-dot" aria-hidden="true"></span>
+                <h4>{s.name}</h4>
+                <span class="status-badge">Not checked</span>
+              </header>
+              <p class="status-desc"></p>
+              <ul class="status-affected" hidden></ul>
+              <ul class="status-incidents" hidden></ul>
+              <div class="status-card-foot">
+                <a
+                  class="status-link"
+                  href={statusPageUrl(s)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >Official status page ↗</a>
+                <button type="button" class="copy-btn status-check-one" data-check={s.id}>Check</button>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    ))}
+  </section>
+</div>
+
+<script>
+  import {
+    STATUS_SERVICES,
+    STATE_LABELS,
+    fetchServiceStatus,
+    tallyStates,
+    type ServiceState,
+    type ServiceStatus
+  } from '../../utils/serviceStatus';
+  import { parseTarget, checkReachability } from '../../utils/reachability';
+  import { getShareParams, copyShareLink } from '../../utils/shareLink';
+
+  // ---- Check any website ----
+  const siteInput = document.getElementById('site-input') as HTMLInputElement;
+  const siteBtn = document.getElementById('site-btn') as HTMLButtonElement;
+  const siteResult = document.getElementById('site-result') as HTMLElement;
+  const siteShare = document.getElementById('site-share') as HTMLButtonElement;
+
+  function setSiteResult(kind: 'ok' | 'bad' | 'warn' | 'info', message: string) {
+    siteResult.textContent = message;
+    siteResult.dataset.kind = kind;
+  }
+
+  async function checkSite() {
+    const target = parseTarget(siteInput.value);
+    if (!target) {
+      setSiteResult('warn', 'Enter a website address such as example.com.');
+      return;
+    }
+
+    siteBtn.disabled = true;
+    setSiteResult('info', `Checking ${target.hostname}…`);
+    try {
+      const result = await checkReachability(target);
+      const upgradeNote = target.upgraded ? ' (checked over https)' : '';
+      switch (result.verdict) {
+        case 'reachable':
+          setSiteResult('ok', `${target.hostname} responded in ${result.ms} ms — it is reachable from your browser${upgradeNote}.`);
+          break;
+        case 'no-dns':
+          setSiteResult('bad', `${target.hostname} does not exist — the domain name has no DNS record. Check the spelling.`);
+          break;
+        case 'no-response':
+          setSiteResult(
+            'bad',
+            `${target.hostname} exists but did not respond. It may be down, or it may be refusing connections from your browser (for example an invalid certificate).`
+          );
+          break;
+        default:
+          setSiteResult('bad', `${target.hostname} did not respond, and the DNS check could not be completed either — your own connection may be the problem.`);
+      }
+    } finally {
+      siteBtn.disabled = false;
+    }
+  }
+
+  siteBtn.addEventListener('click', checkSite);
+  siteInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') checkSite();
+  });
+  siteShare.addEventListener('click', () => copyShareLink({ site: siteInput.value.trim() }, siteShare));
+
+  // ---- Popular services board ----
+  const summaryEl = document.getElementById('board-summary') as HTMLElement;
+  const refreshBtn = document.getElementById('refresh-btn') as HTMLButtonElement;
+  const filterInput = document.getElementById('service-filter') as HTMLInputElement;
+  const emptyEl = document.getElementById('board-empty') as HTMLElement;
+
+  const cards = new Map<string, HTMLElement>();
+  document.querySelectorAll<HTMLElement>('[data-service]').forEach((el) => cards.set(el.dataset.service!, el));
+  const states = new Map<string, ServiceState>();
+
+  function listFill(list: HTMLElement, items: Array<{ text: string; href?: string | null; heading?: boolean }>) {
+    list.replaceChildren();
+    for (const item of items) {
+      const li = document.createElement('li');
+      if (item.href) {
+        const a = document.createElement('a');
+        a.href = item.href;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = item.text;
+        li.append(a);
+      } else {
+        li.textContent = item.text;
+      }
+      if (item.heading) li.className = 'status-list-heading';
+      list.append(li);
+    }
+    list.hidden = items.length === 0;
+  }
+
+  function paintCard(id: string, state: ServiceState | 'loading', status?: ServiceStatus) {
+    const card = cards.get(id);
+    if (!card) return;
+    card.dataset.state = state;
+
+    const badge = card.querySelector('.status-badge') as HTMLElement;
+    const desc = card.querySelector('.status-desc') as HTMLElement;
+    const affected = card.querySelector('.status-affected') as HTMLElement;
+    const incidents = card.querySelector('.status-incidents') as HTMLElement;
+
+    if (state === 'loading') {
+      badge.textContent = 'Checking…';
+      desc.textContent = '';
+      listFill(affected, []);
+      listFill(incidents, []);
+      return;
+    }
+
+    badge.textContent = STATE_LABELS[state];
+    if (!status) {
+      desc.textContent = 'Could not load status from the provider. Use the official status page below.';
+      listFill(affected, []);
+      listFill(incidents, []);
+      return;
+    }
+
+    desc.textContent = status.description;
+    const extra = status.affectedCount - status.affected.length;
+    const affectedItems = status.affected.map((name) => ({ text: name }));
+    if (extra > 0) affectedItems.push({ text: `…and ${extra} more` });
+    listFill(affected, affectedItems.length ? [{ text: `Not operational (${status.affectedCount}):`, heading: true }, ...affectedItems] : []);
+    listFill(
+      incidents,
+      status.incidents.map((i) => ({ text: i.name, href: i.url }))
+    );
+  }
+
+  const loading = new Set<string>();
+  const lastRun = new Map<string, number>();
+  let lastCheckedAt = '';
+
+  function updateSummary() {
+    const total = STATUS_SERVICES.length;
+    const tally = tallyStates(STATUS_SERVICES.map((s) => states.get(s.id)));
+
+    if (tally.checked === 0 && loading.size === 0) {
+      summaryEl.textContent =
+        'Nothing has been checked yet. Services are only contacted when you ask — check them all, or just one.';
+      summaryEl.dataset.kind = 'info';
+      return;
+    }
+    if (loading.size > 0) {
+      summaryEl.textContent = `Checking… ${tally.checked} of ${total} checked so far.`;
+      summaryEl.dataset.kind = 'info';
+      return;
+    }
+
+    const parts =
+      tally.checked === total
+        ? [`${tally.operational} of ${total} operational`]
+        : [`${tally.checked} of ${total} checked`, `${tally.operational} operational`];
+    if (tally.degraded) parts.push(`${tally.degraded} degraded`);
+    if (tally.outage) parts.push(`${tally.outage} with an outage`);
+    if (tally.unknown) parts.push(`${tally.unknown} could not be checked`);
+    summaryEl.textContent = `${parts.join(' · ')} — last checked ${lastCheckedAt}.`;
+    summaryEl.dataset.kind = tally.outage ? 'bad' : tally.degraded ? 'warn' : tally.unknown ? 'info' : 'ok';
+  }
+
+  async function checkService(id: string) {
+    const service = STATUS_SERVICES.find((s) => s.id === id);
+    if (!service) return;
+
+    const run = (lastRun.get(id) ?? 0) + 1;
+    lastRun.set(id, run);
+    loading.add(id);
+    states.delete(id);
+    paintCard(id, 'loading');
+    updateSummary();
+
+    let state: ServiceState = 'unknown';
+    let status: ServiceStatus | undefined;
+    try {
+      status = await fetchServiceStatus(service);
+      state = status.state;
+    } catch {
+      // Leave as unknown — the card explains and links to the official page.
+    }
+    if (lastRun.get(id) !== run) return;
+
+    loading.delete(id);
+    states.set(id, state);
+    lastCheckedAt = new Date().toLocaleTimeString('en-GB');
+    paintCard(id, state, status);
+    updateSummary();
+  }
+
+  async function checkAll() {
+    refreshBtn.disabled = true;
+    await Promise.all(STATUS_SERVICES.map((s) => checkService(s.id)));
+    refreshBtn.textContent = 'Refresh all';
+    refreshBtn.disabled = false;
+  }
+
+  refreshBtn.addEventListener('click', checkAll);
+  document.querySelectorAll<HTMLButtonElement>('[data-check]').forEach((btn) => {
+    btn.addEventListener('click', () => checkService(btn.dataset.check!));
+  });
+
+  filterInput.addEventListener('input', () => {
+    const query = filterInput.value.trim().toLowerCase();
+    let visible = 0;
+    cards.forEach((card) => {
+      const match = !query || (card.dataset.name ?? '').includes(query);
+      card.hidden = !match;
+      if (match) visible += 1;
+    });
+    document.querySelectorAll<HTMLElement>('[data-group]').forEach((group) => {
+      group.hidden = !group.querySelector('[data-service]:not([hidden])');
+    });
+    emptyEl.hidden = visible > 0;
+  });
+
+  // Pre-fill the site checker from a shared link, e.g. ?site=example.com
+  (function restoreFromShareLink() {
+    const site = getShareParams().get('site');
+    if (site) {
+      siteInput.value = site.slice(0, 253);
+      checkSite();
+    }
+  })();
+
+</script>
+
+<style>
+  .status-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .status-heading {
+    font-size: 1.15rem;
+    margin: 0 0 var(--space-3);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  /* ---- Check any website ---- */
+  .status-check {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-bottom: var(--space-6);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .status-check .status-heading { margin: 0; }
+
+  .status-check-row {
+    display: flex;
+    gap: var(--space-3);
+    align-items: end;
+  }
+  .status-check-field { flex: 1; min-width: 0; }
+
+  .status-check-actions { display: flex; }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    border-radius: var(--radius-sm);
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .copy-btn:hover {
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+  }
+
+  .site-result {
+    margin: 0;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  .site-result:empty { display: none; }
+  .site-result[data-kind='ok'] { color: var(--color-success); }
+  .site-result[data-kind='bad'] { color: var(--color-danger); }
+  .site-result[data-kind='warn'] { color: var(--color-warning); }
+  .site-result[data-kind='info'] { color: var(--color-text-muted); }
+
+  .status-note {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+  }
+
+  /* ---- Board ---- */
+  .status-board-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-3);
+  }
+  .status-board-head .status-heading { margin: 0; }
+  .status-board-controls {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+  .status-board-controls .input { width: 12rem; max-width: 100%; }
+
+  .board-summary {
+    margin: 0 0 var(--space-4);
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+  .board-summary[data-kind='ok'] { color: var(--color-success); }
+  .board-summary[data-kind='warn'] { color: var(--color-warning); }
+  .board-summary[data-kind='bad'] { color: var(--color-danger); }
+
+  .status-group { margin-bottom: var(--space-5); }
+  .status-group[hidden] { display: none; }
+  .status-group h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-3);
+  }
+
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: var(--space-3);
+  }
+
+  .status-card {
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    min-width: 0;
+  }
+  .status-card[hidden] { display: none; }
+
+  .status-card-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .status-card-head h4 {
+    margin: 0;
+    font-size: 1rem;
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex: none;
+    background: var(--color-text-muted);
+  }
+  .status-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .status-card[data-state='operational'] .status-dot { background: var(--color-success); }
+  .status-card[data-state='operational'] .status-badge { color: var(--color-success); }
+  .status-card[data-state='degraded'] .status-dot { background: var(--color-warning); }
+  .status-card[data-state='degraded'] .status-badge { color: var(--color-warning); }
+  .status-card[data-state='outage'] .status-dot { background: var(--color-danger); }
+  .status-card[data-state='outage'] .status-badge { color: var(--color-danger); }
+  .status-card[data-state='loading'] .status-dot { animation: status-pulse 1s ease-in-out infinite; }
+
+  @keyframes status-pulse {
+    50% { opacity: 0.3; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .status-card[data-state='loading'] .status-dot { animation: none; }
+  }
+
+  .status-desc {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+  .status-desc:empty { display: none; }
+
+  .status-affected,
+  .status-incidents {
+    margin: 0;
+    padding-left: 1.1rem;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+  .status-affected[hidden],
+  .status-incidents[hidden] { display: none; }
+  /* List items are created by script, so they don't carry Astro's scope attribute. */
+  .status-affected :global(.status-list-heading) { list-style: none; margin-left: -1.1rem; font-weight: 600; }
+  .status-incidents { color: var(--color-text); }
+
+  .status-card-foot {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .status-link { font-size: 0.8rem; }
+  .status-check-one { padding: 3px 10px; font-size: 0.8rem; }
+
+  @media (max-width: 480px) {
+    .status-check-row { flex-wrap: wrap; }
+    .status-check-field { flex-basis: 100%; }
+    .status-board-controls { width: 100%; }
+    .status-board-controls .input { flex: 1; }
+  }
+</style>

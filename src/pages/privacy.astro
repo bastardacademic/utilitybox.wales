@@ -40,7 +40,7 @@ const lastUpdated = 'September 2026';
 
     <section>
       <h2>Third-party requests</h2>
-      <p>Three tools on this site talk to an external service in order to work:</p>
+      <p>Four tools on this site talk to an external service in order to work:</p>
       <ul>
         <li>
           <strong>Currency Converter</strong> — fetches exchange rates from the
@@ -54,6 +54,14 @@ const lastUpdated = 'September 2026';
           browser to <a href="https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/" target="_blank" rel="noopener noreferrer">Cloudflare's public DNS-over-HTTPS resolver</a>
           to fetch the results. Nothing passes through our server. See
           <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare's privacy policy</a> for their terms.
+        </li>
+        <li>
+          <strong>Is It Down? Status Checker</strong> — only when you click "Check all services" or the "Check"
+          button on a single service, your browser requests the public status feed of that service (for example
+          GitHub, Cloudflare, or Discord) directly from the provider's own status page, so the provider can see
+          your IP address the same way any site you visit would. Nothing is requested just by opening the page. If you use the "Check any website" box, your browser connects to the address you enter, and if
+          that fails it also sends the hostname to Cloudflare's DNS-over-HTTPS resolver (as with DNS Lookup).
+          Nothing passes through our server and we don't send any of these services your other data.
         </li>
         <li>
           <strong>Word Unscrambler / Word Builder</strong> — download a static word list from our own server.

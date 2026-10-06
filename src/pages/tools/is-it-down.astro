@@ -1,0 +1,105 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import StatusChecker from '../../components/tools/StatusChecker.astro';
+import { toolSchema, faqSchema } from '../../utils/seo';
+import { STATUS_SERVICES } from '../../utils/serviceStatus';
+
+const description =
+  'Is it down? Check whether a website is reachable from your connection, and see live outage status for popular services like GitHub, Cloudflare, OpenAI and Discord.';
+
+const faqs = [
+  {
+    question: 'How do I know if a website is down for everyone or just me?',
+    answer:
+      "Check it from more than one place. This tool tests from your own browser, so if a site fails here but other sites load fine, the problem is probably the site or your route to it. If several unrelated sites fail, the problem is likely your own connection. For big services, the live status board on this page shows what the provider itself is reporting, which covers everyone rather than just you."
+  },
+  {
+    question: 'How does the website check work?',
+    answer:
+      "Your browser tries to connect to the address you enter. If any response comes back, the site is reachable from your connection. If nothing comes back, a DNS lookup then tells apart a domain that doesn't exist from one that exists but didn't answer. Browsers hide the details of cross-site responses, so the tool can say whether the site responded but not what the page contained or which status code it returned."
+  },
+  {
+    question: 'Why does a working website sometimes show as unreachable?',
+    answer:
+      "A few things can cause that: the site's certificate is invalid or expired, it blocks requests that don't come from a normal page visit, your network or an extension blocks it, or it is slow enough to exceed the 8-second timeout. When a site seems fine in a normal tab but fails here, one of those is usually the reason."
+  },
+  {
+    question: 'Where does the status of popular services come from?',
+    answer: `Each service's own public status page. This tool reads the same status data that provider publishes (${STATUS_SERVICES.length} services at the moment) directly from your browser, so what you see is the provider's own account of an incident rather than a guess or user reports. Providers sometimes take a little while to acknowledge a problem, so a service can feel broken before its status page says so.`
+  },
+  {
+    question: "What do 'Degraded' and 'Outage' mean?",
+    answer:
+      "These follow the provider's own severity: Degraded means a minor problem such as slowness or a partly affected feature, and Outage means a major or critical incident where a significant part of the service isn't working. Operational means the provider reports no known problems. A card also lists the specific components affected and links to any active incident."
+  },
+  {
+    question: "Can't I just check the status page myself?",
+    answer:
+      "Yes — every card links to the official status page. This page puts all of them side by side so you can see at a glance whether the problem is one service or something wider, like a cloud provider issue affecting many sites at once."
+  }
+];
+
+const schema = [toolSchema({ name: 'Is It Down? Status Checker', description, path: '/tools/is-it-down/' }), faqSchema(faqs)];
+---
+
+<ToolLayout
+  title="Is It Down? Status Checker"
+  description={description}
+  category="Networking"
+  schema={schema}
+  relatedTools={[
+    { href: '/tools/dns-lookup/', label: 'DNS Lookup' },
+    { href: '/tools/http-status/', label: 'HTTP Status Codes' },
+    { href: '/tools/port-lookup/', label: 'Port Lookup' }
+  ]}
+>
+  <StatusChecker />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>How this works</h3>
+      <p>
+        Everything is checked <strong>from your browser</strong>, and only when you click: the website test connects to the
+        address you type, and the service board reads each provider's own public status feed. Nothing is contacted just by
+        opening this page, and nothing is routed through or stored by UtilityBox.
+      </p>
+    </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Is a site down, or is it just you?</h2>
+      <p>
+        When a page won't load, the first question is whether the site itself has a problem or whether the fault is on
+        your side — your Wi-Fi, your DNS, a VPN, or a blocked route. The website check above tries to reach the address from
+        your connection and, if it can't, looks the domain up to separate "this domain doesn't exist" from "it exists but
+        isn't answering". The result is a quick first answer before you start restarting routers.
+      </p>
+
+      <h2>Live status of popular services</h2>
+      <p>
+        For large services, the more reliable signal is what the provider itself reports. Click "Check all services" — or
+        "Check" on a single card — and the board reads the public status page of {STATUS_SERVICES.length} well-known services — cloud hosts, developer tools, AI services,
+        collaboration apps and e-commerce platforms — and shows each as operational, degraded or in outage, along with
+        any components affected and active incidents. If several services show problems at once, a shared dependency such
+        as a cloud or CDN provider is a likely cause.
+      </p>
+
+      <h2>What this can't tell you</h2>
+      <p>
+        The tool reports whether a site <em>responded</em> to your browser, not whether every page and feature works, and it
+        can't see your visitors' experience from other countries. A provider's status page can also lag behind a fast-moving
+        incident. For a site you run, a dedicated uptime monitor that checks from several locations on a schedule is the
+        right tool; this one is for a quick check right now.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
+  </Fragment>
+</ToolLayout>
