@@ -1,0 +1,366 @@
+---
+import { DICE, MAX_DICE, MAX_MODIFIER } from '../../utils/dice';
+---
+
+<div class="dice-tool">
+  <div class="field">
+    <span class="label" id="dice-picker-label">Choose a die</span>
+    <div class="die-picker" role="group" aria-labelledby="dice-picker-label">
+      {DICE.map((d) => (
+        <button
+          type="button"
+          class="die-btn"
+          data-die={d.id}
+          aria-pressed={d.id === 'd20' ? 'true' : 'false'}
+          title={d.note ?? `${d.sides}-sided die`}
+        >
+          <span class="die-name">{d.label}</span>
+          <span class="die-note">{`1-${d.sides}`}</span>
+        </button>
+      ))}
+    </div>
+    <p id="die-help" class="dice-help"></p>
+  </div>
+
+  <div class="dice-options">
+    <div class="field">
+      <label class="label" for="dice-count">Number of dice</label>
+      <input id="dice-count" class="input" type="number" min="1" max={MAX_DICE} step="1" value="1" inputmode="numeric" />
+    </div>
+    <div class="field">
+      <label class="label" for="dice-mod">Modifier</label>
+      <input id="dice-mod" class="input" type="number" min={-MAX_MODIFIER} max={MAX_MODIFIER} step="1" value="0" inputmode="numeric" />
+    </div>
+    <div class="field" id="dice-mode-field" hidden>
+      <label class="label" for="dice-mode">D20 roll</label>
+      <select id="dice-mode" class="input">
+        <option value="normal">Normal</option>
+        <option value="advantage">Advantage (roll 2, keep higher)</option>
+        <option value="disadvantage">Disadvantage (roll 2, keep lower)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="dice-actions">
+    <button type="button" id="dice-roll" class="btn">Roll</button>
+    <span id="dice-range" class="dice-range"></span>
+  </div>
+
+  <p id="dice-error" class="dice-error" role="alert" hidden></p>
+
+  <div class="dice-result" id="dice-result" aria-live="polite" hidden>
+    <div class="dice-total-line">
+      <span class="dice-notation" id="dice-notation"></span>
+      <strong class="dice-total" id="dice-total"></strong>
+    </div>
+    <ul class="dice-rolls" id="dice-rolls" aria-label="Individual rolls"></ul>
+    <p class="dice-detail" id="dice-detail"></p>
+  </div>
+
+  <div class="dice-history" id="dice-history-wrap" hidden>
+    <div class="dice-history-head">
+      <h3>Recent rolls</h3>
+      <button type="button" id="dice-clear" class="copy-btn">Clear</button>
+    </div>
+    <ol id="dice-history"></ol>
+  </div>
+</div>
+
+<script>
+  import { DICE, MAX_DICE, MAX_MODIFIER, rollDice, rollRange, type RollMode, type RollResult } from '../../utils/dice';
+
+  const pickerBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('.die-btn'));
+  const countInput = document.getElementById('dice-count') as HTMLInputElement;
+  const modInput = document.getElementById('dice-mod') as HTMLInputElement;
+  const modeField = document.getElementById('dice-mode-field') as HTMLElement;
+  const modeSelect = document.getElementById('dice-mode') as HTMLSelectElement;
+  const rollBtn = document.getElementById('dice-roll') as HTMLButtonElement;
+  const rangeEl = document.getElementById('dice-range') as HTMLElement;
+  const helpEl = document.getElementById('die-help') as HTMLElement;
+  const errorEl = document.getElementById('dice-error') as HTMLElement;
+  const resultEl = document.getElementById('dice-result') as HTMLElement;
+  const notationEl = document.getElementById('dice-notation') as HTMLElement;
+  const totalEl = document.getElementById('dice-total') as HTMLElement;
+  const rollsEl = document.getElementById('dice-rolls') as HTMLElement;
+  const detailEl = document.getElementById('dice-detail') as HTMLElement;
+  const historyWrap = document.getElementById('dice-history-wrap') as HTMLElement;
+  const historyEl = document.getElementById('dice-history') as HTMLElement;
+  const clearBtn = document.getElementById('dice-clear') as HTMLButtonElement;
+
+  const HELP: Record<string, string> = {
+    d3: 'A D3 is usually played with a D6 where 1-2 = 1, 3-4 = 2 and 5-6 = 3. This roller picks 1, 2 or 3 directly, with equal odds.',
+    d10: 'Faces are numbered 1-10 here. Some physical D10s run 0-9; the percentile die below (D%) uses that style.',
+    d100: 'A single roll from 1 to 100, every number equally likely.',
+    dpercent:
+      'Rolls the way a real percentile pair does: a tens die (00, 10 ... 90) and a units die (0-9) added together, with 00 + 0 counting as 100.'
+  };
+
+  let selectedId = 'd20';
+  const history: RollResult[] = [];
+  const HISTORY_LIMIT = 10;
+
+  const selectedDie = () => DICE.find((d) => d.id === selectedId)!;
+  const readCount = () => Number(countInput.value);
+  const readModifier = () => Number(modInput.value === '' ? 0 : modInput.value);
+
+  function currentMode(): RollMode {
+    return !modeField.hidden ? (modeSelect.value as RollMode) : 'normal';
+  }
+
+  function updateModeVisibility() {
+    const canAdvantage = selectedId === 'd20' && readCount() === 1;
+    modeField.hidden = !canAdvantage;
+    if (!canAdvantage) modeSelect.value = 'normal';
+  }
+
+  function updateRange() {
+    const count = readCount();
+    const modifier = readModifier();
+    if (!Number.isInteger(count) || count < 1 || count > MAX_DICE || !Number.isInteger(modifier) || Math.abs(modifier) > MAX_MODIFIER) {
+      rangeEl.textContent = '';
+      return;
+    }
+    const { min, max } = rollRange({ die: selectedDie(), count, modifier, mode: currentMode() });
+    rangeEl.textContent = `Possible total: ${min} to ${max}`;
+  }
+
+  function select(id: string) {
+    selectedId = id;
+    pickerBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.die === id)));
+    helpEl.textContent = HELP[id] ?? '';
+    helpEl.hidden = !HELP[id];
+    updateModeVisibility();
+    updateRange();
+  }
+
+  function chip(text: string, state: 'kept' | 'dropped'): HTMLLIElement {
+    const li = document.createElement('li');
+    li.className = `roll-chip roll-${state}`;
+    li.textContent = text;
+    if (state === 'dropped') li.title = 'Not counted';
+    return li;
+  }
+
+  function showError(message: string) {
+    errorEl.textContent = message;
+    errorEl.hidden = false;
+  }
+
+  function renderResult(result: RollResult) {
+    notationEl.textContent = result.notation;
+    totalEl.textContent = String(result.total);
+
+    rollsEl.replaceChildren(
+      ...result.rolls.map((value, i) => chip(String(value), result.kept.includes(i) ? 'kept' : 'dropped'))
+    );
+
+    const parts: string[] = [];
+    if (result.mode !== 'normal') parts.push(`Rolled ${result.rolls.join(' and ')} — kept the ${result.mode === 'advantage' ? 'higher' : 'lower'}.`);
+    if (result.percentile) {
+      parts.push(
+        result.percentile
+          .map((p) => `${String(p.tens).padStart(2, '0')} + ${p.units}`)
+          .join(', ') + ' (tens die + units die)'
+      );
+    }
+    if (result.modifier !== 0 && result.count > 1) parts.push(`Dice total ${result.subtotal}, then ${result.modifier > 0 ? '+' : '−'}${Math.abs(result.modifier)}.`);
+    else if (result.modifier !== 0) parts.push(`Roll ${result.subtotal}, then ${result.modifier > 0 ? '+' : '−'}${Math.abs(result.modifier)}.`);
+    detailEl.textContent = parts.join(' ');
+    detailEl.hidden = parts.length === 0;
+
+    resultEl.hidden = false;
+  }
+
+  function renderHistory() {
+    historyEl.replaceChildren(
+      ...history.map((r) => {
+        const li = document.createElement('li');
+        li.textContent = `${r.notation} = ${r.total}`;
+        return li;
+      })
+    );
+    historyWrap.hidden = history.length === 0;
+  }
+
+  function roll() {
+    errorEl.hidden = true;
+    try {
+      const result = rollDice({ die: selectedDie(), count: readCount(), modifier: readModifier(), mode: currentMode() });
+      renderResult(result);
+      history.unshift(result);
+      history.length = Math.min(history.length, HISTORY_LIMIT);
+      renderHistory();
+    } catch (e) {
+      showError(e instanceof RangeError ? e.message : 'Could not roll — check the number of dice and modifier.');
+    }
+  }
+
+  pickerBtns.forEach((b) => b.addEventListener('click', () => select(b.dataset.die!)));
+  [countInput, modInput].forEach((el) => {
+    el.addEventListener('input', () => {
+      updateModeVisibility();
+      updateRange();
+    });
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') roll();
+    });
+  });
+  modeSelect.addEventListener('change', updateRange);
+  rollBtn.addEventListener('click', roll);
+  clearBtn.addEventListener('click', () => {
+    history.length = 0;
+    renderHistory();
+  });
+
+  select('d20');
+</script>
+
+<style>
+  .dice-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .die-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(5.2rem, 1fr));
+    gap: var(--space-2);
+  }
+
+  .die-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: var(--space-2) var(--space-1);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+    cursor: pointer;
+    font: inherit;
+  }
+  .die-btn:hover { background: var(--color-surface-alt); }
+  .die-btn[aria-pressed='true'] {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-primary-contrast);
+  }
+  .die-name { font-weight: 700; font-size: 1.05rem; }
+  .die-note { font-size: 0.75rem; opacity: 0.8; }
+
+  .dice-help {
+    margin: var(--space-2) 0 0;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+  .dice-help[hidden] { display: none; }
+
+  .dice-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: var(--space-4);
+  }
+  .dice-options [hidden] { display: none; }
+
+  .dice-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .dice-actions .btn { min-width: 8rem; }
+  .dice-range { color: var(--color-text-muted); font-size: 0.9rem; }
+
+  .dice-error {
+    margin: 0;
+    color: var(--color-danger);
+    font-weight: 600;
+  }
+  .dice-error[hidden] { display: none; }
+
+  .dice-result {
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .dice-result[hidden] { display: none; }
+
+  .dice-total-line {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+  .dice-notation { font-family: var(--font-mono); color: var(--color-text-muted); }
+  .dice-total { font-size: 2.6rem; line-height: 1; }
+
+  .dice-rolls {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  /* Chips are created by script, so they don't carry Astro's scope attribute. */
+  .dice-rolls :global(.roll-chip) {
+    min-width: 2.4rem;
+    padding: 4px 10px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+  }
+  .dice-rolls :global(.roll-dropped) {
+    text-decoration: line-through;
+    opacity: 0.55;
+    font-weight: 400;
+  }
+
+  .dice-detail {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+  .dice-detail[hidden] { display: none; }
+
+  .dice-history[hidden] { display: none; }
+  .dice-history-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .dice-history-head h3 { margin: 0; font-size: 1rem; }
+  .dice-history ol {
+    margin: var(--space-2) 0 0;
+    padding-left: 1.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+  .dice-history :global(li:first-child) { color: var(--color-text); }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    border-radius: var(--radius-sm);
+    padding: 2px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .copy-btn:hover {
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+  }
+</style>

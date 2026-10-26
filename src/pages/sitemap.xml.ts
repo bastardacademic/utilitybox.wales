@@ -57,7 +57,10 @@ const PAGES: { path: string; priority: string; changefreq: string }[] = [
   { path: '/tools/git-cheatsheet/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/bash-cheatsheet/', priority: '0.7', changefreq: 'monthly' },
   { path: '/tools/regex-cheatsheet/', priority: '0.7', changefreq: 'monthly' },
-  { path: '/tools/excel-cheatsheet/', priority: '0.7', changefreq: 'monthly' }
+  { path: '/tools/excel-cheatsheet/', priority: '0.7', changefreq: 'monthly' },
+  { path: '/tools/sql-cheatsheet/', priority: '0.7', changefreq: 'monthly' },
+  { path: '/tools/dice-roller/', priority: '0.8', changefreq: 'monthly' },
+  { path: '/tools/card-randomiser/', priority: '0.7', changefreq: 'monthly' }
 ];
 
 export const GET: APIRoute = () => {

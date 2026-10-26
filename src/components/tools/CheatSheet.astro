@@ -79,18 +79,19 @@ const { entries, placeholder = 'Search by term, category, or description' } = As
     overflow-y: auto;
   }
 
-  .cheat-category {
+  /* These elements are created by script, so they don't carry Astro's scope attribute. */
+  .cheat-list :global(.cheat-category) {
     margin: var(--space-3) 0 0;
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--color-text-muted);
   }
-  .cheat-category:first-child {
+  .cheat-list :global(.cheat-category):first-child {
     margin-top: 0;
   }
 
-  .cheat-item {
+  .cheat-list :global(.cheat-item) {
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
@@ -100,20 +101,20 @@ const { entries, placeholder = 'Search by term, category, or description' } = As
     padding: var(--space-3);
   }
 
-  .cheat-term {
+  .cheat-list :global(.cheat-term) {
     font-family: var(--font-mono);
     font-weight: 700;
     font-size: 0.95rem;
     word-break: break-word;
   }
 
-  .cheat-desc {
+  .cheat-list :global(.cheat-desc) {
     margin: 0;
     font-size: 0.9rem;
     color: var(--color-text-muted);
   }
 
-  .cheat-example {
+  .cheat-list :global(.cheat-example) {
     font-family: var(--font-mono);
     font-size: 0.85rem;
     background: var(--color-surface);
@@ -126,7 +127,7 @@ const { entries, placeholder = 'Search by term, category, or description' } = As
     white-space: pre;
   }
 
-  .cheat-empty {
+  .cheat-list :global(.cheat-empty) {
     color: var(--color-text-muted);
     font-size: 0.9rem;
   }

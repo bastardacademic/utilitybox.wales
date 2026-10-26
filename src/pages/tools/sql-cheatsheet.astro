@@ -1,0 +1,80 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import CheatSheet from '../../components/tools/CheatSheet.astro';
+import { toolSchema, faqSchema } from '../../utils/seo';
+import { SQL_CHEATSHEET } from '../../utils/sqlCheatsheet';
+
+const description =
+  'Free SQL cheatsheet. Searchable reference for SELECT, JOINs, GROUP BY, subqueries, window functions, INSERT/UPDATE/DELETE, indexes, constraints and transactions, with MySQL, PostgreSQL, SQLite and SQL Server differences noted.';
+
+const faqs = [
+  {
+    question: "What's the difference between WHERE and HAVING?",
+    answer:
+      'WHERE filters individual rows before any grouping happens, so it cannot use aggregate functions like SUM or COUNT. HAVING filters the groups after GROUP BY, so it can. For example, WHERE total > 100 keeps big orders, while HAVING COUNT(*) > 5 keeps customers with more than five orders.'
+  },
+  {
+    question: "What's the difference between INNER JOIN and LEFT JOIN?",
+    answer:
+      'INNER JOIN returns only the rows that have a match in both tables. LEFT JOIN returns every row from the left table and fills the right-hand columns with NULL where there is no match, which makes it the way to find rows with no related rows, such as customers who have never ordered.'
+  },
+  {
+    question: "What's the difference between DELETE, TRUNCATE and DROP?",
+    answer:
+      "DELETE removes the rows you choose with WHERE and can usually be rolled back. TRUNCATE removes every row quickly and resets the table, and in some databases it cannot be rolled back. DROP removes the whole table, its structure included. Always check what a DELETE matches by running it as a SELECT first."
+  },
+  {
+    question: 'Why does WHERE column = NULL return nothing?',
+    answer:
+      'NULL means "unknown", and nothing is equal to an unknown value — not even another NULL — so the comparison is never true. Use IS NULL or IS NOT NULL instead.'
+  },
+  {
+    question: "What's the difference between UNION and UNION ALL?",
+    answer:
+      'Both stack the results of two queries. UNION removes duplicate rows, which costs extra work; UNION ALL keeps every row and is faster. Use UNION ALL unless you specifically need duplicates removed.'
+  },
+  {
+    question: 'Does this cover MySQL, PostgreSQL, SQLite and SQL Server?',
+    answer:
+      'The commands are standard SQL, which all of them share. Where the databases differ — limiting rows (LIMIT, TOP or FETCH FIRST), auto-numbering, date functions, upserts — the entry names each dialect\'s syntax.'
+  }
+];
+
+const schema = [
+  toolSchema({ name: 'SQL Cheatsheet', description, path: '/tools/sql-cheatsheet/' }),
+  faqSchema(faqs)
+];
+---
+
+<ToolLayout
+  title="SQL Cheatsheet"
+  description={description}
+  category="Cheatsheets"
+  schema={schema}
+  relatedTools={[
+    { href: '/tools/data-converter/', label: 'JSON / YAML / XML / CSV Converter' },
+    { href: '/tools/regex-cheatsheet/', label: 'Regex Cheatsheet' },
+    { href: '/tools/excel-cheatsheet/', label: 'Excel Cheatsheet' }
+  ]}
+>
+  <CheatSheet entries={SQL_CHEATSHEET} placeholder="e.g. join, group by, window, index, null" />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Which database?</h3>
+      <p>Entries are standard SQL. Where MySQL, PostgreSQL, SQLite or SQL Server differ, the entry says so.</p>
+    </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
+  </Fragment>
+</ToolLayout>

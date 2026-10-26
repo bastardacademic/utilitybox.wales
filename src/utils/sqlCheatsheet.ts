@@ -1,0 +1,95 @@
+/** Reference data for the SQL / database cheatsheet. Standard SQL unless a dialect is named. */
+import type { CheatSheetEntry } from './cheatsheet';
+
+export const SQL_CHEATSHEET: CheatSheetEntry[] = [
+  { term: 'SELECT', category: 'Querying', description: 'Choose which columns to return from a table.', example: 'SELECT name, email FROM customers;' },
+  { term: 'SELECT *', category: 'Querying', description: 'Return every column. Fine for exploring, but name the columns you need in application code.', example: 'SELECT * FROM customers;' },
+  { term: 'SELECT DISTINCT', category: 'Querying', description: 'Remove duplicate rows from the result.', example: 'SELECT DISTINCT country FROM customers;' },
+  { term: 'AS', category: 'Querying', description: 'Give a column or table a temporary name (an alias).', example: 'SELECT price * qty AS line_total FROM order_items;' },
+  { term: 'ORDER BY', category: 'Querying', description: 'Sort the result. ASC (default) is ascending, DESC is descending. Without it, row order is not guaranteed.', example: 'SELECT * FROM products ORDER BY price DESC, name ASC;' },
+  { term: 'LIMIT / OFFSET', category: 'Querying', description: 'Return only some rows. LIMIT caps the count and OFFSET skips rows (MySQL, PostgreSQL, SQLite). Use with ORDER BY.', example: 'SELECT * FROM products ORDER BY id LIMIT 10 OFFSET 20;' },
+  { term: 'FETCH FIRST', category: 'Querying', description: 'The standard-SQL way to limit rows (PostgreSQL, Oracle, SQL Server 2012+, Db2). SQL Server also needs ORDER BY ... OFFSET first.', example: 'SELECT * FROM products ORDER BY id FETCH FIRST 10 ROWS ONLY;' },
+  { term: 'TOP', category: 'Querying', description: 'SQL Server / Access syntax for limiting rows.', example: 'SELECT TOP 10 * FROM products ORDER BY price DESC;' },
+
+  { term: 'WHERE', category: 'Filtering', description: 'Keep only rows that match a condition. Applied before grouping.', example: "SELECT * FROM orders WHERE status = 'shipped';" },
+  { term: 'AND / OR / NOT', category: 'Filtering', description: 'Combine conditions. AND binds tighter than OR, so use brackets when mixing them.', example: "WHERE (status = 'new' OR status = 'paid') AND total > 100" },
+  { term: 'IN', category: 'Filtering', description: 'Match any value in a list or subquery.', example: "WHERE country IN ('GB', 'IE', 'FR')" },
+  { term: 'BETWEEN', category: 'Filtering', description: 'Match a range, including both end values.', example: "WHERE created_at BETWEEN '2026-01-01' AND '2026-12-31'" },
+  { term: 'LIKE', category: 'Filtering', description: "Pattern match text. % matches any run of characters and _ matches exactly one.", example: "WHERE email LIKE '%@example.com'" },
+  { term: 'IS NULL / IS NOT NULL', category: 'Filtering', description: 'Test for missing values. NULL is never equal to anything, including NULL, so = NULL never matches.', example: 'WHERE shipped_at IS NULL' },
+  { term: 'EXISTS', category: 'Filtering', description: 'True if a subquery returns at least one row. Often clearer and faster than IN for "has any related rows".', example: 'WHERE EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.id)' },
+
+  { term: 'INNER JOIN', category: 'Joins', description: 'Return only rows that have a match in both tables.', example: 'SELECT c.name, o.total\nFROM customers c\nINNER JOIN orders o ON o.customer_id = c.id;' },
+  { term: 'LEFT JOIN', category: 'Joins', description: 'Return every row from the left table, with NULLs where the right table has no match. Good for finding rows with no related rows.', example: 'SELECT c.name, o.id\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.id\nWHERE o.id IS NULL;' },
+  { term: 'RIGHT JOIN', category: 'Joins', description: 'The mirror of LEFT JOIN: every row from the right table. Most people just swap the table order and use LEFT JOIN. Not supported by SQLite before 3.39.' },
+  { term: 'FULL OUTER JOIN', category: 'Joins', description: 'Return all rows from both tables, matched where possible. Not available in MySQL or MariaDB, or in SQLite before 3.39.', example: 'SELECT * FROM a FULL OUTER JOIN b ON a.id = b.a_id;' },
+  { term: 'CROSS JOIN', category: 'Joins', description: 'Every row of one table paired with every row of the other (a Cartesian product).', example: 'SELECT * FROM sizes CROSS JOIN colours;' },
+  { term: 'Self join', category: 'Joins', description: 'Join a table to itself using two aliases, for example employees and their managers.', example: 'SELECT e.name, m.name AS manager\nFROM employees e\nLEFT JOIN employees m ON e.manager_id = m.id;' },
+  { term: 'USING', category: 'Joins', description: 'Shorthand for joining on a column with the same name in both tables.', example: 'SELECT * FROM orders JOIN customers USING (customer_id);' },
+  { term: 'UNION / UNION ALL', category: 'Joins', description: 'Stack the results of two queries with the same columns. UNION removes duplicates; UNION ALL keeps them and is faster.', example: 'SELECT email FROM customers\nUNION\nSELECT email FROM subscribers;' },
+  { term: 'INTERSECT / EXCEPT', category: 'Joins', description: 'Rows in both queries (INTERSECT) or in the first but not the second (EXCEPT). Oracle calls EXCEPT "MINUS"; MySQL supports both from 8.0.31.', example: 'SELECT id FROM a EXCEPT SELECT id FROM b;' },
+
+  { term: 'COUNT()', category: 'Aggregation', description: 'Count rows. COUNT(*) counts all rows; COUNT(col) skips NULLs; COUNT(DISTINCT col) counts unique values.', example: 'SELECT COUNT(*) FROM orders;' },
+  { term: 'SUM() / AVG()', category: 'Aggregation', description: 'Total and average of a numeric column. NULLs are ignored.', example: 'SELECT SUM(total), AVG(total) FROM orders;' },
+  { term: 'MIN() / MAX()', category: 'Aggregation', description: 'Smallest and largest value in a column. Works on numbers, text and dates.', example: 'SELECT MIN(created_at), MAX(created_at) FROM orders;' },
+  { term: 'GROUP BY', category: 'Aggregation', description: 'Collapse rows that share a value into one row per group, usually alongside aggregate functions. Every selected column must be grouped or aggregated.', example: 'SELECT country, COUNT(*) AS customers\nFROM customers\nGROUP BY country;' },
+  { term: 'HAVING', category: 'Aggregation', description: 'Filter groups after aggregation. WHERE filters rows before grouping; HAVING filters the groups.', example: 'SELECT customer_id, SUM(total)\nFROM orders\nGROUP BY customer_id\nHAVING SUM(total) > 1000;' },
+
+  { term: 'INSERT INTO', category: 'Changing data', description: 'Add one or more rows. Always list the column names.', example: "INSERT INTO customers (name, email)\nVALUES ('Ada', 'ada@example.com'), ('Bo', 'bo@example.com');" },
+  { term: 'INSERT ... SELECT', category: 'Changing data', description: 'Insert the rows returned by a query.', example: 'INSERT INTO archive (id, total)\nSELECT id, total FROM orders WHERE created_at < \'2025-01-01\';' },
+  { term: 'UPDATE', category: 'Changing data', description: 'Change existing rows. Without a WHERE clause it changes every row.', example: "UPDATE orders SET status = 'shipped' WHERE id = 42;" },
+  { term: 'DELETE', category: 'Changing data', description: 'Remove rows. Without a WHERE clause it removes every row. Run it as a SELECT first to check what it matches.', example: "DELETE FROM sessions WHERE expires_at < NOW();" },
+  { term: 'TRUNCATE TABLE', category: 'Changing data', description: 'Remove all rows quickly and reset the table. Cannot be filtered, and in some databases cannot be rolled back.', example: 'TRUNCATE TABLE logs;' },
+  { term: 'Upsert', category: 'Changing data', description: 'Insert a row, or update it if it already exists. PostgreSQL and SQLite use ON CONFLICT; MySQL uses ON DUPLICATE KEY UPDATE.', example: 'INSERT INTO counters (name, n) VALUES (\'hits\', 1)\nON CONFLICT (name) DO UPDATE SET n = counters.n + 1;' },
+  { term: 'RETURNING', category: 'Changing data', description: 'Get the affected rows back from INSERT, UPDATE or DELETE (PostgreSQL, SQLite 3.35+, and MariaDB for INSERT and DELETE). SQL Server uses OUTPUT.', example: "INSERT INTO customers (name) VALUES ('Ada') RETURNING id;" },
+
+  { term: 'CREATE TABLE', category: 'Tables & schema', description: 'Define a new table with its columns, types and constraints.', example: 'CREATE TABLE customers (\n  id INTEGER PRIMARY KEY,\n  name VARCHAR(100) NOT NULL,\n  email VARCHAR(255) UNIQUE\n);' },
+  { term: 'ALTER TABLE', category: 'Tables & schema', description: 'Change a table: add, drop or modify columns and constraints.', example: 'ALTER TABLE customers ADD COLUMN phone VARCHAR(30);' },
+  { term: 'DROP TABLE', category: 'Tables & schema', description: 'Delete a table and all its data permanently. IF EXISTS avoids an error if it is already gone.', example: 'DROP TABLE IF EXISTS temp_import;' },
+  { term: 'CREATE VIEW', category: 'Tables & schema', description: 'Save a query as a virtual table you can SELECT from.', example: "CREATE VIEW active_customers AS\nSELECT * FROM customers WHERE status = 'active';" },
+  { term: 'Data types', category: 'Tables & schema', description: 'Common types: INTEGER / BIGINT (whole numbers), DECIMAL(p,s) (exact numbers such as money), VARCHAR(n) / TEXT (text), BOOLEAN, DATE, TIMESTAMP (date and time). Use DECIMAL, not FLOAT, for money.' },
+
+  { term: 'PRIMARY KEY', category: 'Constraints', description: 'Uniquely identifies each row. Cannot be NULL, and a table has only one.', example: 'id INTEGER PRIMARY KEY' },
+  { term: 'FOREIGN KEY', category: 'Constraints', description: 'Links a column to another table\'s key and stops you adding or deleting rows that would break the link.', example: 'FOREIGN KEY (customer_id) REFERENCES customers (id)\n  ON DELETE CASCADE' },
+  { term: 'UNIQUE', category: 'Constraints', description: 'No two rows may have the same value in the column (or combination of columns).', example: 'email VARCHAR(255) UNIQUE' },
+  { term: 'NOT NULL', category: 'Constraints', description: 'The column must always have a value.', example: 'name VARCHAR(100) NOT NULL' },
+  { term: 'DEFAULT', category: 'Constraints', description: 'The value used when none is supplied on insert.', example: "status VARCHAR(20) DEFAULT 'new'" },
+  { term: 'CHECK', category: 'Constraints', description: 'Reject rows that fail a condition.', example: 'CHECK (price >= 0)' },
+  { term: 'AUTO_INCREMENT / IDENTITY', category: 'Constraints', description: 'Generate a new number for each row. MySQL: AUTO_INCREMENT. PostgreSQL / standard: GENERATED ALWAYS AS IDENTITY. SQL Server: IDENTITY(1,1). SQLite: INTEGER PRIMARY KEY.', example: 'id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY' },
+
+  { term: 'CREATE INDEX', category: 'Indexes', description: 'Speed up lookups, joins and sorting on a column, at the cost of slower writes and more storage. Index columns you filter and join on often.', example: 'CREATE INDEX idx_orders_customer ON orders (customer_id);' },
+  { term: 'CREATE UNIQUE INDEX', category: 'Indexes', description: 'An index that also enforces uniqueness.', example: 'CREATE UNIQUE INDEX idx_users_email ON users (email);' },
+  { term: 'EXPLAIN', category: 'Indexes', description: 'Show how the database plans to run a query, including whether it uses an index. EXPLAIN ANALYZE (PostgreSQL, MySQL 8.0.18+) also runs it and reports real timings.', example: 'EXPLAIN SELECT * FROM orders WHERE customer_id = 7;' },
+
+  { term: 'Subquery', category: 'Subqueries & CTEs', description: 'A query inside another query, in WHERE, FROM or SELECT.', example: 'SELECT name FROM products\nWHERE price > (SELECT AVG(price) FROM products);' },
+  { term: 'WITH (CTE)', category: 'Subqueries & CTEs', description: 'A common table expression: a named, temporary result that makes a long query readable.', example: 'WITH big_orders AS (\n  SELECT * FROM orders WHERE total > 500\n)\nSELECT customer_id, COUNT(*) FROM big_orders GROUP BY customer_id;' },
+  { term: 'WITH RECURSIVE', category: 'Subqueries & CTEs', description: 'A CTE that refers to itself, for walking trees and hierarchies such as org charts. SQL Server omits the RECURSIVE keyword.', example: 'WITH RECURSIVE chain AS (\n  SELECT id, manager_id FROM employees WHERE id = 1\n  UNION ALL\n  SELECT e.id, e.manager_id FROM employees e\n  JOIN chain c ON e.manager_id = c.id\n)\nSELECT * FROM chain;' },
+  { term: 'CASE', category: 'Subqueries & CTEs', description: 'If / else logic inside a query.', example: "SELECT name,\n  CASE WHEN total >= 1000 THEN 'gold'\n       WHEN total >= 100 THEN 'silver'\n       ELSE 'bronze' END AS tier\nFROM customers;" },
+
+  { term: 'ROW_NUMBER()', category: 'Window functions', description: 'Number rows 1, 2, 3 within each partition, in the given order. Handy for "latest row per group".', example: 'SELECT *, ROW_NUMBER() OVER (\n  PARTITION BY customer_id ORDER BY created_at DESC\n) AS rn\nFROM orders;' },
+  { term: 'RANK() / DENSE_RANK()', category: 'Window functions', description: 'Rank rows with ties. RANK leaves gaps after a tie (1, 1, 3); DENSE_RANK does not (1, 1, 2).', example: 'RANK() OVER (ORDER BY score DESC)' },
+  { term: 'LAG() / LEAD()', category: 'Window functions', description: 'Read a value from the previous or next row, for example to compare to last month.', example: 'LAG(total) OVER (ORDER BY month)' },
+  { term: 'SUM() OVER', category: 'Window functions', description: 'Any aggregate can run as a window function, keeping every row. For example a running total.', example: 'SUM(total) OVER (ORDER BY created_at) AS running_total' },
+  { term: 'PARTITION BY', category: 'Window functions', description: 'Restart a window calculation for each group, like GROUP BY but without collapsing rows.', example: 'AVG(price) OVER (PARTITION BY category)' },
+
+  { term: 'COALESCE()', category: 'Functions', description: 'Return the first non-NULL argument. Use it to supply a default for missing values.', example: "SELECT COALESCE(nickname, name, 'Guest') FROM users;" },
+  { term: 'NULLIF()', category: 'Functions', description: 'Return NULL if the two arguments are equal. Commonly used to avoid division by zero.', example: 'SELECT total / NULLIF(count, 0) FROM stats;' },
+  { term: 'CAST()', category: 'Functions', description: 'Convert a value to another type.', example: 'SELECT CAST(price AS INTEGER) FROM products;' },
+  { term: 'UPPER() / LOWER()', category: 'Functions', description: 'Change text case.', example: 'SELECT LOWER(email) FROM users;' },
+  { term: 'LENGTH() / LEN()', category: 'Functions', description: 'Number of characters in text. LEN in SQL Server; LENGTH in most others.', example: 'SELECT LENGTH(name) FROM customers;' },
+  { term: 'SUBSTRING()', category: 'Functions', description: 'Extract part of a text value. The FROM ... FOR form works in PostgreSQL and MySQL; SQL Server uses SUBSTRING(text, start, length), and SQLite and Oracle use SUBSTR.', example: 'SELECT SUBSTRING(postcode FROM 1 FOR 3) FROM addresses;' },
+  { term: 'TRIM()', category: 'Functions', description: 'Remove leading and trailing spaces (or other characters).', example: 'SELECT TRIM(name) FROM customers;' },
+  { term: 'CONCAT() / ||', category: 'Functions', description: 'Join text values. || is standard (PostgreSQL, SQLite, Oracle); CONCAT works in MySQL and SQL Server.', example: "SELECT first_name || ' ' || last_name FROM people;" },
+  { term: 'ROUND()', category: 'Functions', description: 'Round a number to a number of decimal places.', example: 'SELECT ROUND(price, 2) FROM products;' },
+  { term: 'NOW() / CURRENT_TIMESTAMP', category: 'Functions', description: 'The current date and time. CURRENT_TIMESTAMP is standard; NOW() works in MySQL and PostgreSQL; SQL Server uses GETDATE().', example: 'SELECT CURRENT_TIMESTAMP;' },
+  { term: 'EXTRACT()', category: 'Functions', description: 'Pull a part (year, month, day) out of a date. SQL Server uses DATEPART; SQLite uses strftime.', example: 'SELECT EXTRACT(YEAR FROM created_at) FROM orders;' },
+  { term: 'Date arithmetic', category: 'Functions', description: "Add or subtract time. PostgreSQL: date + INTERVAL '7 days'. MySQL: DATE_ADD(date, INTERVAL 7 DAY). SQL Server: DATEADD(day, 7, date). SQLite: date(d, '+7 days').", example: "SELECT NOW() - INTERVAL '30 days';" },
+
+  { term: 'BEGIN / COMMIT', category: 'Transactions', description: 'Group statements so they all succeed together. COMMIT saves them. SQL Server and MySQL also accept START TRANSACTION / BEGIN TRANSACTION.', example: 'BEGIN;\nUPDATE accounts SET balance = balance - 50 WHERE id = 1;\nUPDATE accounts SET balance = balance + 50 WHERE id = 2;\nCOMMIT;' },
+  { term: 'ROLLBACK', category: 'Transactions', description: 'Undo everything since BEGIN. Use it when a step fails or you spot a mistake.', example: 'ROLLBACK;' },
+  { term: 'SAVEPOINT', category: 'Transactions', description: 'Mark a point inside a transaction you can roll back to without undoing the whole thing.', example: 'SAVEPOINT before_update;\nROLLBACK TO SAVEPOINT before_update;' },
+  { term: 'ACID', category: 'Transactions', description: 'The guarantees of a reliable transaction: Atomic (all or nothing), Consistent (rules always hold), Isolated (transactions do not interfere), Durable (committed data survives a crash).' },
+
+  { term: 'GRANT / REVOKE', category: 'Access', description: 'Give or take away permissions for a user or role. Grant only what is needed.', example: 'GRANT SELECT ON customers TO reporting_user;' },
+  { term: 'Parameterised queries', category: 'Access', description: 'Pass user input as parameters instead of building SQL strings, to prevent SQL injection. Your database library provides placeholders such as ?, $1 or :name.', example: 'SELECT * FROM users WHERE email = $1;' }
+];

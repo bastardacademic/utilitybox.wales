@@ -1,0 +1,244 @@
+---
+---
+
+<div class="card-tool">
+  <div class="card-controls">
+    <div class="field">
+      <label class="label" for="card-count">Cards to draw</label>
+      <input id="card-count" class="input" type="number" min="1" max="52" step="1" value="1" inputmode="numeric" />
+    </div>
+    <label class="card-replace">
+      <input id="card-replace" type="checkbox" />
+      <span>Put each card back (the same card can come up again)</span>
+    </label>
+  </div>
+
+  <div class="card-actions">
+    <button type="button" id="card-draw" class="btn">Draw</button>
+    <button type="button" id="card-shuffle" class="btn btn-secondary">Shuffle new deck</button>
+    <button type="button" id="card-deal-all" class="btn btn-secondary">Show whole deck shuffled</button>
+  </div>
+
+  <p id="card-status" class="card-status" role="status" aria-live="polite">52 cards in the deck, shuffled.</p>
+
+  <section id="card-latest-wrap" hidden>
+    <h3 id="card-latest-title">Your draw</h3>
+    <ul class="card-row" id="card-latest" aria-labelledby="card-latest-title"></ul>
+    <p class="card-names" id="card-names"></p>
+  </section>
+
+  <section id="card-earlier-wrap" hidden>
+    <h3>Drawn earlier from this deck</h3>
+    <ul class="card-row card-row-small" id="card-earlier" aria-label="Cards drawn earlier"></ul>
+  </section>
+</div>
+
+<script>
+  import { SUITS, buildDeck, cardName, secureRandomInt, shuffle, type PlayingCard } from '../../utils/dice';
+
+  const countInput = document.getElementById('card-count') as HTMLInputElement;
+  const replaceBox = document.getElementById('card-replace') as HTMLInputElement;
+  const drawBtn = document.getElementById('card-draw') as HTMLButtonElement;
+  const shuffleBtn = document.getElementById('card-shuffle') as HTMLButtonElement;
+  const dealAllBtn = document.getElementById('card-deal-all') as HTMLButtonElement;
+  const statusEl = document.getElementById('card-status') as HTMLElement;
+  const latestWrap = document.getElementById('card-latest-wrap') as HTMLElement;
+  const latestTitle = document.getElementById('card-latest-title') as HTMLElement;
+  const latestEl = document.getElementById('card-latest') as HTMLElement;
+  const namesEl = document.getElementById('card-names') as HTMLElement;
+  const earlierWrap = document.getElementById('card-earlier-wrap') as HTMLElement;
+  const earlierEl = document.getElementById('card-earlier') as HTMLElement;
+
+  const suitInfo = new Map(SUITS.map((s) => [s.id, s]));
+
+  let deck: PlayingCard[] = shuffle(buildDeck());
+  let drawn: PlayingCard[] = [];
+
+  function cardEl(card: PlayingCard): HTMLLIElement {
+    const info = suitInfo.get(card.suit)!;
+    const li = document.createElement('li');
+    li.className = `playing-card${info.red ? ' red' : ''}`;
+    li.setAttribute('role', 'img');
+    li.setAttribute('aria-label', cardName(card));
+
+    const corner = document.createElement('span');
+    corner.className = 'pc-corner';
+    corner.setAttribute('aria-hidden', 'true');
+    corner.textContent = `${card.rank}\n${info.symbol}`;
+
+    const pip = document.createElement('span');
+    pip.className = 'pc-pip';
+    pip.setAttribute('aria-hidden', 'true');
+    pip.textContent = info.symbol;
+
+    li.append(corner, pip);
+    return li;
+  }
+
+  function render(latest: PlayingCard[], title: string, earlier: PlayingCard[]) {
+    latestTitle.textContent = title;
+    latestEl.replaceChildren(...latest.map(cardEl));
+    namesEl.textContent = latest.map(cardName).join(', ');
+    latestWrap.hidden = latest.length === 0;
+
+    earlierEl.replaceChildren(...earlier.map(cardEl));
+    earlierWrap.hidden = earlier.length === 0;
+  }
+
+  function updateStatus(extra = '') {
+    const left = deck.length;
+    const base = replaceBox.checked
+      ? 'Each card goes back in the deck, so any of the 52 can come up on every draw.'
+      : left === 0
+        ? 'The deck is empty — shuffle a new deck to keep drawing.'
+        : `${left} card${left === 1 ? '' : 's'} left in the deck.`;
+    statusEl.textContent = extra ? `${extra} ${base}` : base;
+  }
+
+  function draw() {
+    const wanted = Number(countInput.value);
+    if (!Number.isInteger(wanted) || wanted < 1 || wanted > 52) {
+      statusEl.textContent = 'Enter a whole number of cards from 1 to 52.';
+      return;
+    }
+
+    let cards: PlayingCard[];
+    let earlier: PlayingCard[] = [];
+    let note = '';
+    if (replaceBox.checked) {
+      const all = buildDeck();
+      cards = Array.from({ length: wanted }, () => all[secureRandomInt(all.length)]);
+    } else {
+      if (deck.length === 0) {
+        updateStatus();
+        return;
+      }
+      cards = deck.splice(0, wanted);
+      // Everything drawn before this draw, newest first.
+      earlier = drawn.slice().reverse();
+      drawn = drawn.concat(cards);
+      if (cards.length < wanted) note = `Only ${cards.length} card${cards.length === 1 ? ' was' : 's were'} left, so that's all that was drawn.`;
+    }
+
+    render(cards, cards.length === 1 ? 'Your card' : `Your ${cards.length} cards`, earlier);
+    updateStatus(note);
+  }
+
+  function newDeck() {
+    deck = shuffle(buildDeck());
+    drawn = [];
+    latestWrap.hidden = true;
+    earlierWrap.hidden = true;
+    updateStatus('New deck shuffled.');
+  }
+
+  function dealAll() {
+    deck = shuffle(buildDeck());
+    const all = deck.splice(0, deck.length);
+    drawn = all.slice();
+    render(all, 'The whole deck, in shuffled order', []);
+    updateStatus('All 52 cards dealt.');
+  }
+
+  drawBtn.addEventListener('click', draw);
+  shuffleBtn.addEventListener('click', newDeck);
+  dealAllBtn.addEventListener('click', dealAll);
+  countInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') draw();
+  });
+  replaceBox.addEventListener('change', () => updateStatus());
+
+  updateStatus();
+</script>
+
+<style>
+  .card-tool {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .card-controls {
+    display: flex;
+    gap: var(--space-4);
+    align-items: end;
+    flex-wrap: wrap;
+  }
+  .card-controls .field { width: 9rem; }
+
+  .card-replace {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding-bottom: 0.6rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .card-actions {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .card-status {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+  }
+
+  section[hidden] { display: none; }
+  section h3 { margin: 0 0 var(--space-3); font-size: 1rem; }
+
+  .card-row {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  /* Cards are created by script, so they don't carry Astro's scope attribute. */
+  .card-row :global(.playing-card) {
+    position: relative;
+    width: 4.4rem;
+    height: 6.2rem;
+    background: #ffffff;
+    color: #111827;
+    border: 1px solid #c8ced8;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+  .card-row :global(.playing-card.red) { color: #c0182c; }
+  .card-row :global(.pc-corner) {
+    position: absolute;
+    top: 5px;
+    left: 7px;
+    white-space: pre;
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.05;
+  }
+  .card-row :global(.pc-pip) {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.4rem;
+    padding-top: 0.6rem;
+  }
+
+  .card-row-small :global(.playing-card) { width: 2.9rem; height: 4.1rem; border-radius: 6px; }
+  .card-row-small :global(.pc-corner) { font-size: 0.7rem; top: 3px; left: 4px; }
+  .card-row-small :global(.pc-pip) { font-size: 1.4rem; padding-top: 0.5rem; }
+
+  .card-names {
+    margin: var(--space-3) 0 0;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+</style>

@@ -1,0 +1,85 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import CardRandomiser from '../../components/tools/CardRandomiser.astro';
+import { toolSchema, faqSchema } from '../../utils/seo';
+
+const description =
+  'Free random playing card generator. Draw one or more cards from a shuffled standard 52-card deck, with or without putting them back, or shuffle and show the whole deck.';
+
+const faqs = [
+  {
+    question: 'How are the cards shuffled?',
+    answer:
+      "The deck is shuffled with the Fisher-Yates algorithm, driven by your browser's cryptographically secure random number generator. That makes every possible ordering of the 52 cards equally likely — the same standard you'd want from a thorough riffle shuffle."
+  },
+  {
+    question: 'Why can I not draw the same card twice?',
+    answer:
+      "Like a real deck, each card can only be drawn once until you shuffle again. Tick \"Put each card back\" to draw with replacement instead, so any of the 52 cards can come up every time — useful for picking a single random card repeatedly."
+  },
+  {
+    question: 'Does the deck include jokers?',
+    answer:
+      'No. It is a standard 52-card deck: four suits (spades, hearts, diamonds and clubs) with thirteen ranks each, from Ace and 2 to 10, Jack, Queen and King.'
+  },
+  {
+    question: 'What are the odds of drawing a particular card?',
+    answer:
+      'On a single draw from a full deck, any specific card has a 1 in 52 chance (about 1.9%). Any ace has 4 in 52 (about 7.7%), any heart has 13 in 52 (25%), and any face card (Jack, Queen or King) has 12 in 52 (about 23.1%).'
+  },
+  {
+    question: 'What can I use a random card generator for?',
+    answer:
+      'Card games when you have no deck to hand, picking a random winner or order of play, magic and mentalism practice, teaching probability, or any game or classroom activity that calls for a random draw.'
+  }
+];
+
+const schema = [toolSchema({ name: 'Playing Card Randomiser', description, path: '/tools/card-randomiser/' }), faqSchema(faqs)];
+---
+
+<ToolLayout
+  title="Playing Card Randomiser"
+  description={description}
+  category="Generators"
+  schema={schema}
+  relatedTools={[
+    { href: '/tools/dice-roller/', label: 'Dice Roller' },
+    { href: '/tools/random-string/', label: 'Random String Generator' }
+  ]}
+>
+  <CardRandomiser />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>A real deck's worth of cards</h3>
+      <p>All 52 standard cards, shuffled on your device with a secure random generator. Nothing is sent or stored.</p>
+    </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Draw random playing cards online</h2>
+      <p>
+        Draw one card or several from a freshly shuffled 52-card deck. Cards are drawn off the top of the shuffled deck, so
+        none repeat until you shuffle again, and the tool keeps count of how many are left. Choose "Put each card back" if
+        you would rather every draw be an independent pick from the full deck, or show the whole deck at once in shuffled
+        order.
+      </p>
+
+      <h2>Random card, not random number</h2>
+      <p>
+        Each card shows its rank and suit, with hearts and diamonds in red and spades and clubs in black. The suit symbol
+        is always shown as well as the colour, and the full name (for example "Queen of Hearts") is listed under the cards,
+        so the result is clear however you view it.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
+  </Fragment>
+</ToolLayout>

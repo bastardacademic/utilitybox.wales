@@ -42,6 +42,8 @@ Free online calculators and everyday utility tools, built with [Astro](https://a
 - Color converter (HEX/RGB/HSL + palette generator)
 - Slug generator (URL-safe kebab-case/snake_case)
 - Placeholder image generator (SVG, no image library needed)
+- Dice roller (D3, D4, D6, D8, D10, D12, D20, D100, and D% percentile pair; multiple dice, modifier, D20 advantage/disadvantage; Web Crypto RNG with rejection sampling)
+- Playing card randomiser (standard 52-card deck, Fisher-Yates shuffle, draw with or without replacement)
 - QR code generator (SVG, hand-written encoder — versions 1-10, byte mode, all 4 error correction levels)
 
 **Developer Tools**
@@ -64,6 +66,7 @@ Free online calculators and everyday utility tools, built with [Astro](https://a
 - Bash cheatsheet (searchable reference)
 - Regex cheatsheet (searchable reference)
 - Excel cheatsheet (searchable reference)
+- SQL cheatsheet (searchable reference, MySQL/PostgreSQL/SQLite/SQL Server differences noted)
 
 ## Project structure
 
@@ -74,7 +77,7 @@ src/
                        PercentageCalculator, VatCalculator, TipCalculator, LoanCalculator, BudgetCalculator
     tools/           WordUnscrambler, WordBuilder, RandomString, UuidGenerator, LoremIpsum,
                        JsonFormatter, RegexTester, DiffViewer, Base64Tool, JwtDecoder, CronParser,
-                       HttpStatusReference, PortReference, MacFormatter, IpConverter, DnsLookup, DnsRecordReference, StatusChecker,
+                       HttpStatusReference, PortReference, MacFormatter, IpConverter, DnsLookup, DnsRecordReference, StatusChecker, DiceRoller, CardRandomiser,
                        WordCounter, CaseConverter, PalindromeChecker, AnagramSolver,
                        ColorConverter, SlugGenerator, PlaceholderImageGenerator,
                        HashGenerator, RsaKeyGenerator, BcryptTool, UrlEncoder, TimestampConverter, HtmlEntityEncoder,
@@ -123,11 +126,13 @@ src/
     hash.ts                                SHA hashing via native Web Crypto
     rsa.ts                                  RSA key pair generation (PEM export) via native Web Crypto
     bcryptTool.ts                            Bcrypt hashing/verification wrapper around bcryptjs
-    cheatsheet.ts                            Shared type for the Git/Bash/Regex/Excel cheatsheet data
+    cheatsheet.ts                            Shared type for the Git/Bash/Regex/Excel/SQL cheatsheet data
     gitCheatsheet.ts                          Git cheatsheet reference data
     bashCheatsheet.ts                          Bash cheatsheet reference data
     regexCheatsheet.ts                          Regex syntax cheatsheet reference data
     excelCheatsheet.ts                           Excel formula/shortcut cheatsheet reference data
+    sqlCheatsheet.ts                             SQL cheatsheet reference data
+    dice.ts                                      Secure random ints, dice rolling (D3-D100, D%, advantage), 52-card deck + shuffle
     urlEncoding.ts                          URL component/full-URI encoding
     timestamp.ts                             Unix timestamp conversion
     htmlEntities.ts                           HTML entity encode/decode

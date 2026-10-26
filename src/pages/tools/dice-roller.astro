@@ -1,0 +1,86 @@
+---
+import ToolLayout from '../../components/ToolLayout.astro';
+import DiceRoller from '../../components/tools/DiceRoller.astro';
+import { toolSchema, faqSchema } from '../../utils/seo';
+
+const description =
+  'Free online dice roller for D3, D4, D6, D8, D10, D12, D20, D100 and the percentile die (D%). Roll several dice at once, add a modifier, and roll a D20 with advantage or disadvantage.';
+
+const faqs = [
+  {
+    question: 'Are the dice rolls really random?',
+    answer:
+      "Yes. Every roll uses your browser's built-in cryptographically secure random number generator, not a simple pseudo-random formula, and the code discards the few values that would otherwise make some numbers slightly more likely than others. Each face of each die has exactly the same chance, and one roll never affects the next."
+  },
+  {
+    question: "What's the difference between a D100 and a D%?",
+    answer:
+      'Both give a result from 1 to 100 with equal odds. The D100 is a single roll. The D% mimics the physical percentile dice used in tabletop games: a tens die (00, 10 ... 90) and a units die (0-9) are rolled together and added, with 00 and 0 counting as 100. The roller shows the two halves so you can follow along with a real pair.'
+  },
+  {
+    question: 'How do I roll a D3?',
+    answer:
+      'Physical D3s are rare, so players usually roll a D6 and halve it, rounding up (1-2 is 1, 3-4 is 2, 5-6 is 3). This tool simply picks 1, 2 or 3 with equal odds, which gives the same result.'
+  },
+  {
+    question: 'What are advantage and disadvantage?',
+    answer:
+      "They are D20 rules from Dungeons & Dragons 5th edition. With advantage you roll two D20s and keep the higher result; with disadvantage you keep the lower. The option appears when D20 is selected and the number of dice is 1. The roller shows both dice, with the one that doesn't count crossed out."
+  },
+  {
+    question: 'How do I roll multiple dice, like 3D6+2?',
+    answer:
+      'Pick the die (D6), set the number of dice to 3, and enter a modifier of 2. The result shows each die, their total, and the total with the modifier added. Use a negative modifier to subtract. You can roll up to 100 dice at once.'
+  }
+];
+
+const schema = [toolSchema({ name: 'Dice Roller', description, path: '/tools/dice-roller/' }), faqSchema(faqs)];
+---
+
+<ToolLayout
+  title="Dice Roller"
+  description={description}
+  category="Generators"
+  schema={schema}
+  relatedTools={[
+    { href: '/tools/card-randomiser/', label: 'Playing Card Randomiser' },
+    { href: '/tools/random-string/', label: 'Random String Generator' }
+  ]}
+>
+  <DiceRoller />
+
+  <Fragment slot="sidebar">
+    <div class="card side-card">
+      <h3>Fair by design</h3>
+      <p>Rolls use your browser's secure random number generator, run entirely on your device, and nothing is sent or stored.</p>
+    </div>
+  </Fragment>
+
+  <Fragment slot="content">
+    <section class="tool-content">
+      <h2>Online dice for tabletop games and more</h2>
+      <p>
+        Choose a die, set how many to roll and add a modifier if the game calls for one. The roller supports the full
+        polyhedral set used in tabletop role-playing games — D4, D6, D8, D10, D12 and D20 — plus a D3, a D100 and the
+        D% percentile die. It is handy when you've left your dice at home, need a quick tie-breaker, or want to roll
+        something larger than a real set allows.
+      </p>
+
+      <h2>Quick reference: which die for what</h2>
+      <p>
+        The D20 decides most actions in D&amp;D-style games: attacks, skill checks and saving throws. D4 to D12 usually set
+        damage and healing. The D100 and percentile dice cover chances expressed as a percentage, such as random tables.
+        Multiple D6s are the classic for board games, and the average of 2D6 is 7, with 7 coming up more often than any
+        other total.
+      </p>
+
+      <h2>Frequently asked questions</h2>
+      {faqs.map((faq) => (
+        <div class="faq-item">
+          <h3>{faq.question}</h3>
+          <p>{faq.answer}</p>
+        </div>
+      ))}
+    </section>
+  </Fragment>
+</ToolLayout>
