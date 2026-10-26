@@ -369,12 +369,21 @@ export function convertUnit(value: number, category: UnitCategory, from: string,
 // UK salary calculator (2026/27 tax year)
 // ---------------------------------------------------------------------------
 
+export type TaxRegion = 'england-ni' | 'wales' | 'scotland';
+
+export const TAX_REGION_LABELS: Record<TaxRegion, string> = {
+  'england-ni': 'England / Northern Ireland rates',
+  wales: 'Welsh rates of income tax',
+  scotland: 'Scottish rates of income tax'
+};
+
 export interface SalaryInput {
   grossAnnual: number;
   taxCode?: string;
   studentLoanPlan?: 'none' | 'plan1' | 'plan2' | 'plan4' | 'plan5' | 'postgrad';
   pensionPercent?: number;
-  isScottish?: boolean;
+  /** Where the taxpayer lives for income tax purposes. Defaults to England / Northern Ireland. */
+  region?: TaxRegion;
 }
 
 export interface SalaryResult {
@@ -408,6 +417,16 @@ const ENGLAND_BANDS = [
   { name: 'Additional rate', upTo: Infinity, rate: 0.45 }
 ];
 
+// Wales: the UK government cuts each main rate by 10p and the Senedd adds a Welsh rate back
+// (10p in every band for 2026/27 — the Welsh Government chose not to change it), so the combined
+// rates are 20% / 40% / 45%. The band edges and personal allowance are set at UK level and are
+// the same as England's. Kept as its own table because the Welsh rate is the Senedd's to change.
+const WALES_BANDS = [
+  { name: 'Basic rate', upTo: 37700, rate: 0.2 }, // gross threshold £50,270
+  { name: 'Higher rate', upTo: 112570, rate: 0.4 }, // gross threshold £125,140
+  { name: 'Additional rate', upTo: Infinity, rate: 0.45 }
+];
+
 const SCOTLAND_BANDS = [
   { name: 'Starter rate', upTo: 3967, rate: 0.19 }, // gross threshold £16,537
   { name: 'Basic rate', upTo: 16956, rate: 0.2 }, // gross threshold £29,526
@@ -436,8 +455,14 @@ function calculatePersonalAllowance(grossAnnual: number): number {
   return Math.max(0, PERSONAL_ALLOWANCE - reduction);
 }
 
-function calculateIncomeTax(taxableIncome: number, isScottish: boolean): { total: number; breakdown: SalaryResult['breakdown'] } {
-  const bands = isScottish ? SCOTLAND_BANDS : ENGLAND_BANDS;
+const BANDS_BY_REGION: Record<TaxRegion, typeof ENGLAND_BANDS> = {
+  'england-ni': ENGLAND_BANDS,
+  wales: WALES_BANDS,
+  scotland: SCOTLAND_BANDS
+};
+
+function calculateIncomeTax(taxableIncome: number, region: TaxRegion): { total: number; breakdown: SalaryResult['breakdown'] } {
+  const bands = BANDS_BY_REGION[region];
   const breakdown: SalaryResult['breakdown'] = [];
   let remaining = taxableIncome;
   let lowerBound = 0;
@@ -473,7 +498,7 @@ function calculateStudentLoan(grossAnnual: number, plan: string): number {
 }
 
 export function calculateUKSalary(input: SalaryInput): SalaryResult {
-  const { grossAnnual, studentLoanPlan = 'none', pensionPercent = 0, isScottish = false } = input;
+  const { grossAnnual, studentLoanPlan = 'none', pensionPercent = 0, region = 'england-ni' } = input;
 
   if (grossAnnual < 0) throw new Error('Gross salary cannot be negative');
 
@@ -483,7 +508,7 @@ export function calculateUKSalary(input: SalaryInput): SalaryResult {
   const personalAllowance = calculatePersonalAllowance(pensionableGross);
   const taxableIncome = Math.max(0, pensionableGross - personalAllowance);
 
-  const { total: incomeTax, breakdown } = calculateIncomeTax(taxableIncome, isScottish);
+  const { total: incomeTax, breakdown } = calculateIncomeTax(taxableIncome, region);
   const nationalInsurance = calculateNationalInsurance(pensionableGross);
   const studentLoan = studentLoanPlan === 'none' ? 0 : calculateStudentLoan(pensionableGross, studentLoanPlan);
 

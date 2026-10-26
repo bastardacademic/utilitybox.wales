@@ -28,10 +28,13 @@
     <div class="field">
       <label class="label" for="salary-region">Tax region</label>
       <select id="salary-region" class="input">
-        <option value="rest-of-uk">England / Wales / Northern Ireland</option>
+        <option value="england-ni">England / Northern Ireland</option>
+        <option value="wales">Wales</option>
         <option value="scotland">Scotland</option>
       </select>
     </div>
+
+    <p id="salary-region-note" class="region-note" hidden></p>
   </div>
 
   <button type="button" id="salary-calculate" class="btn">Calculate</button>
@@ -75,6 +78,7 @@
       <tbody>
         <tr><td>Personal allowance</td><td id="row-allowance" class="num"></td></tr>
         <tr><td>Taxable income</td><td id="row-taxable" class="num"></td></tr>
+        <tr><td>Income tax rates used</td><td id="row-region" class="num"></td></tr>
         <tr><td>Effective tax rate (tax + NI)</td><td id="row-rate" class="num"></td></tr>
       </tbody>
     </table>
@@ -94,7 +98,7 @@
 </div>
 
 <script>
-  import { calculateUKSalary, salaryPeriodRows } from '../../utils/calculators';
+  import { calculateUKSalary, salaryPeriodRows, TAX_REGION_LABELS, type TaxRegion } from '../../utils/calculators';
   import { getShareParams, copyShareLink } from '../../utils/shareLink';
 
   const grossInput = document.getElementById('salary-gross') as HTMLInputElement;
@@ -104,6 +108,20 @@
   const calculateBtn = document.getElementById('salary-calculate') as HTMLButtonElement;
   const resultsBox = document.getElementById('salary-results') as HTMLElement;
   const copyBtn = document.getElementById('salary-copy') as HTMLButtonElement;
+
+  const regionNote = document.getElementById('salary-region-note') as HTMLElement;
+  const REGION_NOTES: Partial<Record<TaxRegion, string>> = {
+    wales:
+      'Welsh income tax: the Senedd sets a Welsh rate on top of the UK rates. For 2026/27 the Welsh Government kept it at 10p in every band, so the rates (20% / 40% / 45%) and bands match England and your result is the same. Welsh taxpayers have a C at the start of their tax code, e.g. C1257L. National Insurance and student loans are UK-wide.',
+    scotland:
+      'Scottish income tax has six bands, set by the Scottish Parliament. Scottish taxpayers have an S at the start of their tax code, e.g. S1257L. National Insurance and student loans are UK-wide.'
+  };
+
+  function updateRegionNote() {
+    const note = REGION_NOTES[regionSelect.value as TaxRegion] ?? '';
+    regionNote.textContent = note;
+    regionNote.hidden = !note;
+  }
 
   const gbp = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' });
   let lastSummary = '';
@@ -116,7 +134,7 @@
       grossAnnual,
       pensionPercent: parseFloat(pensionInput.value) || 0,
       studentLoanPlan: loanSelect.value as any,
-      isScottish: regionSelect.value === 'scotland'
+      region: regionSelect.value as TaxRegion
     });
 
     (document.getElementById('net-annual') as HTMLElement).textContent = gbp.format(result.netAnnual);
@@ -140,6 +158,7 @@
         return tr;
       })
     );
+    (document.getElementById('row-region') as HTMLElement).textContent = TAX_REGION_LABELS[regionSelect.value as TaxRegion];
     (document.getElementById('row-rate') as HTMLElement).textContent = `${(result.effectiveTaxRate * 100).toFixed(1)}%`;
 
     const breakdownBody = document.getElementById('salary-breakdown-body') as HTMLElement;
@@ -155,12 +174,14 @@
       ...periodRows.map(
         (r) => `${r.label}: ${gbp.format(r.yearly)} / ${gbp.format(r.monthly)} / ${gbp.format(r.weekly)}`
       ),
+      `Income tax rates used: ${TAX_REGION_LABELS[regionSelect.value as TaxRegion]}`,
       `Effective tax rate: ${(result.effectiveTaxRate * 100).toFixed(1)}%`
     ].join('\n');
 
     resultsBox.hidden = false;
   }
 
+  regionSelect.addEventListener('change', updateRegionNote);
   calculateBtn.addEventListener('click', calculate);
   [grossInput, pensionInput, loanSelect, regionSelect].forEach((el) =>
     el.addEventListener('change', calculate)
@@ -197,7 +218,8 @@
     const gross = params.get('gross');
     const pension = params.get('pension');
     const loan = params.get('loan');
-    const region = params.get('region');
+    // Links shared before Wales had its own option used 'rest-of-uk' for England / Wales / Northern Ireland.
+    const region = params.get('region') === 'rest-of-uk' ? 'england-ni' : params.get('region');
 
     if (gross) grossInput.value = gross;
     if (pension) pensionInput.value = pension;
@@ -205,6 +227,7 @@
     if (region && Array.from(regionSelect.options).some((o) => o.value === region)) regionSelect.value = region;
   })();
 
+  updateRegionNote();
   calculate();
 </script>
 
@@ -220,6 +243,18 @@
     grid-template-columns: repeat(2, 1fr);
     gap: var(--space-4);
   }
+
+  .region-note {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: var(--space-3);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+  .region-note[hidden] { display: none; }
 
   .salary-results {
     margin-top: var(--space-4);
