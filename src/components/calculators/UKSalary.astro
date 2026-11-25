@@ -84,12 +84,14 @@
     </table>
 
     <h3>Income tax band breakdown</h3>
-    <table id="salary-breakdown">
-      <thead>
-        <tr><th>Band</th><th>Amount taxed</th><th>Rate</th><th>Tax</th></tr>
-      </thead>
-      <tbody id="salary-breakdown-body"></tbody>
-    </table>
+    <div class="table-scroll">
+      <table id="salary-breakdown">
+        <thead>
+          <tr><th>Band</th><th>Amount taxed</th><th>Rate</th><th>Tax</th></tr>
+        </thead>
+        <tbody id="salary-breakdown-body"></tbody>
+      </table>
+    </div>
   </div>
 
   <p class="salary-disclaimer">
@@ -331,7 +333,9 @@
 
   @media (max-width: 480px) {
     #salary-periods :global(th),
-    #salary-periods :global(td) { padding: 8px 3px; font-size: 0.74rem; }
+    #salary-periods :global(td),
+    #salary-breakdown :global(th),
+    #salary-breakdown :global(td) { padding: 8px 3px; font-size: 0.74rem; }
     #salary-periods :global(td:first-child) { min-width: 3.5rem; }
   }
 </style>
