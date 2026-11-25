@@ -91,6 +91,12 @@ body {
   font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.55;
+  /* Long unbroken strings in prose (hashes, encoded text, IPv6 and binary addresses,
+     minified JSON, long numbers) would otherwise make the whole page scroll sideways on
+     narrow phones. break-word, not anywhere: it only breaks a word that cannot fit on a
+     line by itself, and it does not lower min-content width, so table and flex layouts
+     keep their sizes. Text inside <pre> does not wrap, because <pre> sets white-space: pre. */
+  overflow-wrap: break-word;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
