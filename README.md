@@ -91,6 +91,7 @@ src/
     tools/*.astro     One route per tool
   styles/
     global.css        CSS variables, dark mode, base styles
+    seasons.css       Seasonal and special-day colour palettes (light and dark)
   utils/
     calculators.ts    Expression evaluator, unit conversion, UK salary logic
     network.ts         IPv4 / CIDR math, multi-format IP address parsing
@@ -195,4 +196,6 @@ Hosted via [IONOS Deploy Now](https://www.ionos.com/hosting/deploy-now), which b
 - `/privacy` describes what the site does today: no accounts, no analytics and no first-party cookies, but Google AdSense runs on every page and sets its own cookies (see the "Advertising" section). Update the policy before you add analytics or change how the site collects data.
 - `privacy@utilitybox.wales` in the privacy policy is a placeholder — point it at a real inbox before launch.
 - The Hash Generator and RSA Key Pair Generator both use `crypto.subtle`, which browsers only expose in a secure context (HTTPS or `localhost`). They'll work in dev and in production once the site is served over HTTPS, but not over plain HTTP.
+- The site changes its colour palette with the seasons. An inline script in the `<head>` of `Layout.astro` reads today's date in UK time (`Europe/London`) and sets `data-palette` on `<html>` before the page is drawn, so every visitor sees the same palette on the same day. Seasons are meteorological: winter is December to February, spring is March to May, summer is June to August and autumn is September to November. Special days replace the season: St Dwynwen's Day (25 January), St David's Day (1 March), Halloween (31 October) and Christmas (24 to 26 December). To change these dates, edit `specialDays` in that script. The colours are in `src/styles/seasons.css`. Every text colour pair meets WCAG AA contrast (4.5:1). Check the contrast again if you change a colour.
+- The seasonal button in the header (beside the dark-mode button) turns the seasonal palette off or on. The browser remembers the choice in `localStorage` (`seasonal` = `off`). With the palette off, the site uses the default blue palette in `global.css`. To preview a palette, add `?palette=<name>` to any URL, for example `?palette=halloween`, or add `?palette=off`. A preview does not change the saved choice.
 - The homepage nav is a grouped dropdown (`<details>`/`<summary>`, no extra JS library) matching the five tool categories on the homepage — see the `navGroups` array in `Layout.astro`.

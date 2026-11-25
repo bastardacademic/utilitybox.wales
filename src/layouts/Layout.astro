@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import '../styles/seasons.css';
 
 interface Props {
   title: string;
@@ -163,6 +164,71 @@ const navGroups = [
           }
         } catch (e) {}
       })();
+
+      // Seasonal palette, also applied before paint. The palette comes from the
+      // date in UK time, so every visitor sees the same one on the same day.
+      // Seasons are meteorological (winter is Dec-Feb). Special days win over
+      // the season. The colours are in src/styles/seasons.css. A visitor can
+      // turn them off with the header button ('seasonal' = 'off' in
+      // localStorage). ?palette=<name> or ?palette=off previews a palette
+      // without saving anything.
+      (function () {
+        const root = document.documentElement;
+        // Light-mode primary colour of each palette, for the browser UI colour.
+        const themeColours = {
+          winter: '#1d5a8c', spring: '#2d7438', summer: '#0c6878', autumn: '#9e401d',
+          'st-david': '#006b2c', 'st-dwynwen': '#a3244a', halloween: '#a84300', christmas: '#ad1729',
+        };
+        // MM-DD ranges, inclusive.
+        const specialDays = [
+          ['01-25', '01-25', 'st-dwynwen'],
+          ['03-01', '03-01', 'st-david'],
+          ['10-31', '10-31', 'halloween'],
+          ['12-24', '12-26', 'christmas'],
+        ];
+
+        function ukDate() {
+          const d = new Date();
+          try {
+            const parts = new Intl.DateTimeFormat('en-GB', {
+              timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit',
+            }).formatToParts(d);
+            const get = (type) => parts.find((p) => p.type === type).value;
+            return { month: get('month'), day: get('day') };
+          } catch (e) {
+            // No time zone support: use the device's own date.
+            return { month: String(d.getMonth() + 1).padStart(2, '0'), day: String(d.getDate()).padStart(2, '0') };
+          }
+        }
+
+        function paletteFor(month, day) {
+          const md = month + '-' + day;
+          for (const [from, to, name] of specialDays) {
+            if (md >= from && md <= to) return name;
+          }
+          const m = Number(month);
+          return m === 12 || m <= 2 ? 'winter' : m <= 5 ? 'spring' : m <= 8 ? 'summer' : 'autumn';
+        }
+
+        const today = ukDate();
+        const auto = paletteFor(today.month, today.day);
+        root.setAttribute('data-palette-auto', auto);
+        root.setAttribute('data-palette-auto-colour', themeColours[auto]);
+
+        let active = auto;
+        try {
+          if (localStorage.getItem('seasonal') === 'off') active = '';
+        } catch (e) {}
+        try {
+          const preview = new URLSearchParams(location.search).get('palette');
+          if (preview === 'off') active = '';
+          else if (preview && preview in themeColours) active = preview;
+        } catch (e) {}
+
+        if (active) root.setAttribute('data-palette', active);
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta && active) meta.setAttribute('content', themeColours[active]);
+      })();
     </script>
   </head>
   <body>
@@ -198,6 +264,10 @@ const navGroups = [
             )}
           </div>
         </nav>
+        <button id="season-toggle" class="theme-toggle season-toggle" aria-pressed="true" type="button">
+          <span id="season-icon" aria-hidden="true">🍂</span>
+          <span id="season-label" class="visually-hidden">Seasonal colours</span>
+        </button>
         <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode" type="button">
           <span id="theme-icon" aria-hidden="true">🌙</span>
         </button>
@@ -249,6 +319,53 @@ const navGroups = [
       });
 
       updateIcon();
+
+      // Seasonal colours on/off. The head script sets data-palette-auto to
+      // today's palette, and data-palette only while seasonal colours are on.
+      const seasonToggle = document.getElementById('season-toggle');
+      const seasonIcon = document.getElementById('season-icon');
+      const seasonLabel = document.getElementById('season-label');
+      const seasonInfo: Record<string, [string, string]> = {
+        winter: ['❄️', 'Winter'],
+        spring: ['🌸', 'Spring'],
+        summer: ['🌻', 'Summer'],
+        autumn: ['🍂', 'Autumn'],
+        'st-david': ['🌼', "St David's Day"],
+        'st-dwynwen': ['💕', "St Dwynwen's Day"],
+        halloween: ['🎃', 'Halloween'],
+        christmas: ['🎄', 'Christmas'],
+      };
+
+      function updateSeasonToggle() {
+        const root = document.documentElement;
+        const active = root.getAttribute('data-palette');
+        const shown = active || root.getAttribute('data-palette-auto') || 'autumn';
+        const [emoji, name] = seasonInfo[shown] ?? seasonInfo.autumn;
+        const text = active ? `Seasonal colours: ${name}. Select to turn off` : 'Seasonal colours are off. Select to turn on';
+        if (seasonIcon) seasonIcon.textContent = emoji;
+        if (seasonLabel) seasonLabel.textContent = text;
+        seasonToggle?.setAttribute('aria-pressed', String(Boolean(active)));
+        seasonToggle?.setAttribute('title', text);
+      }
+
+      seasonToggle?.addEventListener('click', () => {
+        const root = document.documentElement;
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (root.hasAttribute('data-palette')) {
+          root.removeAttribute('data-palette');
+          meta?.setAttribute('content', '#2563eb');
+          try { localStorage.setItem('seasonal', 'off'); } catch {}
+        } else {
+          const auto = root.getAttribute('data-palette-auto');
+          if (auto) root.setAttribute('data-palette', auto);
+          const colour = root.getAttribute('data-palette-auto-colour');
+          if (colour) meta?.setAttribute('content', colour);
+          try { localStorage.removeItem('seasonal'); } catch {}
+        }
+        updateSeasonToggle();
+      });
+
+      updateSeasonToggle();
 
       const navToggle = document.getElementById('nav-toggle');
       const navMenu = document.getElementById('nav-menu');
@@ -467,6 +584,13 @@ const navGroups = [
         cursor: pointer;
         font-size: 1.1rem;
         flex-shrink: 0;
+      }
+      .season-toggle {
+        margin-left: auto;
+      }
+      .season-toggle[aria-pressed='false'] #season-icon {
+        filter: grayscale(1);
+        opacity: 0.45;
       }
 
       main {

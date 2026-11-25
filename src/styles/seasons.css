@@ -1,0 +1,330 @@
+/* -------------------------------------------------------------------------
+   UtilityBox seasonal palettes
+   The inline script in Layout.astro sets data-palette on <html> from the
+   date in UK time (meteorological seasons, plus a few special days).
+   With no data-palette (the visitor turned seasonal colours off), the
+   default palette in global.css applies.
+   Every palette has a light block and a dark block. The dark block appears
+   twice: once for the system dark setting and once for the dark toggle.
+   Keep text pairs at WCAG AA (4.5:1) if you change a colour.
+   ------------------------------------------------------------------------- */
+
+/* Winter */
+:root[data-palette='winter'] {
+  --color-bg: #f1f5f9;
+  --color-surface: #fbfdff;
+  --color-surface-alt: #e3ebf3;
+  --color-border: #ccd8e4;
+  --color-text: #14202c;
+  --color-text-muted: #4b5b6c;
+  --color-primary: #1d5a8c;
+  --color-primary-hover: #164873;
+  --color-primary-contrast: #ffffff;
+  --color-accent: #4d5f9e;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette='winter']:not([data-theme='light']) {
+    --color-bg: #0d131a;
+    --color-surface: #141c25;
+    --color-surface-alt: #1b2530;
+    --color-border: #293646;
+    --color-text: #e3eaf2;
+    --color-text-muted: #9aaabc;
+    --color-primary: #7db7e8;
+    --color-primary-hover: #a3ccef;
+    --color-primary-contrast: #0a1621;
+    --color-accent: #a6b5ea;
+  }
+}
+:root[data-palette='winter'][data-theme='dark'] {
+  --color-bg: #0d131a;
+  --color-surface: #141c25;
+  --color-surface-alt: #1b2530;
+  --color-border: #293646;
+  --color-text: #e3eaf2;
+  --color-text-muted: #9aaabc;
+  --color-primary: #7db7e8;
+  --color-primary-hover: #a3ccef;
+  --color-primary-contrast: #0a1621;
+  --color-accent: #a6b5ea;
+}
+
+/* Spring */
+:root[data-palette='spring'] {
+  --color-bg: #f4f8ef;
+  --color-surface: #fcfef8;
+  --color-surface-alt: #e6efda;
+  --color-border: #d0dec0;
+  --color-text: #1a2415;
+  --color-text-muted: #4f5e45;
+  --color-primary: #2d7438;
+  --color-primary-hover: #235d2c;
+  --color-primary-contrast: #ffffff;
+  --color-accent: #b0365f;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette='spring']:not([data-theme='light']) {
+    --color-bg: #0f150e;
+    --color-surface: #161e14;
+    --color-surface-alt: #1d271a;
+    --color-border: #2c3827;
+    --color-text: #e4ecde;
+    --color-text-muted: #9fad95;
+    --color-primary: #80cf8b;
+    --color-primary-hover: #a3dfac;
+    --color-primary-contrast: #0b160c;
+    --color-accent: #f194b8;
+  }
+}
+:root[data-palette='spring'][data-theme='dark'] {
+  --color-bg: #0f150e;
+  --color-surface: #161e14;
+  --color-surface-alt: #1d271a;
+  --color-border: #2c3827;
+  --color-text: #e4ecde;
+  --color-text-muted: #9fad95;
+  --color-primary: #80cf8b;
+  --color-primary-hover: #a3dfac;
+  --color-primary-contrast: #0b160c;
+  --color-accent: #f194b8;
+}
+
+/* Summer */
+:root[data-palette='summer'] {
+  --color-bg: #fbf6ea;
+  --color-surface: #fffdf6;
+  --color-surface-alt: #f3e8d0;
+  --color-border: #e3d4b4;
+  --color-text: #25200f;
+  --color-text-muted: #5f5640;
+  --color-primary: #0c6878;
+  --color-primary-hover: #095361;
+  --color-primary-contrast: #ffffff;
+  --color-accent: #b5500b;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette='summer']:not([data-theme='light']) {
+    --color-bg: #13110b;
+    --color-surface: #1c1910;
+    --color-surface-alt: #252116;
+    --color-border: #383122;
+    --color-text: #efe8d7;
+    --color-text-muted: #aca28a;
+    --color-primary: #5cc8d8;
+    --color-primary-hover: #8bd8e4;
+    --color-primary-contrast: #061a1e;
+    --color-accent: #f0964f;
+  }
+}
+:root[data-palette='summer'][data-theme='dark'] {
+  --color-bg: #13110b;
+  --color-surface: #1c1910;
+  --color-surface-alt: #252116;
+  --color-border: #383122;
+  --color-text: #efe8d7;
+  --color-text-muted: #aca28a;
+  --color-primary: #5cc8d8;
+  --color-primary-hover: #8bd8e4;
+  --color-primary-contrast: #061a1e;
+  --color-accent: #f0964f;
+}
+
+/* Autumn */
+:root[data-palette='autumn'] {
+  --color-bg: #f6efe4;
+  --color-surface: #fcf8f1;
+  --color-surface-alt: #eee2cf;
+  --color-border: #dbcbb2;
+  --color-text: #25201a;
+  --color-text-muted: #645948;
+  --color-primary: #9e401d;
+  --color-primary-hover: #823418;
+  --color-primary-contrast: #ffffff;
+  --color-accent: #7a6116;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette='autumn']:not([data-theme='light']) {
+    --color-bg: #161310;
+    --color-surface: #1f1b16;
+    --color-surface-alt: #28231d;
+    --color-border: #3a332a;
+    --color-text: #eee6da;
+    --color-text-muted: #a99d8c;
+    --color-primary: #e98b5f;
+    --color-primary-hover: #f0aa86;
+    --color-primary-contrast: #1f0d05;
+    --color-accent: #d6b452;
+  }
+}
+:root[data-palette='autumn'][data-theme='dark'] {
+  --color-bg: #161310;
+  --color-surface: #1f1b16;
+  --color-surface-alt: #28231d;
+  --color-border: #3a332a;
+  --color-text: #eee6da;
+  --color-text-muted: #a99d8c;
+  --color-primary: #e98b5f;
+  --color-primary-hover: #f0aa86;
+  --color-primary-contrast: #1f0d05;
+  --color-accent: #d6b452;
+}
+
+/* St David's Day */
+:root[data-palette='st-david'] {
+  --color-bg: #f3f8f2;
+  --color-surface: #ffffff;
+  --color-surface-alt: #e3eee1;
+  --color-border: #c8dbc4;
+  --color-text: #132014;
+  --color-text-muted: #4a5d4b;
+  --color-primary: #006b2c;
+  --color-primary-hover: #005523;
+  --color-primary-contrast: #ffffff;
+  --color-accent: #b80e2a;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette='st-david']:not([data-theme='light']) {
+    --color-bg: #0c140e;
+    --color-surface: #132017;
+    --color-surface-alt: #1a2a1e;
+    --color-border: #29402d;
+    --color-text: #e5efe6;
+    --color-text-muted: #9cb39f;
+    --color-primary: #52d27c;
+    --color-primary-hover: #82e0a2;
+    --color-primary-contrast: #04170a;
+    --color-accent: #ff707f;
+  }
+}
+:root[data-palette='st-david'][data-theme='dark'] {
+  --color-bg: #0c140e;
+  --color-surface: #132017;
+  --color-surface-alt: #1a2a1e;
+  --color-border: #29402d;
+  --color-text: #e5efe6;
+  --color-text-muted: #9cb39f;
+  --color-primary: #52d27c;
+  --color-primary-hover: #82e0a2;
+  --color-primary-contrast: #04170a;
+  --color-accent: #ff707f;
+}
+
+/* St Dwynwen's Day */
+:root[data-palette='st-dwynwen'] {
+  --color-bg: #fbf3f5;
+  --color-surface: #fffafb;
+  --color-surface-alt: #f5e3e8;
+  --color-border: #e7ccd3;
+  --color-text: #2a161b;
+  --color-text-muted: #6a4b53;
+  --color-primary: #a3244a;
+  --color-primary-hover: #871c3c;
+  --color-primary-contrast: #ffffff;
+  --color-accent: #673c9c;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette='st-dwynwen']:not([data-theme='light']) {
+    --color-bg: #160e11;
+    --color-surface: #20151a;
+    --color-surface-alt: #2a1b21;
+    --color-border: #3f2a32;
+    --color-text: #f2e4e8;
+    --color-text-muted: #b89aa3;
+    --color-primary: #f37c9c;
+    --color-primary-hover: #f7a3b9;
+    --color-primary-contrast: #2a0712;
+    --color-accent: #c4a3f0;
+  }
+}
+:root[data-palette='st-dwynwen'][data-theme='dark'] {
+  --color-bg: #160e11;
+  --color-surface: #20151a;
+  --color-surface-alt: #2a1b21;
+  --color-border: #3f2a32;
+  --color-text: #f2e4e8;
+  --color-text-muted: #b89aa3;
+  --color-primary: #f37c9c;
+  --color-primary-hover: #f7a3b9;
+  --color-primary-contrast: #2a0712;
+  --color-accent: #c4a3f0;
+}
+
+/* Halloween */
+:root[data-palette='halloween'] {
+  --color-bg: #fbf2e8;
+  --color-surface: #fffaf3;
+  --color-surface-alt: #f3e1cd;
+  --color-border: #e4c9ab;
+  --color-text: #22160b;
+  --color-text-muted: #624b35;
+  --color-primary: #a84300;
+  --color-primary-hover: #8a3700;
+  --color-primary-contrast: #ffffff;
+  --color-accent: #682da0;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette='halloween']:not([data-theme='light']) {
+    --color-bg: #110c13;
+    --color-surface: #1a131d;
+    --color-surface-alt: #231a28;
+    --color-border: #382a3f;
+    --color-text: #efe6f2;
+    --color-text-muted: #ab9bb2;
+    --color-primary: #ff8b2c;
+    --color-primary-hover: #ffa860;
+    --color-primary-contrast: #241000;
+    --color-accent: #c28cf0;
+  }
+}
+:root[data-palette='halloween'][data-theme='dark'] {
+  --color-bg: #110c13;
+  --color-surface: #1a131d;
+  --color-surface-alt: #231a28;
+  --color-border: #382a3f;
+  --color-text: #efe6f2;
+  --color-text-muted: #ab9bb2;
+  --color-primary: #ff8b2c;
+  --color-primary-hover: #ffa860;
+  --color-primary-contrast: #241000;
+  --color-accent: #c28cf0;
+}
+
+/* Christmas */
+:root[data-palette='christmas'] {
+  --color-bg: #f6f6f0;
+  --color-surface: #fffefa;
+  --color-surface-alt: #eaede2;
+  --color-border: #d2dac8;
+  --color-text: #1a1d14;
+  --color-text-muted: #505848;
+  --color-primary: #ad1729;
+  --color-primary-hover: #8e1221;
+  --color-primary-contrast: #ffffff;
+  --color-accent: #1d6837;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette='christmas']:not([data-theme='light']) {
+    --color-bg: #0e140f;
+    --color-surface: #161d17;
+    --color-surface-alt: #1d261e;
+    --color-border: #2d3a2e;
+    --color-text: #eaf0e8;
+    --color-text-muted: #a3b0a2;
+    --color-primary: #ff6d76;
+    --color-primary-hover: #ff9ba1;
+    --color-primary-contrast: #2a0508;
+    --color-accent: #70cf90;
+  }
+}
+:root[data-palette='christmas'][data-theme='dark'] {
+  --color-bg: #0e140f;
+  --color-surface: #161d17;
+  --color-surface-alt: #1d261e;
+  --color-border: #2d3a2e;
+  --color-text: #eaf0e8;
+  --color-text-muted: #a3b0a2;
+  --color-primary: #ff6d76;
+  --color-primary-hover: #ff9ba1;
+  --color-primary-contrast: #2a0508;
+  --color-accent: #70cf90;
+}
