@@ -176,7 +176,7 @@ Hosted via [IONOS Deploy Now](https://www.ionos.com/hosting/deploy-now), which b
 3. If it isn't auto-detected as a static project, configure it manually:
    - **Build command**: `npm ci && npm run build`
    - **Publish directory**: `dist`
-   - **Node version**: 20.x
+   - **Node version**: 22.x (Astro 7 needs Node 22.12 or later; the build workflow uses `v22.x`)
 4. Point `utilitybox.wales` at the project in the IONOS dashboard (Deploy Now provisions HTTPS automatically).
 
 **Every time you want to ship:** push to `main` on GitHub. Deploy Now picks it up, builds, and publishes automatically.
@@ -192,7 +192,7 @@ Hosted via [IONOS Deploy Now](https://www.ionos.com/hosting/deploy-now), which b
 - Every calculator has a "Copy" or "Copy summary" button next to its result, plus a "🔗 Share" button that copies a link pre-filled with the current inputs via URL query params (see `src/utils/shareLink.ts`) — e.g. `/tools/network/?cidr=10.0.0.0/8`.
 - A "Skip to content" link (visible on keyboard focus) lets keyboard/screen-reader users bypass the header nav.
 - The favicon/icon set (`favicon.ico`, `favicon-32.png`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`) was generated with a small pure-Python script (stdlib only, no installs) rather than a design tool — regenerate or replace with real brand assets whenever you have them.
-- `/privacy` describes what the site actually does today (no accounts, no cookies, no analytics). Update it before turning on ads or analytics — see the "Advertising and analytics" section, which is written to require that.
+- `/privacy` describes what the site does today: no accounts, no analytics and no first-party cookies, but Google AdSense runs on every page and sets its own cookies (see the "Advertising" section). Update the policy before you add analytics or change how the site collects data.
 - `privacy@utilitybox.wales` in the privacy policy is a placeholder — point it at a real inbox before launch.
 - The Hash Generator and RSA Key Pair Generator both use `crypto.subtle`, which browsers only expose in a secure context (HTTPS or `localhost`). They'll work in dev and in production once the site is served over HTTPS, but not over plain HTTP.
 - The homepage nav is a grouped dropdown (`<details>`/`<summary>`, no extra JS library) matching the five tool categories on the homepage — see the `navGroups` array in `Layout.astro`.
